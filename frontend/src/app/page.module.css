@@ -132,55 +132,51 @@
   line-height: 1.5;
 }
 
-/* ── Tear-off tabs ── */
-.tearOffRow {
-  display: flex;
-  border-top: 2px dashed var(--cork-dark);
-  background: var(--paper);
-  margin: 0 -36px;
-  padding: 0;
-}
-
-.tearTab {
-  flex: 1;
-  padding: 14px 4px;
+/* ── Flyer CTA ── */
+.flyerCta {
   text-align: center;
-  font-family: var(--font-condensed), sans-serif;
-  font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--ink-blue);
-  border: none;
+  border-top: 2px dashed var(--cork-dark);
+  margin: 0 -36px;
+  padding: 24px 36px 20px;
   background: var(--paper);
-  cursor: pointer;
-  border-right: 1px dashed var(--cork-dark);
-  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
-  position: relative;
-}
-
-.tearTab:last-child {
-  border-right: none;
-}
-
-.tearTab:hover {
-  background: var(--pushpin-red);
-  color: var(--paper);
 }
 
 .tearTabTorn {
-  composes: tearTab;
-  transform: rotate(2deg) translateY(3px);
-  background: var(--paper-aged);
-  opacity: 0.85;
-  box-shadow: 1px 2px 4px var(--shadow-card);
+  display: inline-block;
+  padding: 14px 48px;
+  font-family: var(--font-condensed), sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--paper);
+  background: var(--pushpin-red);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
 
 .tearTabTorn:hover {
-  background: var(--pushpin-red);
-  color: var(--paper);
-  opacity: 1;
-  transform: rotate(0) translateY(0);
+  background: var(--pushpin-red-hover);
+  transform: scale(1.03);
+}
+
+.signInHint {
+  font-family: var(--font-body), Georgia, serif;
+  font-size: 0.85rem;
+  color: var(--ink-blue-light);
+  margin-top: 12px;
+}
+
+.signInLink {
+  color: var(--ink-blue);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.signInLink:hover {
+  color: var(--pushpin-red);
 }
 
 /* ── Side cards ── */
@@ -402,6 +398,7 @@
   font-size: 1rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  text-decoration: none;
   padding: 14px 36px;
   background: var(--pushpin-red);
   color: var(--paper);
@@ -448,8 +445,9 @@
     transform: rotate(-0.5deg) translateY(-4px) scale(1.01);
   }
 
-  .tearOffRow {
+  .flyerCta {
     margin: 0 -24px;
+    padding: 24px 24px 20px;
   }
 
   .sideCards {
@@ -472,8 +470,8 @@
     gap: 16px;
   }
 
-  .tearTab {
-    font-size: 0.7rem;
-    padding: 10px 2px;
+  .tearTabTorn {
+    padding: 12px 36px;
+    font-size: 0.9rem;
   }
 }

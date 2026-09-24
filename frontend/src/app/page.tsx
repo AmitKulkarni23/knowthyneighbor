@@ -24,13 +24,12 @@ export default function Home() {
             after you&apos;ve done your own due diligence.
           </div>
 
-          {/* Tear-off tabs */}
-          <div className={styles.tearOffRow}>
-            <button className={styles.tearTab}>Sign Up</button>
-            <button className={styles.tearTab}>Sign Up</button>
-            <button className={styles.tearTabTorn}>Sign Up</button>
-            <button className={styles.tearTab}>Sign Up</button>
-            <button className={styles.tearTab}>Sign Up</button>
+          {/* CTA */}
+          <div className={styles.flyerCta}>
+            <a href="/login" className={styles.tearTabTorn}>Sign Up</a>
+            <p className={styles.signInHint}>
+              Already have an account? <a href="/login" className={styles.signInLink}>Sign in</a>
+            </p>
           </div>
         </div>
 
@@ -137,7 +136,7 @@ export default function Home() {
             connection. KnowThyNeighbor gets you off the app and around a table.
             The only thing we optimize for is a real meal with real people.
           </p>
-          <button className={styles.promiseCta}>Put Your Card on the Board</button>
+          <a href="/login" className={styles.promiseCta}>Put Your Card on the Board</a>
         </div>
       </section>
 
