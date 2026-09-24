@@ -4,19 +4,20 @@ A neighborhood social dining app that connects couples for shared meals. In a wo
 
 ## What It Does
 
-Couples create a simple profile (name, age, kids, ethnicity, calendar availability), mark whether they want to host or visit, and search for similar couples within a 15-mile radius. Once matched, they chat through the in-app messaging interface to plan a lunch or dinner together.
+One person creates a couple profile (names, ages, kids, zip code, calendar availability), marks whether they want to host or visit, and shares an invite link with their spouse. Couples browse other couples nearby, send join requests, and once accepted, chat through the in-app messaging interface to plan a meal together.
 
 ## Design Principles
 
 - **Human-first**: No AI slop. Real profiles, real conversations, real meals.
 - **Simple onboarding**: Minimal profile info — just enough to find compatible dining partners.
-- **Local focus**: 15-mile radius search keeps it neighborly.
-- **Chat-to-meet flow**: Browse → Chat → Decide meal type → Meet in person.
+- **Local focus**: Zip-code-based geolocation keeps it neighborly.
+- **Request-to-meet flow**: Browse → Send join request → Chat → Plan meal → Meet in person.
 
 ## Tech Stack
 
 - **Frontend**: Next.js (App Router) on Vercel
-- **Backend**: Supabase (Auth, Postgres, Row Level Security, Realtime)
+- **Backend**: Supabase (Auth, Postgres + PostGIS, Row Level Security, Realtime, Edge Functions)
+- **Email**: Resend (transactional emails for join request notifications)
 - **Styling**: TBD
 - **Runtime**: Node.js / Bun
 
@@ -41,18 +42,19 @@ knowthyneighbor/
 └── README.md
 ```
 
-## Data Model (Planned)
+## Data Model
 
-Core tables: `profiles`, `couples`, `availability`, `matches`, `messages`, `meals`. Profiles hold individual info. Couples link two profiles. Availability stores calendar slots. Messages power the chat. Meals record planned/completed meetups.
+Core tables: `profiles`, `couples`, `pending_partners`, `availability`, `join_requests`, `conversations`, `messages`, `meals`. Profiles hold individual info. Couples link two profiles. Pending partners hold partner 2's info until they join. Join requests gate access to chat. Messages power real-time chat via Supabase Realtime. Meals track planned/completed meetups.
 
 ## Key Behaviors
 
-- Auth via Supabase (magic link or OAuth — TBD)
-- Couples create a shared profile with basic info
-- Search by radius uses PostGIS for geolocation queries
+- Auth via Supabase magic link (passwordless)
+- One person creates the couple profile for both partners; spouse joins via shareable invite link
+- No street address collected — only zip code, geocoded to lat/lng centroid
+- Discovery shows all couples sorted by distance (no radius cap for MVP)
+- Join request required before chat opens (email notification to host via Resend)
 - Real-time chat via Supabase Realtime
-- Host/visit preference filtering in search results
-- Meal type selection (lunch, dinner, brunch) during chat
+- Messages retained 30 days after meal completion, then purged via pg_cron
 
 ## Commands
 
@@ -109,6 +111,17 @@ vercel env pull .env.local
 - **No API routes on Vercel.** Next.js is the frontend. All data access through the Supabase JS client with RLS policies for authorization.
 - **Supabase Realtime** for chat messaging between matched couples.
 - **PostGIS** extension on Supabase Postgres for geolocation-based neighbor search.
+- **Supabase Edge Functions** for webhook-triggered actions (e.g., sending join request emails via Resend).
+
+## Infrastructure as Code
+
+All infrastructure is managed as code via the Supabase CLI — no Terraform, no ClickOps.
+
+- **Database schema**: SQL migration files in `supabase/migrations/`. Create with `supabase migration new <name>`, deploy with `supabase db push`.
+- **Project config**: `supabase/config.toml` controls auth settings, storage buckets, API config, and email templates.
+- **Edge Functions**: TypeScript files in `supabase/functions/`, deployed with `supabase functions deploy`.
+- **Environments**: Local dev via `supabase start`, remote via `supabase link --project-ref <ref>`.
+- **Never** configure database schema, RLS policies, triggers, or functions through the Supabase dashboard. All changes go through migration files so they are version-controlled and reproducible.
 
 ## Git Conventions
 

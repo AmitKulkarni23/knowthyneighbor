@@ -28,7 +28,7 @@ create table join_requests (
 1. Visiting couple sends a join request from discovery results
 2. Row inserted into `join_requests` with status `pending`
 3. **Database Webhook** fires on INSERT → triggers a **Supabase Edge Function**
-4. Edge Function sends an email to the host couple via Resend/SendGrid
+4. Edge Function sends an email to the host couple via **Resend**
 5. Host couple sees the request in-app (and via email)
 6. Host accepts → status updated to `accepted` → a `conversations` row is auto-created
 7. Host declines → status updated to `declined` → requester sees the decline in-app
@@ -62,20 +62,25 @@ create trigger trigger_join_request_status_change
   execute function on_join_request_accepted();
 ```
 
-## Email Notification — Edge Function
+## Email Notification — Edge Function + Resend
 
 Triggered by a database webhook on `INSERT` into `join_requests`.
 
 ```typescript
 // supabase/functions/notify-join-request/index.ts (pseudocode)
 
+import { Resend } from 'resend';
+
 // 1. Receive the webhook payload (the new join_request row)
 // 2. Look up host couple's partner emails from profiles
 // 3. Look up requester couple's display name
-// 4. Send email via Resend/SendGrid:
+// 4. Send email via Resend:
 //    Subject: "The Smiths want to join you for dinner!"
 //    Body: requester's message, link to app to accept/decline
+//    Template: managed in Resend dashboard or inline React Email
 ```
+
+Email templates for join request notifications are managed via Resend (React Email or Resend dashboard templates). Auth-related emails (magic link, etc.) use Supabase's built-in email templates configured in `supabase/config.toml`.
 
 ## Row Level Security
 
