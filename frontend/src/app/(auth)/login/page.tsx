@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -10,29 +12,35 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import { signInWithOtp } from '@/api/auth';
+import { loginSchema, type LoginFormData } from '@/lib/validations';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '' },
+  });
 
-    const result = await signInWithOtp(email);
+  const email = watch('email');
+
+  const onSubmit = async (data: LoginFormData) => {
+    setServerError(null);
+    const result = await signInWithOtp(data.email);
 
     if (result.error) {
-      setError(result.error);
-      setLoading(false);
+      setServerError(result.error);
       return;
     }
 
     setSubmitted(true);
-    setLoading(false);
   };
 
   if (submitted) {
@@ -47,7 +55,7 @@ export default function LoginPage() {
           </Typography>
           <Button
             variant="text"
-            onClick={() => { setSubmitted(false); setEmail(''); }}
+            onClick={() => { setSubmitted(false); }}
           >
             Use a different email
           </Button>
@@ -66,20 +74,20 @@ export default function LoginPage() {
           Enter your email and we'll send you a magic link. No password needed.
         </Typography>
 
-        {error && (
+        {serverError && (
           <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
+            {serverError}
           </Alert>
         )}
 
-        <Box component="form" onSubmit={handleSubmit}>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
           <TextField
             label="Email"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            {...register('email')}
+            error={!!errors.email}
+            helperText={errors.email?.message}
             fullWidth
-            required
             autoFocus
             sx={{ mb: 2 }}
           />
@@ -87,10 +95,10 @@ export default function LoginPage() {
             type="submit"
             variant="contained"
             fullWidth
-            disabled={loading || !email}
+            disabled={isSubmitting}
             size="large"
           >
-            {loading ? 'Sending...' : 'Send magic link'}
+            {isSubmitting ? 'Sending...' : 'Send magic link'}
           </Button>
         </Box>
 

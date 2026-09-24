@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -16,48 +18,62 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
+import FormHelperText from '@mui/material/FormHelperText';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import useCouple from '@/hooks/useCouple';
 import useDiscovery from '@/hooks/useDiscovery';
 import { sendJoinRequest } from '@/api/joinRequests';
-import type { DiscoveryCouple, MealSlot } from '@/types/database';
+import type { DiscoveryCouple } from '@/types/database';
+import { joinRequestSchema, type JoinRequestFormData } from '@/lib/validations';
 
 export default function DiscoverPage() {
   const { data: couple, loading: coupleLoading } = useCouple();
   const { data: couples, loading: discoveryLoading, error } = useDiscovery(couple?.id ?? null);
   const [selectedCouple, setSelectedCouple] = useState<DiscoveryCouple | null>(null);
-  const [mealType, setMealType] = useState<MealSlot>('dinner');
-  const [message, setMessage] = useState('');
-  const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [sendSuccess, setSendSuccess] = useState(false);
 
-  const handleSendRequest = async () => {
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<JoinRequestFormData>({
+    resolver: zodResolver(joinRequestSchema),
+    defaultValues: { mealType: 'dinner', message: '' },
+  });
+
+  const onSubmit = async (data: JoinRequestFormData) => {
     if (!couple || !selectedCouple) return;
-    setSending(true);
     setSendError(null);
 
     const result = await sendJoinRequest({
       requester_couple_id: couple.id,
       host_couple_id: selectedCouple.id,
-      meal_type: mealType,
-      message: message || undefined,
+      meal_type: data.mealType,
+      message: data.message || undefined,
     });
 
     if (result.error) {
       setSendError(result.error);
-      setSending(false);
       return;
     }
 
     setSendSuccess(true);
-    setSending(false);
     setTimeout(() => {
       setSelectedCouple(null);
       setSendSuccess(false);
-      setMessage('');
+      reset();
     }, 1500);
+  };
+
+  const handleCloseDialog = () => {
+    setSelectedCouple(null);
+    setSendError(null);
+    setSendSuccess(false);
+    reset();
   };
 
   const loading = coupleLoading || discoveryLoading;
@@ -131,7 +147,7 @@ export default function DiscoverPage() {
 
       <Dialog
         open={Boolean(selectedCouple)}
-        onClose={() => { setSelectedCouple(null); setSendError(null); setSendSuccess(false); }}
+        onClose={handleCloseDialog}
         maxWidth="xs"
         fullWidth
       >
@@ -142,45 +158,56 @@ export default function DiscoverPage() {
           {sendSuccess ? (
             <Alert severity="success">Request sent!</Alert>
           ) : (
-            <>
+            <Box component="form" id="request-form" onSubmit={handleSubmit(onSubmit)} noValidate>
               {sendError && (
                 <Alert severity="error" sx={{ mb: 2 }}>
                   {sendError}
                 </Alert>
               )}
-              <FormControl fullWidth sx={{ mt: 1, mb: 2 }}>
-                <InputLabel>Meal type</InputLabel>
-                <Select
-                  value={mealType}
-                  onChange={(e) => setMealType(e.target.value as MealSlot)}
-                  label="Meal type"
-                >
-                  <MenuItem value="brunch">Brunch</MenuItem>
-                  <MenuItem value="lunch">Lunch</MenuItem>
-                  <MenuItem value="dinner">Dinner</MenuItem>
-                </Select>
-              </FormControl>
+              <Controller
+                name="mealType"
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth sx={{ mt: 1, mb: 2 }} error={!!errors.mealType}>
+                    <InputLabel>Meal type</InputLabel>
+                    <Select
+                      value={field.value}
+                      onChange={field.onChange}
+                      label="Meal type"
+                    >
+                      <MenuItem value="brunch">Brunch</MenuItem>
+                      <MenuItem value="lunch">Lunch</MenuItem>
+                      <MenuItem value="dinner">Dinner</MenuItem>
+                    </Select>
+                    {errors.mealType && (
+                      <FormHelperText>{errors.mealType.message}</FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+              />
               <TextField
                 label="Add a note (optional)"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                {...register('message')}
+                error={!!errors.message}
+                helperText={errors.message?.message}
                 fullWidth
                 multiline
                 rows={3}
                 placeholder="Hey, we'd love to meet you for dinner! We make a great pasta."
               />
-            </>
+            </Box>
           )}
         </DialogContent>
         {!sendSuccess && (
           <DialogActions sx={{ px: 3, pb: 2 }}>
-            <Button onClick={() => setSelectedCouple(null)}>Cancel</Button>
+            <Button onClick={handleCloseDialog}>Cancel</Button>
             <Button
+              type="submit"
+              form="request-form"
               variant="contained"
-              onClick={handleSendRequest}
-              disabled={sending}
+              disabled={isSubmitting}
             >
-              {sending ? 'Sending...' : 'Send request'}
+              {isSubmitting ? 'Sending...' : 'Send request'}
             </Button>
           </DialogActions>
         )}

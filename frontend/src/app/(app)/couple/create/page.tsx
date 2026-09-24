@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -16,42 +18,54 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import Alert from '@mui/material/Alert';
 import Divider from '@mui/material/Divider';
+import FormHelperText from '@mui/material/FormHelperText';
 import { createCouple } from '@/api/couples';
-import type { HostingPreference } from '@/types/database';
+import { coupleSchema, type CoupleFormData } from '@/lib/validations';
 
 export default function CreateCouplePage() {
   const router = useRouter();
-  const [coupleName, setCoupleName] = useState('');
-  const [bio, setBio] = useState('');
-  const [zipCode, setZipCode] = useState('');
-  const [hostingPreference, setHostingPreference] = useState<HostingPreference>('both');
-  const [partnerName, setPartnerName] = useState('');
-  const [partnerAge, setPartnerAge] = useState('');
-  const [partnerHasKids, setPartnerHasKids] = useState(false);
-  const [partnerNumKids, setPartnerNumKids] = useState('0');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const [inviteLink, setInviteLink] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<CoupleFormData>({
+    resolver: zodResolver(coupleSchema),
+    defaultValues: {
+      coupleName: '',
+      bio: '',
+      zipCode: '',
+      hostingPreference: 'both',
+      partnerName: '',
+      partnerAge: undefined as unknown as number,
+      partnerHasKids: false,
+      partnerNumKids: 0,
+    },
+  });
+
+  const partnerName = watch('partnerName');
+  const partnerHasKids = watch('partnerHasKids');
+
+  const onSubmit = async (data: CoupleFormData) => {
+    setServerError(null);
 
     const result = await createCouple({
-      couple_name: coupleName || null,
-      bio: bio || null,
-      zip_code: zipCode,
-      hosting_preference: hostingPreference,
-      partner_name: partnerName,
-      partner_age: parseInt(partnerAge, 10),
-      partner_has_kids: partnerHasKids,
-      partner_num_kids: partnerHasKids ? parseInt(partnerNumKids, 10) : 0,
+      couple_name: data.coupleName || null,
+      bio: data.bio || null,
+      zip_code: data.zipCode,
+      hosting_preference: data.hostingPreference,
+      partner_name: data.partnerName,
+      partner_age: data.partnerAge,
+      partner_has_kids: data.partnerHasKids,
+      partner_num_kids: data.partnerHasKids ? (data.partnerNumKids ?? 0) : 0,
     });
 
     if (result.error) {
-      setError(result.error);
-      setLoading(false);
+      setServerError(result.error);
       return;
     }
 
@@ -59,8 +73,6 @@ export default function CreateCouplePage() {
       const link = `${window.location.origin}/join/${result.couple.id}/${result.couple.invite_code}`;
       setInviteLink(link);
     }
-
-    setLoading(false);
   };
 
   if (inviteLink) {
@@ -110,27 +122,29 @@ export default function CreateCouplePage() {
         This is what other couples will see when they browse. Your partner will get an invite link to join.
       </Typography>
 
-      {error && (
+      {serverError && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
+          {serverError}
         </Alert>
       )}
 
       <Card>
         <CardContent sx={{ p: 3 }}>
-          <Box component="form" onSubmit={handleSubmit}>
+          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
             <TextField
               label="Couple name"
-              value={coupleName}
-              onChange={(e) => setCoupleName(e.target.value)}
+              {...register('coupleName')}
+              error={!!errors.coupleName}
+              helperText={errors.coupleName?.message}
               fullWidth
               placeholder='e.g. "The Patels"'
               sx={{ mb: 2 }}
             />
             <TextField
               label="Bio"
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
+              {...register('bio')}
+              error={!!errors.bio}
+              helperText={errors.bio?.message}
               fullWidth
               multiline
               rows={3}
@@ -139,25 +153,34 @@ export default function CreateCouplePage() {
             />
             <TextField
               label="Zip code"
-              value={zipCode}
-              onChange={(e) => setZipCode(e.target.value)}
+              {...register('zipCode')}
+              error={!!errors.zipCode}
+              helperText={errors.zipCode?.message}
               fullWidth
-              required
               slotProps={{ htmlInput: { maxLength: 10 } }}
               sx={{ mb: 2 }}
             />
-            <FormControl fullWidth sx={{ mb: 3 }}>
-              <InputLabel>Hosting preference</InputLabel>
-              <Select
-                value={hostingPreference}
-                onChange={(e) => setHostingPreference(e.target.value as HostingPreference)}
-                label="Hosting preference"
-              >
-                <MenuItem value="host">We like to host</MenuItem>
-                <MenuItem value="visit">We prefer to visit</MenuItem>
-                <MenuItem value="both">Either works for us</MenuItem>
-              </Select>
-            </FormControl>
+            <Controller
+              name="hostingPreference"
+              control={control}
+              render={({ field }) => (
+                <FormControl fullWidth sx={{ mb: 3 }} error={!!errors.hostingPreference}>
+                  <InputLabel>Hosting preference</InputLabel>
+                  <Select
+                    value={field.value}
+                    onChange={field.onChange}
+                    label="Hosting preference"
+                  >
+                    <MenuItem value="host">We like to host</MenuItem>
+                    <MenuItem value="visit">We prefer to visit</MenuItem>
+                    <MenuItem value="both">Either works for us</MenuItem>
+                  </Select>
+                  {errors.hostingPreference && (
+                    <FormHelperText>{errors.hostingPreference.message}</FormHelperText>
+                  )}
+                </FormControl>
+              )}
+            />
 
             <Divider sx={{ mb: 2 }} />
             <Typography variant="h3" sx={{ mb: 2 }}>
@@ -166,38 +189,45 @@ export default function CreateCouplePage() {
 
             <TextField
               label="Partner's full name"
-              value={partnerName}
-              onChange={(e) => setPartnerName(e.target.value)}
+              {...register('partnerName')}
+              error={!!errors.partnerName}
+              helperText={errors.partnerName?.message}
               fullWidth
-              required
               sx={{ mb: 2 }}
             />
             <TextField
               label="Partner's age"
               type="number"
-              value={partnerAge}
-              onChange={(e) => setPartnerAge(e.target.value)}
+              {...register('partnerAge', { valueAsNumber: true })}
+              error={!!errors.partnerAge}
+              helperText={errors.partnerAge?.message}
               fullWidth
-              required
               slotProps={{ htmlInput: { min: 18, max: 120 } }}
               sx={{ mb: 2 }}
             />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={partnerHasKids}
-                  onChange={(e) => setPartnerHasKids(e.target.checked)}
+            <Controller
+              name="partnerHasKids"
+              control={control}
+              render={({ field }) => (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={field.value}
+                      onChange={field.onChange}
+                    />
+                  }
+                  label="Partner has kids"
+                  sx={{ mb: 1, display: 'block' }}
                 />
-              }
-              label="Partner has kids"
-              sx={{ mb: 1, display: 'block' }}
+              )}
             />
             {partnerHasKids && (
               <TextField
                 label="Number of kids"
                 type="number"
-                value={partnerNumKids}
-                onChange={(e) => setPartnerNumKids(e.target.value)}
+                {...register('partnerNumKids', { valueAsNumber: true })}
+                error={!!errors.partnerNumKids}
+                helperText={errors.partnerNumKids?.message}
                 fullWidth
                 slotProps={{ htmlInput: { min: 1, max: 20 } }}
                 sx={{ mb: 2 }}
@@ -209,9 +239,9 @@ export default function CreateCouplePage() {
               variant="contained"
               fullWidth
               size="large"
-              disabled={loading || !zipCode || !partnerName || !partnerAge}
+              disabled={isSubmitting}
             >
-              {loading ? 'Creating...' : 'Create couple profile'}
+              {isSubmitting ? 'Creating...' : 'Create couple profile'}
             </Button>
           </Box>
         </CardContent>

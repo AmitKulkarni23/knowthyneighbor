@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -15,39 +17,49 @@ import { createProfile } from '@/api/profiles';
 import { uploadAvatar, getAvatarUrl } from '@/api/storage';
 import { updateProfile } from '@/api/profiles';
 import useAuth from '@/hooks/useAuth';
+import { profileSchema, type ProfileFormData } from '@/lib/validations';
 
 export default function CreateProfilePage() {
   const router = useRouter();
   const { user } = useAuth();
-  const [fullName, setFullName] = useState('');
-  const [age, setAge] = useState('');
-  const [hasKids, setHasKids] = useState(false);
-  const [numKids, setNumKids] = useState('0');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      fullName: '',
+      age: undefined as unknown as number,
+      hasKids: false,
+      numKids: 0,
+    },
+  });
+
+  const hasKids = watch('hasKids');
+
+  const onSubmit = async (data: ProfileFormData) => {
     if (!user) return;
 
-    setError(null);
-    setLoading(true);
+    setServerError(null);
 
     const result = await createProfile({
-      full_name: fullName,
-      age: parseInt(age, 10),
-      has_kids: hasKids,
-      num_kids: hasKids ? parseInt(numKids, 10) : 0,
+      full_name: data.fullName,
+      age: data.age,
+      has_kids: data.hasKids,
+      num_kids: data.hasKids ? (data.numKids ?? 0) : 0,
     });
 
     if (result.error) {
-      setError(result.error);
-      setLoading(false);
+      setServerError(result.error);
       return;
     }
 
-    // Upload avatar if selected
     if (avatarFile && result.profile) {
       const uploadResult = await uploadAvatar(user.id, avatarFile);
       if (uploadResult.url) {
@@ -67,49 +79,56 @@ export default function CreateProfilePage() {
         Tell us a little about yourself. This is just the basics.
       </Typography>
 
-      {error && (
+      {serverError && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
+          {serverError}
         </Alert>
       )}
 
       <Card>
         <CardContent sx={{ p: 3 }}>
-          <Box component="form" onSubmit={handleSubmit}>
+          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
             <TextField
               label="Full name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              {...register('fullName')}
+              error={!!errors.fullName}
+              helperText={errors.fullName?.message}
               fullWidth
-              required
               sx={{ mb: 2 }}
             />
             <TextField
               label="Age"
               type="number"
-              value={age}
-              onChange={(e) => setAge(e.target.value)}
+              {...register('age', { valueAsNumber: true })}
+              error={!!errors.age}
+              helperText={errors.age?.message}
               fullWidth
-              required
               slotProps={{ htmlInput: { min: 18, max: 120 } }}
               sx={{ mb: 2 }}
             />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={hasKids}
-                  onChange={(e) => setHasKids(e.target.checked)}
+            <Controller
+              name="hasKids"
+              control={control}
+              render={({ field }) => (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={field.value}
+                      onChange={field.onChange}
+                    />
+                  }
+                  label="I have kids"
+                  sx={{ mb: 1, display: 'block' }}
                 />
-              }
-              label="I have kids"
-              sx={{ mb: 1, display: 'block' }}
+              )}
             />
             {hasKids && (
               <TextField
                 label="Number of kids"
                 type="number"
-                value={numKids}
-                onChange={(e) => setNumKids(e.target.value)}
+                {...register('numKids', { valueAsNumber: true })}
+                error={!!errors.numKids}
+                helperText={errors.numKids?.message}
                 fullWidth
                 slotProps={{ htmlInput: { min: 1, max: 20 } }}
                 sx={{ mb: 2 }}
@@ -134,9 +153,9 @@ export default function CreateProfilePage() {
               variant="contained"
               fullWidth
               size="large"
-              disabled={loading || !fullName || !age}
+              disabled={isSubmitting}
             >
-              {loading ? 'Creating...' : 'Continue'}
+              {isSubmitting ? 'Creating...' : 'Continue'}
             </Button>
           </Box>
         </CardContent>
