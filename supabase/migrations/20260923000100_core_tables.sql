@@ -19,7 +19,7 @@ CREATE TABLE couples (
   zip_code text NOT NULL,
   location geography(point, 4326) NOT NULL,
   hosting_preference hosting_preference NOT NULL DEFAULT 'both',
-  invite_code text NOT NULL DEFAULT encode(gen_random_bytes(16), 'hex'),
+  invite_code text NOT NULL DEFAULT encode(extensions.gen_random_bytes(16), 'hex'),
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT unique_invite_code UNIQUE (invite_code)
