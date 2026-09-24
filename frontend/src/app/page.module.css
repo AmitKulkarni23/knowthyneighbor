@@ -1,0 +1,479 @@
+/* ── Cork board ground ── */
+.board {
+  min-height: 100vh;
+  background:
+    repeating-conic-gradient(var(--cork-dark) 0% 25%, transparent 0% 50%) 0 0 / 4px 4px,
+    linear-gradient(160deg, var(--cork) 0%, var(--cork-dark) 50%, var(--cork-light) 100%);
+  padding: 40px 16px 80px;
+  position: relative;
+}
+
+.board::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(212, 184, 130, 0.3) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(168, 137, 63, 0.2) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Shared card anatomy ── */
+.card {
+  background: var(--paper);
+  padding: 28px 24px;
+  position: relative;
+  box-shadow:
+    2px 3px 8px var(--shadow-card),
+    0 1px 2px rgba(60, 40, 20, 0.1);
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  z-index: 1;
+}
+
+.card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow:
+    3px 6px 16px var(--shadow-card),
+    0 2px 4px rgba(60, 40, 20, 0.12);
+}
+
+.pin {
+  position: absolute;
+  top: -8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-shadow:
+    0 2px 4px var(--shadow-pin),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.15),
+    inset 0 2px 3px rgba(255, 255, 255, 0.3);
+  z-index: 2;
+}
+
+.pinRed {
+  composes: pin;
+  background: radial-gradient(circle at 35% 35%, #e85545, var(--pushpin-red) 60%, #993322);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.pinGreen {
+  composes: pin;
+  background: radial-gradient(circle at 35% 35%, #7aa87d, var(--thumbtack-green) 60%, #4a6a4d);
+  right: 20px;
+}
+
+.pinBlue {
+  composes: pin;
+  background: radial-gradient(circle at 35% 35%, #4a6a9a, var(--ink-blue) 60%, #1a3050);
+  left: 20px;
+}
+
+/* ── Hero section ── */
+.hero {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Main flyer ── */
+.mainFlyer {
+  composes: card;
+  padding: 48px 36px 20px;
+  transform: rotate(-1.2deg);
+  max-width: 520px;
+  border-bottom: none;
+}
+
+.mainFlyer:hover {
+  transform: rotate(-1.2deg) translateY(-4px) scale(1.01);
+}
+
+.flyerTitle {
+  font-family: var(--font-marker), cursive;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  color: var(--ink-blue);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.flyerSubtitle {
+  font-family: var(--font-handwriting), cursive;
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  color: var(--ink-blue-light);
+  line-height: 1.4;
+  margin-bottom: 32px;
+}
+
+.flyerBody {
+  font-family: var(--font-body), Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--ink-blue);
+  margin-bottom: 24px;
+  max-width: 55ch;
+}
+
+.privacyNote {
+  font-family: var(--font-handwriting), cursive;
+  font-size: 0.95rem;
+  color: var(--thumbtack-green);
+  padding: 12px 16px;
+  background: rgba(91, 127, 94, 0.06);
+  border-left: 3px solid var(--thumbtack-green);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* ── Tear-off tabs ── */
+.tearOffRow {
+  display: flex;
+  border-top: 2px dashed var(--cork-dark);
+  background: var(--paper);
+  margin: 0 -36px;
+  padding: 0;
+}
+
+.tearTab {
+  flex: 1;
+  padding: 14px 4px;
+  text-align: center;
+  font-family: var(--font-condensed), sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-blue);
+  border: none;
+  background: var(--paper);
+  cursor: pointer;
+  border-right: 1px dashed var(--cork-dark);
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  position: relative;
+}
+
+.tearTab:last-child {
+  border-right: none;
+}
+
+.tearTab:hover {
+  background: var(--pushpin-red);
+  color: var(--paper);
+}
+
+.tearTabTorn {
+  composes: tearTab;
+  transform: rotate(2deg) translateY(3px);
+  background: var(--paper-aged);
+  opacity: 0.85;
+  box-shadow: 1px 2px 4px var(--shadow-card);
+}
+
+.tearTabTorn:hover {
+  background: var(--pushpin-red);
+  color: var(--paper);
+  opacity: 1;
+  transform: rotate(0) translateY(0);
+}
+
+/* ── Side cards ── */
+.sideCards {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 20px;
+}
+
+.coupleCard {
+  composes: card;
+  transform: rotate(1.5deg);
+  padding: 24px 20px;
+}
+
+.coupleCard:hover {
+  transform: rotate(1.5deg) translateY(-4px) scale(1.01);
+}
+
+.coupleCardName {
+  font-family: var(--font-condensed), sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--ink-blue);
+  margin-bottom: 6px;
+}
+
+.coupleCardMeta {
+  font-family: var(--font-body), Georgia, serif;
+  font-size: 0.85rem;
+  color: var(--ink-blue-light);
+  margin-bottom: 10px;
+}
+
+.coupleCardTag {
+  display: inline-block;
+  font-family: var(--font-condensed), sans-serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  background: var(--pushpin-red);
+  color: var(--paper);
+  border-radius: 2px;
+}
+
+.coupleCardTagVisitor {
+  composes: coupleCardTag;
+  background: var(--thumbtack-green);
+}
+
+.indexCard {
+  composes: card;
+  background: var(--index-yellow);
+  transform: rotate(-2.3deg);
+  padding: 20px 18px;
+}
+
+.indexCard:hover {
+  transform: rotate(-2.3deg) translateY(-4px) scale(1.01);
+}
+
+.indexCardText {
+  font-family: var(--font-handwriting), cursive;
+  font-size: 1.15rem;
+  color: var(--ink-blue);
+  line-height: 1.5;
+}
+
+.calendarCard {
+  composes: card;
+  transform: rotate(0.8deg);
+  padding: 20px;
+}
+
+.calendarCard:hover {
+  transform: rotate(0.8deg) translateY(-4px) scale(1.01);
+}
+
+.calendarTitle {
+  font-family: var(--font-condensed), sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-blue);
+  margin-bottom: 12px;
+}
+
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.calendarSlot {
+  padding: 6px 4px;
+  text-align: center;
+  font-family: var(--font-body), Georgia, serif;
+  font-size: 0.75rem;
+  color: var(--ink-blue-light);
+  background: var(--paper-aged);
+  border-radius: 2px;
+}
+
+.calendarSlotActive {
+  composes: calendarSlot;
+  background: var(--thumbtack-green);
+  color: var(--paper);
+  font-weight: 600;
+}
+
+/* ── How it works section ── */
+.howSection {
+  max-width: 1100px;
+  margin: 80px auto 0;
+  position: relative;
+  z-index: 1;
+}
+
+.howTitle {
+  font-family: var(--font-marker), cursive;
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  color: var(--paper);
+  text-align: center;
+  margin-bottom: 48px;
+  text-shadow: 1px 2px 4px rgba(60, 40, 20, 0.4);
+}
+
+.howSteps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.stepCard {
+  composes: card;
+  text-align: center;
+  padding: 32px 20px;
+}
+
+.stepCard:nth-child(1) { transform: rotate(-1deg); }
+.stepCard:nth-child(2) { transform: rotate(0.8deg); }
+.stepCard:nth-child(3) { transform: rotate(-0.5deg); }
+.stepCard:nth-child(4) { transform: rotate(1.2deg); }
+
+.stepCard:nth-child(1):hover { transform: rotate(-1deg) translateY(-4px) scale(1.01); }
+.stepCard:nth-child(2):hover { transform: rotate(0.8deg) translateY(-4px) scale(1.01); }
+.stepCard:nth-child(3):hover { transform: rotate(-0.5deg) translateY(-4px) scale(1.01); }
+.stepCard:nth-child(4):hover { transform: rotate(1.2deg) translateY(-4px) scale(1.01); }
+
+.stepNumber {
+  font-family: var(--font-marker), cursive;
+  font-size: 2.4rem;
+  color: var(--pushpin-red);
+  margin-bottom: 8px;
+}
+
+.stepTitle {
+  font-family: var(--font-condensed), sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--ink-blue);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.stepDesc {
+  font-family: var(--font-handwriting), cursive;
+  font-size: 1rem;
+  color: var(--ink-blue-light);
+  line-height: 1.5;
+}
+
+/* ── Promise section ── */
+.promiseSection {
+  max-width: 700px;
+  margin: 80px auto 0;
+  position: relative;
+  z-index: 1;
+}
+
+.promiseCard {
+  composes: card;
+  transform: rotate(0.5deg);
+  padding: 40px 36px;
+  text-align: center;
+}
+
+.promiseCard:hover {
+  transform: rotate(0.5deg) translateY(-4px) scale(1.01);
+}
+
+.promiseTitle {
+  font-family: var(--font-marker), cursive;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  color: var(--ink-blue);
+  margin-bottom: 16px;
+}
+
+.promiseText {
+  font-family: var(--font-handwriting), cursive;
+  font-size: 1.2rem;
+  color: var(--ink-blue-light);
+  line-height: 1.6;
+  margin-bottom: 24px;
+  max-width: 50ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.promiseCta {
+  display: inline-block;
+  font-family: var(--font-condensed), sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 14px 36px;
+  background: var(--pushpin-red);
+  color: var(--paper);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.promiseCta:hover {
+  background: var(--pushpin-red-hover);
+  transform: scale(1.03);
+}
+
+/* ── Footer ── */
+.footer {
+  max-width: 1100px;
+  margin: 60px auto 0;
+  padding: 24px 0;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.footerText {
+  font-family: var(--font-handwriting), cursive;
+  font-size: 0.9rem;
+  color: var(--cork-light);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .mainFlyer {
+    max-width: 100%;
+    transform: rotate(-0.5deg);
+    padding: 36px 24px 16px;
+  }
+
+  .mainFlyer:hover {
+    transform: rotate(-0.5deg) translateY(-4px) scale(1.01);
+  }
+
+  .tearOffRow {
+    margin: 0 -24px;
+  }
+
+  .sideCards {
+    padding-top: 0;
+  }
+
+  .howSteps {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .board {
+    padding: 24px 16px 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .howSteps {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .tearTab {
+    font-size: 0.7rem;
+    padding: 10px 2px;
+  }
+}

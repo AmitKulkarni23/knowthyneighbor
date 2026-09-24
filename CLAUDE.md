@@ -18,8 +18,8 @@ One person creates a couple profile (names, ages, kids, zip code, calendar avail
 - **Frontend**: Next.js (App Router) on Vercel
 - **Backend**: Supabase (Auth, Postgres + PostGIS, Row Level Security, Realtime, Edge Functions)
 - **Email**: Resend (transactional emails for join request notifications)
-- **Styling**: TBD
-- **Runtime**: Node.js / Bun
+- **UI Components**: MUI (Material UI) for all app screens (signup, discovery, chat); landing page uses custom CSS
+- **Runtime**: Bun
 
 ## Folder Structure
 
