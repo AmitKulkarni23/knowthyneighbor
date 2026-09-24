@@ -143,7 +143,7 @@ export default function CreateCouplePage() {
               onChange={(e) => setZipCode(e.target.value)}
               fullWidth
               required
-              inputProps={{ maxLength: 10 }}
+              slotProps={{ htmlInput: { maxLength: 10 } }}
               sx={{ mb: 2 }}
             />
             <FormControl fullWidth sx={{ mb: 3 }}>
@@ -179,7 +179,7 @@ export default function CreateCouplePage() {
               onChange={(e) => setPartnerAge(e.target.value)}
               fullWidth
               required
-              inputProps={{ min: 18, max: 120 }}
+              slotProps={{ htmlInput: { min: 18, max: 120 } }}
               sx={{ mb: 2 }}
             />
             <FormControlLabel
@@ -199,7 +199,7 @@ export default function CreateCouplePage() {
                 value={partnerNumKids}
                 onChange={(e) => setPartnerNumKids(e.target.value)}
                 fullWidth
-                inputProps={{ min: 1, max: 20 }}
+                slotProps={{ htmlInput: { min: 1, max: 20 } }}
                 sx={{ mb: 2 }}
               />
             )}

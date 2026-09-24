@@ -91,7 +91,7 @@ export default function CreateProfilePage() {
               onChange={(e) => setAge(e.target.value)}
               fullWidth
               required
-              inputProps={{ min: 18, max: 120 }}
+              slotProps={{ htmlInput: { min: 18, max: 120 } }}
               sx={{ mb: 2 }}
             />
             <FormControlLabel
@@ -111,7 +111,7 @@ export default function CreateProfilePage() {
                 value={numKids}
                 onChange={(e) => setNumKids(e.target.value)}
                 fullWidth
-                inputProps={{ min: 1, max: 20 }}
+                slotProps={{ htmlInput: { min: 1, max: 20 } }}
                 sx={{ mb: 2 }}
               />
             )}
