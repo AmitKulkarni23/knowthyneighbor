@@ -8,8 +8,6 @@ export type Profile = {
   full_name: string;
   age: number;
   ethnicity: string | null;
-  has_kids: boolean;
-  num_kids: number;
   avatar_url: string | null;
   created_at: string;
   updated_at: string;
@@ -34,8 +32,6 @@ export type PendingPartner = {
   couple_id: string;
   full_name: string;
   age: number;
-  has_kids: boolean;
-  num_kids: number;
   claimed_by: string | null;
   claimed_at: string | null;
   created_at: string;
@@ -95,7 +91,5 @@ export type DiscoveryCouple = {
   couple_name: string | null;
   bio: string | null;
   hosting_preference: HostingPreference;
-  has_kids: boolean;
-  num_kids: number;
   distance_miles: number;
 };

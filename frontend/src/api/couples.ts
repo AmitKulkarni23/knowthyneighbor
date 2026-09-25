@@ -8,8 +8,6 @@ type CreateCoupleData = {
   hosting_preference: HostingPreference;
   partner_name: string;
   partner_age: number;
-  partner_has_kids: boolean;
-  partner_num_kids: number;
 };
 
 type UpdateCoupleData = Partial<Pick<Couple, 'couple_name' | 'bio' | 'zip_code' | 'hosting_preference'>>;
@@ -46,8 +44,6 @@ export async function createCouple(
       couple_id: couple.id,
       full_name: data.partner_name,
       age: data.partner_age,
-      has_kids: data.partner_has_kids,
-      num_kids: data.partner_num_kids,
     });
 
   if (partnerError) return { couple, error: partnerError.message };

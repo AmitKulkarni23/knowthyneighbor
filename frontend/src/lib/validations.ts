@@ -19,8 +19,6 @@ export const profileSchema = z.object({
     .int({ error: 'Age must be a whole number' })
     .min(18, { error: 'Must be at least 18' })
     .max(120, { error: 'Enter a valid age' }),
-  hasKids: z.boolean(),
-  numKids: z.number().int().min(0).max(20).optional(),
 });
 
 export type ProfileFormData = z.infer<typeof profileSchema>;
@@ -42,8 +40,6 @@ export const coupleSchema = z.object({
     .int({ error: 'Age must be a whole number' })
     .min(18, { error: 'Must be at least 18' })
     .max(120, { error: 'Enter a valid age' }),
-  partnerHasKids: z.boolean(),
-  partnerNumKids: z.number().int().min(0).max(20).optional(),
 });
 
 export type CoupleFormData = z.infer<typeof coupleSchema>;

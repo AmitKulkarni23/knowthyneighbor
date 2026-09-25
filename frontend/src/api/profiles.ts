@@ -4,8 +4,6 @@ import type { Profile } from '@/types/database';
 type CreateProfileData = {
   full_name: string;
   age: number;
-  has_kids: boolean;
-  num_kids: number;
 };
 
 type UpdateProfileData = Partial<CreateProfileData & { avatar_url: string }>;

@@ -6,7 +6,7 @@ export async function discoverCouples(
 ): Promise<{ couples: DiscoveryCouple[]; error: string | null }> {
   const supabase = createSupabaseClient();
   const { data, error } = await supabase.rpc('discover_couples', {
-    p_couple_id: userCoupleId,
+    user_couple_id: userCoupleId,
   });
 
   return { couples: data ?? [], error: error?.message ?? null };

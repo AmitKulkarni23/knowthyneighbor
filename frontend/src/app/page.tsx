@@ -59,7 +59,7 @@ export default function Home() {
               The Patels
             </Typography>
             <Typography sx={{ fontFamily: 'var(--font-body), Georgia, serif', fontSize: '0.85rem', color: 'var(--ink-blue-light)', mb: 1.25 }}>
-              2.3 miles away &middot; 2 kids &middot; Love Thai food
+              2.3 miles away &middot; Love Thai food
             </Typography>
             <Chip label="Hosts" size="small" sx={{ bgcolor: 'var(--pushpin-red)', color: 'var(--paper)' }} />
           </Card>
@@ -79,7 +79,7 @@ export default function Home() {
               The Nguyens
             </Typography>
             <Typography sx={{ fontFamily: 'var(--font-body), Georgia, serif', fontSize: '0.85rem', color: 'var(--ink-blue-light)', mb: 1.25 }}>
-              4.1 miles away &middot; No kids &middot; Brunch enthusiasts
+              4.1 miles away &middot; Brunch enthusiasts
             </Typography>
             <Chip label="Visitors" size="small" sx={{ bgcolor: 'var(--thumbtack-green)', color: 'var(--paper)' }} />
           </Card>

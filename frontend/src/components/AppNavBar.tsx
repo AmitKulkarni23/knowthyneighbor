@@ -90,7 +90,7 @@ export default function AppNavBar() {
           open={Boolean(menuAnchor)}
           onClose={() => setMenuAnchor(null)}
         >
-          <MenuItem onClick={() => { setMenuAnchor(null); router.push('/profile/create'); }}>
+          <MenuItem onClick={() => { setMenuAnchor(null); router.push('/profile'); }}>
             Profile
           </MenuItem>
           <MenuItem onClick={handleSignOut}>Sign out</MenuItem>

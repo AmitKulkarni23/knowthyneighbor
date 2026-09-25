@@ -131,7 +131,6 @@ export default function DiscoverPage() {
               )}
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 {c.distance_miles.toFixed(1)} miles away
-                {c.has_kids ? ` · ${c.num_kids} kid${c.num_kids === 1 ? '' : 's'}` : ' · No kids'}
               </Typography>
               <Button
                 variant="outlined"

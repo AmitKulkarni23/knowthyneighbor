@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -10,8 +10,6 @@ import CardContent from '@mui/material/CardContent';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Alert from '@mui/material/Alert';
 import { createProfile } from '@/api/profiles';
 import { uploadAvatar, getAvatarUrl } from '@/api/storage';
@@ -28,20 +26,14 @@ export default function CreateProfilePage() {
   const {
     register,
     handleSubmit,
-    control,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       fullName: '',
       age: undefined as unknown as number,
-      hasKids: false,
-      numKids: 0,
     },
   });
-
-  const hasKids = watch('hasKids');
 
   const onSubmit = async (data: ProfileFormData) => {
     if (!user) return;
@@ -51,8 +43,6 @@ export default function CreateProfilePage() {
     const result = await createProfile({
       full_name: data.fullName,
       age: data.age,
-      has_kids: data.hasKids,
-      num_kids: data.hasKids ? (data.numKids ?? 0) : 0,
     });
 
     if (result.error) {
@@ -106,34 +96,6 @@ export default function CreateProfilePage() {
               slotProps={{ htmlInput: { min: 18, max: 120 } }}
               sx={{ mb: 2 }}
             />
-            <Controller
-              name="hasKids"
-              control={control}
-              render={({ field }) => (
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={field.value}
-                      onChange={field.onChange}
-                    />
-                  }
-                  label="I have kids"
-                  sx={{ mb: 1, display: 'block' }}
-                />
-              )}
-            />
-            {hasKids && (
-              <TextField
-                label="Number of kids"
-                type="number"
-                {...register('numKids', { valueAsNumber: true })}
-                error={!!errors.numKids}
-                helperText={errors.numKids?.message}
-                fullWidth
-                slotProps={{ htmlInput: { min: 1, max: 20 } }}
-                sx={{ mb: 2 }}
-              />
-            )}
             <Button
               variant="outlined"
               component="label"

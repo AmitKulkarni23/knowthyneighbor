@@ -14,8 +14,6 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Alert from '@mui/material/Alert';
 import Divider from '@mui/material/Divider';
 import FormHelperText from '@mui/material/FormHelperText';
@@ -42,13 +40,10 @@ export default function CreateCouplePage() {
       hostingPreference: 'both',
       partnerName: '',
       partnerAge: undefined as unknown as number,
-      partnerHasKids: false,
-      partnerNumKids: 0,
     },
   });
 
   const partnerName = watch('partnerName');
-  const partnerHasKids = watch('partnerHasKids');
 
   const onSubmit = async (data: CoupleFormData) => {
     setServerError(null);
@@ -60,8 +55,6 @@ export default function CreateCouplePage() {
       hosting_preference: data.hostingPreference,
       partner_name: data.partnerName,
       partner_age: data.partnerAge,
-      partner_has_kids: data.partnerHasKids,
-      partner_num_kids: data.partnerHasKids ? (data.partnerNumKids ?? 0) : 0,
     });
 
     if (result.error) {
@@ -205,34 +198,6 @@ export default function CreateCouplePage() {
               slotProps={{ htmlInput: { min: 18, max: 120 } }}
               sx={{ mb: 2 }}
             />
-            <Controller
-              name="partnerHasKids"
-              control={control}
-              render={({ field }) => (
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={field.value}
-                      onChange={field.onChange}
-                    />
-                  }
-                  label="Partner has kids"
-                  sx={{ mb: 1, display: 'block' }}
-                />
-              )}
-            />
-            {partnerHasKids && (
-              <TextField
-                label="Number of kids"
-                type="number"
-                {...register('partnerNumKids', { valueAsNumber: true })}
-                error={!!errors.partnerNumKids}
-                helperText={errors.partnerNumKids?.message}
-                fullWidth
-                slotProps={{ htmlInput: { min: 1, max: 20 } }}
-                sx={{ mb: 2 }}
-              />
-            )}
 
             <Button
               type="submit"
