@@ -4,15 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import Alert from '@mui/material/Alert';
 import { signInWithOtp } from '@/api/auth';
 import { loginSchema, type LoginFormData } from '@/lib/validations';
+import styles from './page.module.css';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -45,72 +39,75 @@ export default function LoginPage() {
 
   if (submitted) {
     return (
-      <Card sx={{ maxWidth: 400, width: '100%' }}>
-        <CardContent sx={{ p: 4, textAlign: 'center' }}>
-          <Typography variant="h2" gutterBottom>
-            Check your email
-          </Typography>
-          <Typography color="text.secondary" sx={{ mb: 2 }}>
-            We sent a magic link to <strong>{email}</strong>. Click the link in your email to sign in.
-          </Typography>
-          <Button
-            variant="text"
-            onClick={() => { setSubmitted(false); }}
+      <div className={styles.board}>
+        <div className={styles.card}>
+          <div className={styles.pin} />
+          <h1 className={styles.title}>Check Your Email</h1>
+          <p className={styles.subtitle}>
+            We sent a magic link your way.
+          </p>
+          <p className={styles.confirmText}>
+            Click the link we sent to <span className={styles.email}>{email}</span> to sign in.
+          </p>
+          <p className={styles.confirmHint}>No password needed.</p>
+          <button
+            type="button"
+            className={styles.altBtn}
+            onClick={() => setSubmitted(false)}
           >
             Use a different email
-          </Button>
-        </CardContent>
-      </Card>
+          </button>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card sx={{ maxWidth: 400, width: '100%' }}>
-      <CardContent sx={{ p: 4 }}>
-        <Typography variant="h2" gutterBottom>
-          Sign in
-        </Typography>
-        <Typography color="text.secondary" sx={{ mb: 3 }}>
-          Enter your email and we'll send you a magic link. No password needed.
-        </Typography>
+    <div className={styles.board}>
+      <div className={styles.card}>
+        <div className={styles.pin} />
+        <h1 className={styles.title}>Sign In</h1>
+        <p className={styles.subtitle}>
+          Enter your email and we&apos;ll send you a magic link. No password needed.
+        </p>
 
         {serverError && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {serverError}
-          </Alert>
+          <div className={styles.alert}>{serverError}</div>
         )}
 
-        <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-          <TextField
-            label="Email"
-            type="email"
-            {...register('email')}
-            error={!!errors.email}
-            helperText={errors.email?.message}
-            fullWidth
-            autoFocus
-            sx={{ mb: 2 }}
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            disabled={isSubmitting}
-            size="large"
-          >
-            {isSubmitting ? 'Sending...' : 'Send magic link'}
-          </Button>
-        </Box>
+        <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
+          <div className={styles.fieldGroup}>
+            <label htmlFor="email" className={styles.label}>Email</label>
+            <input
+              id="email"
+              type="email"
+              className={errors.email ? styles.inputError : styles.input}
+              placeholder="you@example.com"
+              autoFocus
+              {...register('email')}
+            />
+            {errors.email && (
+              <p className={styles.errorText}>{errors.email.message}</p>
+            )}
+          </div>
 
-        <Button
-          variant="text"
-          fullWidth
-          sx={{ mt: 2 }}
+          <button
+            type="submit"
+            className={styles.submitBtn}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Sending...' : 'Send Magic Link'}
+          </button>
+        </form>
+
+        <button
+          type="button"
+          className={styles.backLink}
           onClick={() => router.push('/')}
         >
           Back to home
-        </Button>
-      </CardContent>
-    </Card>
+        </button>
+      </div>
+    </div>
   );
 }

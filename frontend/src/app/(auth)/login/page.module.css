@@ -1,0 +1,259 @@
+/* ── Cork board ground (matches landing page) ── */
+.board {
+  min-height: 100vh;
+  background:
+    repeating-conic-gradient(var(--cork-dark) 0% 25%, transparent 0% 50%) 0 0 / 4px 4px,
+    linear-gradient(160deg, var(--cork) 0%, var(--cork-dark) 50%, var(--cork-light) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+  position: relative;
+}
+
+.board::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(212, 184, 130, 0.3) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(168, 137, 63, 0.2) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Paper card ── */
+.card {
+  background: var(--paper);
+  padding: 48px 36px 36px;
+  position: relative;
+  max-width: 420px;
+  width: 100%;
+  transform: rotate(-0.8deg);
+  box-shadow:
+    2px 3px 8px var(--shadow-card),
+    0 1px 2px rgba(60, 40, 20, 0.1);
+  z-index: 1;
+}
+
+/* ── Pushpin ── */
+.pin {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #e85545, var(--pushpin-red) 60%, #993322);
+  box-shadow:
+    0 2px 4px var(--shadow-pin),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.15),
+    inset 0 2px 3px rgba(255, 255, 255, 0.3);
+  z-index: 2;
+}
+
+/* ── Typography ── */
+.title {
+  font-family: var(--font-marker), cursive;
+  font-size: 2rem;
+  color: var(--ink-blue);
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-family: var(--font-handwriting), cursive;
+  font-size: 1.15rem;
+  color: var(--ink-blue-light);
+  line-height: 1.4;
+  margin-bottom: 28px;
+}
+
+/* ── Form ── */
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Input field ── */
+.fieldGroup {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.label {
+  display: block;
+  font-family: var(--font-handwriting), cursive;
+  font-size: 1rem;
+  color: var(--ink-blue-light);
+  margin-bottom: 6px;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 0;
+  font-family: var(--font-body), Georgia, serif;
+  font-size: 1rem;
+  color: var(--ink-blue);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--cork-light);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.input::placeholder {
+  color: var(--ink-blue-light);
+  opacity: 0.4;
+  font-family: var(--font-handwriting), cursive;
+}
+
+.input:focus {
+  border-bottom-color: var(--ink-blue);
+  outline: none;
+}
+
+.input:focus-visible {
+  outline: none;
+  border-bottom-color: var(--ink-blue);
+  border-bottom-width: 3px;
+}
+
+.inputError {
+  composes: input;
+  border-bottom-color: var(--pushpin-red);
+}
+
+.inputError:focus {
+  border-bottom-color: var(--pushpin-red);
+}
+
+.errorText {
+  font-family: var(--font-handwriting), cursive;
+  font-size: 0.85rem;
+  color: var(--pushpin-red);
+  margin-top: 6px;
+}
+
+/* ── Server error alert ── */
+.alert {
+  font-family: var(--font-handwriting), cursive;
+  font-size: 0.95rem;
+  color: var(--pushpin-red);
+  padding: 10px 14px;
+  background: rgba(204, 68, 51, 0.08);
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+/* ── Submit button ── */
+.submitBtn {
+  display: block;
+  width: 100%;
+  padding: 14px 24px;
+  font-family: var(--font-condensed), sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: var(--pushpin-red);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: var(--pushpin-red-hover);
+  transform: scale(1.02);
+}
+
+.submitBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.submitBtn:focus-visible {
+  outline: 3px solid var(--pushpin-red);
+  outline-offset: 2px;
+}
+
+/* ── Back link ── */
+.backLink {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  font-family: var(--font-body), Georgia, serif;
+  font-size: 0.85rem;
+  color: var(--ink-blue-light);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  width: 100%;
+}
+
+.backLink:hover {
+  color: var(--pushpin-red);
+}
+
+/* ── Confirmation state ── */
+.confirmText {
+  font-family: var(--font-body), Georgia, serif;
+  font-size: 1rem;
+  color: var(--ink-blue);
+  line-height: 1.6;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.email {
+  font-family: var(--font-condensed), sans-serif;
+  font-weight: 700;
+  color: var(--ink-blue);
+}
+
+.confirmHint {
+  font-family: var(--font-handwriting), cursive;
+  font-size: 0.95rem;
+  color: var(--ink-blue-light);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.altBtn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-family: var(--font-body), Georgia, serif;
+  font-size: 0.85rem;
+  color: var(--ink-blue-light);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.altBtn:hover {
+  color: var(--pushpin-red);
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .card {
+    padding: 40px 24px 28px;
+    transform: rotate(-0.4deg);
+  }
+
+  .title {
+    font-size: 1.7rem;
+  }
+
+  .board {
+    padding: 24px 16px;
+  }
+}
