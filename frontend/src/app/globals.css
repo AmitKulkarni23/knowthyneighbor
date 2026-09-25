@@ -1,4 +1,5 @@
 :root {
+  /* Colors — materials on the board */
   --cork: #C4A366;
   --cork-dark: #A8893F;
   --cork-light: #D4B882;
@@ -10,8 +11,24 @@
   --ink-blue-light: #3D5A8A;
   --thumbtack-green: #5B7F5E;
   --index-yellow: #F5E6A3;
+
+  /* Shadows — paper physics */
   --shadow-pin: rgba(60, 40, 20, 0.35);
   --shadow-card: rgba(60, 40, 20, 0.18);
+  --shadow-card-rest: 2px 3px 8px var(--shadow-card), 0 1px 2px rgba(60, 40, 20, 0.1);
+  --shadow-card-lift: 3px 6px 16px var(--shadow-card), 0 2px 4px rgba(60, 40, 20, 0.12);
+
+  /* Spacing */
+  --space-xs: 6px;
+  --space-sm: 12px;
+  --space-md: 20px;
+  --space-lg: 28px;
+  --space-xl: 36px;
+  --space-section: 80px;
+
+  /* Motion */
+  --ease-card: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  --ease-button: background 0.15s ease, transform 0.15s ease;
 }
 
 *,

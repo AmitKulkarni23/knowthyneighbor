@@ -106,6 +106,18 @@ vercel --prod
 vercel env pull .env.local
 ```
 
+## Design System
+
+The app uses the **"Neighborhood Board"** visual identity documented in `DESIGN.md`. Every surface looks like a cork bulletin board with pinned paper cards.
+
+- **Tokens**: CSS custom properties in `frontend/src/app/globals.css` — colors, shadows, spacing, motion
+- **Shared primitives**: `frontend/src/styles/board.module.css` — reusable board, card, pin, CTA, and chip classes
+- **MUI theme**: `frontend/src/config/theme.ts` — overrides Material UI to match the board world (zero radius, paper shadows, handwriting fonts)
+- **Fonts**: Permanent Marker (display), Caveat (handwriting), Barlow Condensed (labels/buttons), Source Sans 3 (body) — loaded in `frontend/src/app/layout.tsx`
+- **Rules**: No pure white/black, no border-radius on cards/buttons, no dark mode. See DESIGN.md for the full system.
+
+When building new screens, compose from `board.module.css` for cork backgrounds, paper cards, and pushpins. Use the MUI theme for app components (buttons, dialogs, chips).
+
 ## Architecture
 
 - **No API routes on Vercel.** Next.js is the frontend. All data access through the Supabase JS client with RLS policies for authorization.

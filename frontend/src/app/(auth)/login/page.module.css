@@ -1,56 +1,24 @@
-/* ── Cork board ground (matches landing page) ── */
+/* ── Cork board ground ── */
 .board {
-  min-height: 100vh;
-  background:
-    repeating-conic-gradient(var(--cork-dark) 0% 25%, transparent 0% 50%) 0 0 / 4px 4px,
-    linear-gradient(160deg, var(--cork) 0%, var(--cork-dark) 50%, var(--cork-light) 100%);
+  composes: board from '../../../styles/board.module.css';
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 40px 16px;
-  position: relative;
-}
-
-.board::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 30% 20%, rgba(212, 184, 130, 0.3) 0%, transparent 60%),
-    radial-gradient(ellipse at 70% 80%, rgba(168, 137, 63, 0.2) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
 }
 
 /* ── Paper card ── */
 .card {
-  background: var(--paper);
+  composes: card from '../../../styles/board.module.css';
   padding: 48px 36px 36px;
-  position: relative;
   max-width: 420px;
   width: 100%;
   transform: rotate(-0.8deg);
-  box-shadow:
-    2px 3px 8px var(--shadow-card),
-    0 1px 2px rgba(60, 40, 20, 0.1);
-  z-index: 1;
 }
 
 /* ── Pushpin ── */
 .pin {
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #e85545, var(--pushpin-red) 60%, #993322);
-  box-shadow:
-    0 2px 4px var(--shadow-pin),
-    inset 0 -2px 3px rgba(0, 0, 0, 0.15),
-    inset 0 2px 3px rgba(255, 255, 255, 0.3);
-  z-index: 2;
+  composes: pinRed from '../../../styles/board.module.css';
 }
 
 /* ── Typography ── */
@@ -67,7 +35,7 @@
   font-size: 1.15rem;
   color: var(--ink-blue-light);
   line-height: 1.4;
-  margin-bottom: 28px;
+  margin-bottom: var(--space-lg);
 }
 
 /* ── Form ── */
@@ -78,7 +46,7 @@
 
 /* ── Input field ── */
 .fieldGroup {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-md);
   position: relative;
 }
 
@@ -87,7 +55,7 @@
   font-family: var(--font-handwriting), cursive;
   font-size: 1rem;
   color: var(--ink-blue-light);
-  margin-bottom: 6px;
+  margin-bottom: var(--space-xs);
 }
 
 .input {
@@ -133,7 +101,7 @@
   font-family: var(--font-handwriting), cursive;
   font-size: 0.85rem;
   color: var(--pushpin-red);
-  margin-top: 6px;
+  margin-top: var(--space-xs);
 }
 
 /* ── Server error alert ── */
@@ -143,47 +111,23 @@
   color: var(--pushpin-red);
   padding: 10px 14px;
   background: rgba(204, 68, 51, 0.08);
-  margin-bottom: 20px;
+  margin-bottom: var(--space-md);
   line-height: 1.4;
 }
 
 /* ── Submit button ── */
 .submitBtn {
+  composes: ctaButton from '../../../styles/board.module.css';
   display: block;
   width: 100%;
   padding: 14px 24px;
-  font-family: var(--font-condensed), sans-serif;
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--paper);
-  background: var(--pushpin-red);
-  border: none;
-  cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
-}
-
-.submitBtn:hover:not(:disabled) {
-  background: var(--pushpin-red-hover);
-  transform: scale(1.02);
-}
-
-.submitBtn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.submitBtn:focus-visible {
-  outline: 3px solid var(--pushpin-red);
-  outline-offset: 2px;
 }
 
 /* ── Back link ── */
 .backLink {
   display: block;
   text-align: center;
-  margin-top: 20px;
+  margin-top: var(--space-md);
   font-family: var(--font-body), Georgia, serif;
   font-size: 0.85rem;
   color: var(--ink-blue-light);

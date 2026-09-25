@@ -1,73 +1,28 @@
 /* ── Cork board ground ── */
 .board {
-  min-height: 100vh;
-  background:
-    repeating-conic-gradient(var(--cork-dark) 0% 25%, transparent 0% 50%) 0 0 / 4px 4px,
-    linear-gradient(160deg, var(--cork) 0%, var(--cork-dark) 50%, var(--cork-light) 100%);
+  composes: board from '../styles/board.module.css';
   padding: 40px 16px 80px;
-  position: relative;
-}
-
-.board::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 30% 20%, rgba(212, 184, 130, 0.3) 0%, transparent 60%),
-    radial-gradient(ellipse at 70% 80%, rgba(168, 137, 63, 0.2) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
 }
 
 /* ── Shared card anatomy ── */
 .card {
-  background: var(--paper);
-  padding: 28px 24px;
-  position: relative;
-  box-shadow:
-    2px 3px 8px var(--shadow-card),
-    0 1px 2px rgba(60, 40, 20, 0.1);
-  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
-  z-index: 1;
-}
-
-.card:hover {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow:
-    3px 6px 16px var(--shadow-card),
-    0 2px 4px rgba(60, 40, 20, 0.12);
+  composes: card from '../styles/board.module.css';
 }
 
 .pin {
-  position: absolute;
-  top: -8px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  box-shadow:
-    0 2px 4px var(--shadow-pin),
-    inset 0 -2px 3px rgba(0, 0, 0, 0.15),
-    inset 0 2px 3px rgba(255, 255, 255, 0.3);
-  z-index: 2;
+  composes: pin from '../styles/board.module.css';
 }
 
 .pinRed {
-  composes: pin;
-  background: radial-gradient(circle at 35% 35%, #e85545, var(--pushpin-red) 60%, #993322);
-  left: 50%;
-  transform: translateX(-50%);
+  composes: pinRed from '../styles/board.module.css';
 }
 
 .pinGreen {
-  composes: pin;
-  background: radial-gradient(circle at 35% 35%, #7aa87d, var(--thumbtack-green) 60%, #4a6a4d);
-  right: 20px;
+  composes: pinGreen from '../styles/board.module.css';
 }
 
 .pinBlue {
-  composes: pin;
-  background: radial-gradient(circle at 35% 35%, #4a6a9a, var(--ink-blue) 60%, #1a3050);
-  left: 20px;
+  composes: pinBlue from '../styles/board.module.css';
 }
 
 /* ── Hero section ── */
@@ -125,10 +80,9 @@
   font-family: var(--font-handwriting), cursive;
   font-size: 0.95rem;
   color: var(--thumbtack-green);
-  padding: 12px 16px;
+  padding: var(--space-sm) 16px;
   background: rgba(91, 127, 94, 0.06);
-  border-left: 3px solid var(--thumbtack-green);
-  margin-bottom: 20px;
+  margin-bottom: var(--space-md);
   line-height: 1.5;
 }
 
@@ -142,31 +96,14 @@
 }
 
 .tearTabTorn {
-  display: inline-block;
-  padding: 14px 48px;
-  font-family: var(--font-condensed), sans-serif;
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  text-decoration: none;
-  color: var(--paper);
-  background: var(--pushpin-red);
-  border: none;
-  cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
-}
-
-.tearTabTorn:hover {
-  background: var(--pushpin-red-hover);
-  transform: scale(1.03);
+  composes: ctaButton from '../styles/board.module.css';
 }
 
 .signInHint {
   font-family: var(--font-body), Georgia, serif;
   font-size: 0.85rem;
   color: var(--ink-blue-light);
-  margin-top: 12px;
+  margin-top: var(--space-sm);
 }
 
 .signInLink {
@@ -184,7 +121,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding-top: 20px;
+  padding-top: var(--space-md);
 }
 
 .coupleCard {
@@ -202,7 +139,7 @@
   font-weight: 700;
   font-size: 1.2rem;
   color: var(--ink-blue);
-  margin-bottom: 6px;
+  margin-bottom: var(--space-xs);
 }
 
 .coupleCardMeta {
@@ -213,21 +150,11 @@
 }
 
 .coupleCardTag {
-  display: inline-block;
-  font-family: var(--font-condensed), sans-serif;
-  font-weight: 600;
-  font-size: 0.75rem;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  padding: 4px 10px;
-  background: var(--pushpin-red);
-  color: var(--paper);
-  border-radius: 2px;
+  composes: chipHost from '../styles/board.module.css';
 }
 
 .coupleCardTagVisitor {
-  composes: coupleCardTag;
-  background: var(--thumbtack-green);
+  composes: chipVisitor from '../styles/board.module.css';
 }
 
 .indexCard {
@@ -251,7 +178,7 @@
 .calendarCard {
   composes: card;
   transform: rotate(0.8deg);
-  padding: 20px;
+  padding: var(--space-md);
 }
 
 .calendarCard:hover {
@@ -265,13 +192,13 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--ink-blue);
-  margin-bottom: 12px;
+  margin-bottom: var(--space-sm);
 }
 
 .calendarGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  gap: var(--space-xs);
 }
 
 .calendarSlot {
@@ -294,7 +221,7 @@
 /* ── How it works section ── */
 .howSection {
   max-width: 1100px;
-  margin: 80px auto 0;
+  margin: var(--space-section) auto 0;
   position: relative;
   z-index: 1;
 }
@@ -357,7 +284,7 @@
 /* ── Promise section ── */
 .promiseSection {
   max-width: 700px;
-  margin: 80px auto 0;
+  margin: var(--space-section) auto 0;
   position: relative;
   z-index: 1;
 }
@@ -392,24 +319,7 @@
 }
 
 .promiseCta {
-  display: inline-block;
-  font-family: var(--font-condensed), sans-serif;
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  text-decoration: none;
-  padding: 14px 36px;
-  background: var(--pushpin-red);
-  color: var(--paper);
-  border: none;
-  cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
-}
-
-.promiseCta:hover {
-  background: var(--pushpin-red-hover);
-  transform: scale(1.03);
+  composes: ctaButton from '../styles/board.module.css';
 }
 
 /* ── Footer ── */
