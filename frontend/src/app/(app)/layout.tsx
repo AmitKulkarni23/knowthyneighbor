@@ -1,10 +1,9 @@
-import ThemeRegistry from '@/components/ThemeRegistry';
 import AppNavBar from '@/components/AppNavBar';
 import Box from '@mui/material/Box';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeRegistry>
+    <>
       <AppNavBar />
       <Box
         component="main"
@@ -18,6 +17,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       >
         {children}
       </Box>
-    </ThemeRegistry>
+    </>
   );
 }

@@ -4,9 +4,15 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Alert from '@mui/material/Alert';
 import { signInWithOtp } from '@/api/auth';
 import { loginSchema, type LoginFormData } from '@/lib/validations';
-import styles from './page.module.css';
+import { boardBgSx, paperCardSx, pinRedSx, ctaButtonSx } from '@/styles/board';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -39,75 +45,82 @@ export default function LoginPage() {
 
   if (submitted) {
     return (
-      <div className={styles.board}>
-        <div className={styles.card}>
-          <div className={styles.pin} />
-          <h1 className={styles.title}>Check Your Email</h1>
-          <p className={styles.subtitle}>
+      <Box sx={{ ...boardBgSx as object, display: 'flex', alignItems: 'center', justifyContent: 'center', px: 2 }}>
+        <Card sx={{ ...paperCardSx as object, transform: 'rotate(-0.8deg)', maxWidth: 440, width: '100%', p: { xs: '40px 24px 28px', sm: '48px 36px 32px' }, textAlign: 'center', position: 'relative', zIndex: 1 }}>
+          <Box sx={pinRedSx} />
+          <Typography sx={{ fontFamily: 'var(--font-marker), cursive', fontSize: 'clamp(1.6rem, 4vw, 2.2rem)', color: 'var(--ink-blue)', mb: 1.5 }}>
+            Check Your Email
+          </Typography>
+          <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.15rem', color: 'var(--ink-blue-light)', lineHeight: 1.5, mb: 3 }}>
             We sent a magic link your way.
-          </p>
-          <p className={styles.confirmText}>
-            Click the link we sent to <span className={styles.email}>{email}</span> to sign in.
-          </p>
-          <p className={styles.confirmHint}>No password needed.</p>
-          <button
-            type="button"
-            className={styles.altBtn}
+          </Typography>
+          <Typography sx={{ fontFamily: 'var(--font-body), Georgia, serif', fontSize: '0.95rem', color: 'var(--ink-blue)', lineHeight: 1.6, mb: 1 }}>
+            Click the link we sent to{' '}
+            <Box component="span" sx={{ fontWeight: 700, color: 'var(--pushpin-red)' }}>{email}</Box>
+            {' '}to sign in.
+          </Typography>
+          <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '0.9rem', color: 'var(--ink-blue-light)', mb: 3 }}>
+            No password needed.
+          </Typography>
+          <Button
             onClick={() => setSubmitted(false)}
+            sx={{ fontFamily: 'var(--font-condensed), sans-serif', fontWeight: 700, fontSize: '0.85rem', color: 'var(--ink-blue)', textTransform: 'uppercase', letterSpacing: '0.04em', '&:hover': { color: 'var(--pushpin-red)', bgcolor: 'transparent' } }}
           >
             Use a different email
-          </button>
-        </div>
-      </div>
+          </Button>
+        </Card>
+      </Box>
     );
   }
 
   return (
-    <div className={styles.board}>
-      <div className={styles.card}>
-        <div className={styles.pin} />
-        <h1 className={styles.title}>Sign In</h1>
-        <p className={styles.subtitle}>
+    <Box sx={{ ...boardBgSx as object, display: 'flex', alignItems: 'center', justifyContent: 'center', px: 2 }}>
+      <Card sx={{ ...paperCardSx as object, transform: 'rotate(0.6deg)', maxWidth: 440, width: '100%', p: { xs: '40px 24px 28px', sm: '48px 36px 32px' }, position: 'relative', zIndex: 1 }}>
+        <Box sx={pinRedSx} />
+        <Typography sx={{ fontFamily: 'var(--font-marker), cursive', fontSize: 'clamp(1.6rem, 4vw, 2.2rem)', color: 'var(--ink-blue)', textAlign: 'center', mb: 1 }}>
+          Sign In
+        </Typography>
+        <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.1rem', color: 'var(--ink-blue-light)', textAlign: 'center', lineHeight: 1.5, mb: 4 }}>
           Enter your email and we&apos;ll send you a magic link. No password needed.
-        </p>
+        </Typography>
 
         {serverError && (
-          <div className={styles.alert}>{serverError}</div>
+          <Alert severity="error" sx={{ mb: 3, bgcolor: 'rgba(204, 68, 51, 0.08)', color: 'var(--pushpin-red)', fontFamily: 'var(--font-body), Georgia, serif', '& .MuiAlert-icon': { color: 'var(--pushpin-red)' } }}>
+            {serverError}
+          </Alert>
         )}
 
-        <form className={styles.form} onSubmit={handleSubmit(onSubmit)} noValidate>
-          <div className={styles.fieldGroup}>
-            <label htmlFor="email" className={styles.label}>Email</label>
-            <input
-              id="email"
-              type="email"
-              className={errors.email ? styles.inputError : styles.input}
-              placeholder="you@example.com"
-              autoFocus
-              {...register('email')}
-            />
-            {errors.email && (
-              <p className={styles.errorText}>{errors.email.message}</p>
-            )}
-          </div>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+          <TextField
+            id="email"
+            label="Email"
+            type="email"
+            fullWidth
+            autoFocus
+            placeholder="you@example.com"
+            error={!!errors.email}
+            helperText={errors.email?.message}
+            {...register('email')}
+            sx={{ mb: 4, '& .MuiInputLabel-root': { fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.1rem', color: 'var(--ink-blue-light)' }, '& .MuiInput-root': { fontFamily: 'var(--font-body), Georgia, serif', fontSize: '1rem' } }}
+          />
 
-          <button
+          <Button
             type="submit"
-            className={styles.submitBtn}
+            fullWidth
             disabled={isSubmitting}
+            sx={{ ...ctaButtonSx as object, width: '100%' }}
           >
             {isSubmitting ? 'Sending...' : 'Send Magic Link'}
-          </button>
-        </form>
+          </Button>
+        </Box>
 
-        <button
-          type="button"
-          className={styles.backLink}
+        <Button
           onClick={() => router.push('/')}
+          sx={{ display: 'block', mx: 'auto', mt: 2.5, fontFamily: 'var(--font-condensed), sans-serif', fontWeight: 700, fontSize: '0.85rem', color: 'var(--ink-blue)', textTransform: 'uppercase', letterSpacing: '0.04em', '&:hover': { color: 'var(--pushpin-red)', bgcolor: 'transparent' } }}
         >
           Back to home
-        </button>
-      </div>
-    </div>
+        </Button>
+      </Card>
+    </Box>
   );
 }

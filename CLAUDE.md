@@ -18,7 +18,7 @@ One person creates a couple profile (names, ages, kids, zip code, calendar avail
 - **Frontend**: Next.js (App Router) on Vercel
 - **Backend**: Supabase (Auth, Postgres + PostGIS, Row Level Security, Realtime, Edge Functions)
 - **Email**: Resend (transactional emails for join request notifications)
-- **UI Components**: MUI (Material UI) for all app screens (signup, discovery, chat); landing page uses custom CSS
+- **UI Components**: MUI (Material UI) everywhere — all pages use MUI components with `sx` props, no CSS Modules
 - **Runtime**: Bun
 
 ## Folder Structure
@@ -111,12 +111,13 @@ vercel env pull .env.local
 The app uses the **"Neighborhood Board"** visual identity documented in `DESIGN.md`. Every surface looks like a cork bulletin board with pinned paper cards.
 
 - **Tokens**: CSS custom properties in `frontend/src/app/globals.css` — colors, shadows, spacing, motion
-- **Shared primitives**: `frontend/src/styles/board.module.css` — reusable board, card, pin, CTA, and chip classes
+- **Shared sx objects**: `frontend/src/styles/board.ts` — reusable MUI sx style objects (`boardBgSx`, `paperCardSx`, `pinRedSx`, `pinGreenSx`, `pinBlueSx`, `ctaButtonSx`)
 - **MUI theme**: `frontend/src/config/theme.ts` — overrides Material UI to match the board world (zero radius, paper shadows, handwriting fonts)
+- **ThemeRegistry**: Wraps the entire app in root `layout.tsx` so all routes (landing, auth, app) share the MUI theme
 - **Fonts**: Permanent Marker (display), Caveat (handwriting), Barlow Condensed (labels/buttons), Source Sans 3 (body) — loaded in `frontend/src/app/layout.tsx`
 - **Rules**: No pure white/black, no border-radius on cards/buttons, no dark mode. See DESIGN.md for the full system.
 
-When building new screens, compose from `board.module.css` for cork backgrounds, paper cards, and pushpins. Use the MUI theme for app components (buttons, dialogs, chips).
+When building new screens, import shared sx objects from `board.ts` for cork backgrounds, paper cards, and pushpins. Use MUI components (`Box`, `Card`, `Typography`, `Button`, `Chip`) with `sx` props — no CSS Modules.
 
 ## Architecture
 

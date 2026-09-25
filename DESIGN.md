@@ -233,7 +233,7 @@ Not yet implemented. When built, navigation should feel like section dividers on
 ## Do's and Don'ts
 
 ### Do:
-- **Do** use CSS custom properties from globals.css (`--cork`, `--paper`, `--pushpin-red`, `--ink-blue`, etc.) for all color values. Never hardcode hex except in pushpin radial gradients.
+- **Do** use CSS custom properties from globals.css (`--cork`, `--paper`, `--pushpin-red`, `--ink-blue`, etc.) via `var()` in MUI `sx` props. Never hardcode hex except in pushpin radial gradients.
 - **Do** assign every card a unique slight rotation between -2.3° and +2.3° to maintain the pinned-by-hand feel.
 - **Do** use the full cork board background (texture + radial gradient overlay) on every screen, including app screens.
 - **Do** pair every card with exactly one pushpin element, positioned at the top.
@@ -244,7 +244,7 @@ Not yet implemented. When built, navigation should feel like section dividers on
 - **Don't** use border-radius on cards, buttons, or containers. Paper has sharp corners.
 - **Don't** use pure white (#FFFFFF) or pure black (#000000) anywhere. Warm Cream is the lightest surface; Ink Blue is the darkest foreground.
 - **Don't** use gradients on surfaces (except the cork background texture and pushpin radial gradients). Paper is flat.
-- **Don't** use MUI's default theme values (rounded corners, gray backgrounds, Material shadows) for any user-facing surface. The MUI theme must be overridden to match the bulletin board world.
+- **Don't** use MUI's default theme values (rounded corners, gray backgrounds, Material shadows) for any user-facing surface. The MUI theme in `theme.ts` overrides all defaults; use shared sx objects from `board.ts` for board-specific patterns (cork background, paper cards, pushpins, CTA buttons).
 - **Don't** set Barlow Condensed in sentence case or without letter-spacing. It is always uppercase and tracked.
 - **Don't** align cards to a perfect grid. Slight rotation and offset are mandatory, not decorative.
 - **Don't** use dark mode. The cork board exists under warm ambient light. There is no dark variant.
