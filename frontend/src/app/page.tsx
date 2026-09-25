@@ -25,8 +25,8 @@ export default function Home() {
         {/* Main flyer */}
         <Card sx={{ ...rotatedCard(-1.2), p: { xs: '36px 24px 16px', md: '48px 36px 20px' }, maxWidth: 520, borderBottom: 'none' }}>
           <Box sx={pinRedSx} />
-          <Typography sx={{ fontFamily: 'var(--font-marker), cursive', fontSize: 'clamp(2.2rem, 5vw, 3.4rem)', color: 'var(--ink-blue)', lineHeight: 1.1, letterSpacing: '-0.02em', mb: 2 }}>
-            KnowThy Neighbor
+          <Typography sx={{ fontFamily: 'var(--font-marker), cursive', fontSize: 'clamp(1.8rem, 4.5vw, 2.8rem)', color: 'var(--ink-blue)', lineHeight: 1.1, letterSpacing: '-0.02em', mb: 2, whiteSpace: 'nowrap' }}>
+            Know Thy Neighbor
           </Typography>
           <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: 'clamp(1.2rem, 2.5vw, 1.6rem)', color: 'var(--ink-blue-light)', lineHeight: 1.4, mb: 4 }}>
             Find couples in your neighborhood for shared meals
@@ -34,7 +34,7 @@ export default function Home() {
           <Typography sx={{ fontFamily: 'var(--font-body), Georgia, serif', fontSize: '1rem', lineHeight: 1.7, color: 'var(--ink-blue)', mb: 3, maxWidth: '55ch' }}>
             Create a simple couple profile with your name, age, and zip code. Browse other couples nearby. Send a request to join them for dinner, lunch, or brunch. Chat to plan the details. Then sit down and share a real meal with real people.
           </Typography>
-          <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '0.95rem', color: 'var(--thumbtack-green)', p: '12px 16px', bgcolor: 'rgba(91, 127, 94, 0.06)', mb: '20px', lineHeight: 1.5 }}>
+          <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.15rem', color: 'var(--thumbtack-green)', p: '12px 16px', bgcolor: 'rgba(91, 127, 94, 0.06)', mb: '20px', lineHeight: 1.5 }}>
             We only ask for your zip code. We never ask for or store your home address. Share it only when you&apos;re ready, directly in chat, after you&apos;ve done your own due diligence.
           </Typography>
 
@@ -119,7 +119,7 @@ export default function Home() {
               <Box sx={step.pin === 'red' ? pinRedSx : step.pin === 'green' ? pinGreenSx : pinBlueSx} />
               <Typography sx={{ fontFamily: 'var(--font-marker), cursive', fontSize: '2.4rem', color: 'var(--pushpin-red)', mb: 1 }}>{step.n}</Typography>
               <Typography sx={{ fontFamily: 'var(--font-condensed), sans-serif', fontWeight: 700, fontSize: '1.1rem', color: 'var(--ink-blue)', mb: 1, textTransform: 'uppercase', letterSpacing: '0.02em' }}>{step.title}</Typography>
-              <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1rem', color: 'var(--ink-blue-light)', lineHeight: 1.5 }}>{step.desc}</Typography>
+              <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.15rem', color: 'var(--ink-blue-light)', lineHeight: 1.5 }}>{step.desc}</Typography>
             </Card>
           ))}
         </Box>
@@ -129,22 +129,16 @@ export default function Home() {
       <Box sx={{ maxWidth: 700, mx: 'auto', mt: 10, position: 'relative', zIndex: 1 }}>
         <Card sx={{ ...rotatedCard(0.5), p: '40px 36px', textAlign: 'center' }}>
           <Box sx={pinRedSx} />
-          <Typography sx={{ fontFamily: 'var(--font-marker), cursive', fontSize: 'clamp(1.4rem, 3vw, 2rem)', color: 'var(--ink-blue)', mb: 2 }}>
+          <Typography sx={{ fontFamily: 'var(--font-marker), cursive', fontSize: 'clamp(1.6rem, 3.5vw, 2.4rem)', color: 'var(--ink-blue)', mb: 2 }}>
             No algorithms. No AI slop. Just neighbors.
           </Typography>
-          <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.2rem', color: 'var(--ink-blue-light)', lineHeight: 1.6, mb: 3, maxWidth: '50ch', mx: 'auto' }}>
+          <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.35rem', color: 'var(--ink-blue-light)', lineHeight: 1.6, mb: 3, maxWidth: '50ch', mx: 'auto' }}>
             We built this because people are tired of screens pretending to be connection. KnowThyNeighbor gets you off the app and around a table. The only thing we optimize for is a real meal with real people.
           </Typography>
           <Button href="/login" sx={ctaButtonSx}>Put Your Card on the Board</Button>
         </Card>
       </Box>
 
-      {/* ── Footer ── */}
-      <Box sx={{ maxWidth: 1100, mx: 'auto', mt: 8, py: 3, textAlign: 'center', position: 'relative', zIndex: 1 }}>
-        <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '0.9rem', color: 'var(--cork-light)' }}>
-          KnowThyNeighbor &middot; Real meals with real neighbors
-        </Typography>
-      </Box>
     </Box>
   );
 }
