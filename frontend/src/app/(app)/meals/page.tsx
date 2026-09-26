@@ -3,17 +3,19 @@
 import { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
-import Divider from '@mui/material/Divider';
 import useCouple from '@/hooks/useCouple';
 import useConversations from '@/hooks/useConversations';
 import { getMeals, updateMealStatus } from '@/api/meals';
 import type { Meal, MealStatus } from '@/types/database';
+import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
+
+const rotations = [-1, 1.5, -0.5, 1.8, -1.3, 0.8];
+const pins = [pinRedSx, pinGreenSx, pinBlueSx];
 
 export default function MealsPage() {
   const { data: couple, loading: coupleLoading } = useCouple();
@@ -56,7 +58,7 @@ export default function MealsPage() {
   if (coupleLoading || convsLoading || loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-        <CircularProgress />
+        <CircularProgress sx={{ color: 'var(--pushpin-red)' }} />
       </Box>
     );
   }
@@ -73,12 +75,12 @@ export default function MealsPage() {
     (m) => m.status === 'completed' || m.status === 'cancelled' || new Date(m.scheduled_at) < now
   );
 
-  const statusColor = (status: string) => {
+  const statusChipSx = (status: string) => {
     switch (status) {
-      case 'confirmed': return 'success' as const;
-      case 'completed': return 'info' as const;
-      case 'cancelled': return 'error' as const;
-      default: return 'warning' as const;
+      case 'confirmed': return { bgcolor: 'var(--thumbtack-green)', color: 'var(--paper)' };
+      case 'completed': return { bgcolor: 'var(--ink-blue)', color: 'var(--paper)' };
+      case 'cancelled': return { bgcolor: 'var(--pushpin-red)', color: 'var(--paper)' };
+      default: return { bgcolor: 'var(--index-yellow)', color: 'var(--ink-blue)' };
     }
   };
 
@@ -87,21 +89,25 @@ export default function MealsPage() {
     switch (meal.status) {
       case 'proposed':
         return (
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
             <Button
-              size="small"
-              variant="contained"
               onClick={() => handleStatusUpdate(meal.id, 'confirmed')}
               disabled={isUpdating}
+              sx={{ ...ctaButtonSx as object, py: '10px', px: '28px', fontSize: '0.95rem' }}
             >
               Confirm
             </Button>
             <Button
-              size="small"
-              variant="outlined"
-              color="error"
               onClick={() => handleStatusUpdate(meal.id, 'cancelled')}
               disabled={isUpdating}
+              sx={{
+                ...ctaButtonSx as object,
+                py: '10px', px: '28px', fontSize: '0.95rem',
+                bgcolor: 'transparent',
+                color: 'var(--pushpin-red)',
+                border: '2px solid var(--pushpin-red)',
+                '&:hover': { bgcolor: 'rgba(204, 68, 51, 0.06)', transform: 'scale(1.03)' },
+              }}
             >
               Cancel
             </Button>
@@ -109,21 +115,30 @@ export default function MealsPage() {
         );
       case 'confirmed':
         return (
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
             <Button
-              size="small"
-              variant="contained"
               onClick={() => handleStatusUpdate(meal.id, 'completed')}
               disabled={isUpdating}
+              sx={{
+                ...ctaButtonSx as object,
+                py: '10px', px: '28px', fontSize: '0.95rem',
+                bgcolor: 'var(--thumbtack-green)',
+                '&:hover': { bgcolor: '#4a6a4d', transform: 'scale(1.03)' },
+              }}
             >
               Mark complete
             </Button>
             <Button
-              size="small"
-              variant="outlined"
-              color="error"
               onClick={() => handleStatusUpdate(meal.id, 'cancelled')}
               disabled={isUpdating}
+              sx={{
+                ...ctaButtonSx as object,
+                py: '10px', px: '28px', fontSize: '0.95rem',
+                bgcolor: 'transparent',
+                color: 'var(--pushpin-red)',
+                border: '2px solid var(--pushpin-red)',
+                '&:hover': { bgcolor: 'rgba(204, 68, 51, 0.06)', transform: 'scale(1.03)' },
+              }}
             >
               Cancel
             </Button>
@@ -134,20 +149,53 @@ export default function MealsPage() {
     }
   };
 
-  const renderMealCard = (meal: Meal) => (
-    <Card key={meal.id} sx={{ mb: 2 }}>
-      <CardContent sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <Typography variant="h3">
+  const renderMealCard = (meal: Meal, index: number) => {
+    const deg = rotations[index % rotations.length];
+    const pin = pins[index % pins.length];
+
+    return (
+      <Card
+        key={meal.id}
+        sx={{
+          ...paperCardSx as object,
+          transform: `rotate(${deg}deg)`,
+          p: '28px 24px',
+          position: 'relative',
+          mb: 2.5,
+          '&:hover': {
+            ...(paperCardSx as any)['&:hover'],
+            transform: `rotate(${deg}deg) translateY(-4px) scale(1.01)`,
+          },
+        }}
+      >
+        <Box sx={pin} />
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, mt: 0.5 }}>
+          <Typography
+            sx={{
+              fontFamily: 'var(--font-condensed), sans-serif',
+              fontWeight: 700,
+              fontSize: '1.25rem',
+              color: 'var(--ink-blue)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.02em',
+            }}
+          >
             {meal.meal_type.charAt(0).toUpperCase() + meal.meal_type.slice(1)}
           </Typography>
           <Chip
-            label={meal.status}
+            label={meal.status.toUpperCase()}
             size="small"
-            color={statusColor(meal.status)}
+            sx={statusChipSx(meal.status)}
           />
         </Box>
-        <Typography color="text.secondary" sx={{ mb: 2 }}>
+        <Typography
+          sx={{
+            fontFamily: 'var(--font-handwriting), cursive',
+            fontSize: '1.2rem',
+            color: 'var(--ink-blue-light)',
+            mb: 2,
+          }}
+        >
           {new Date(meal.scheduled_at).toLocaleDateString(undefined, {
             weekday: 'long',
             month: 'long',
@@ -157,38 +205,74 @@ export default function MealsPage() {
           })}
         </Typography>
         {renderMealActions(meal)}
-      </CardContent>
-    </Card>
-  );
+      </Card>
+    );
+  };
 
   return (
     <Box>
-      <Typography variant="h1" sx={{ mb: 3 }}>
+      <Typography
+        sx={{
+          fontFamily: 'var(--font-marker), cursive',
+          fontSize: 'clamp(1.8rem, 4vw, 2.6rem)',
+          color: 'var(--ink-blue)',
+          mb: 3,
+        }}
+      >
         Meals
       </Typography>
 
-      <Typography variant="h2" sx={{ mb: 2 }}>
+      <Typography
+        sx={{
+          fontFamily: 'var(--font-marker), cursive',
+          fontSize: 'clamp(1.4rem, 2.5vw, 1.8rem)',
+          color: 'var(--ink-blue)',
+          mb: 2,
+        }}
+      >
         Upcoming
       </Typography>
       {upcoming.length === 0 ? (
-        <Typography color="text.secondary" sx={{ mb: 3 }}>
+        <Typography
+          sx={{
+            fontFamily: 'var(--font-handwriting), cursive',
+            fontSize: '1.25rem',
+            color: 'var(--ink-blue-light)',
+            lineHeight: 1.6,
+            mb: 3,
+          }}
+        >
           No upcoming meals. Send a request and plan one!
         </Typography>
       ) : (
-        <Box sx={{ mb: 3 }}>{upcoming.map(renderMealCard)}</Box>
+        <Box sx={{ mb: 3 }}>{upcoming.map((m, i) => renderMealCard(m, i))}</Box>
       )}
 
-      <Divider sx={{ my: 3 }} />
+      <Box sx={{ borderTop: '2px dashed var(--cork-dark)', my: 4 }} />
 
-      <Typography variant="h2" sx={{ mb: 2 }}>
+      <Typography
+        sx={{
+          fontFamily: 'var(--font-marker), cursive',
+          fontSize: 'clamp(1.4rem, 2.5vw, 1.8rem)',
+          color: 'var(--ink-blue)',
+          mb: 2,
+        }}
+      >
         Past
       </Typography>
       {past.length === 0 ? (
-        <Typography color="text.secondary">
+        <Typography
+          sx={{
+            fontFamily: 'var(--font-handwriting), cursive',
+            fontSize: '1.25rem',
+            color: 'var(--ink-blue-light)',
+            lineHeight: 1.6,
+          }}
+        >
           No past meals yet. Your first dinner is just around the corner.
         </Typography>
       ) : (
-        past.map(renderMealCard)
+        past.map((m, i) => renderMealCard(m, i))
       )}
     </Box>
   );

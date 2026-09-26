@@ -37,21 +37,21 @@ const theme = createTheme({
     h1: {
       fontFamily: 'var(--font-marker), cursive',
       fontWeight: 400,
-      fontSize: 'clamp(1.6rem, 3vw, 2.4rem)',
+      fontSize: 'clamp(2rem, 4vw, 2.9rem)',
       lineHeight: 1.2,
       color: '#2B4570',
     },
     h2: {
       fontFamily: 'var(--font-marker), cursive',
       fontWeight: 400,
-      fontSize: '1.5rem',
+      fontSize: 'clamp(1.55rem, 2.8vw, 2rem)',
       lineHeight: 1.2,
       color: '#2B4570',
     },
     h3: {
       fontFamily: 'var(--font-condensed), sans-serif',
       fontWeight: 700,
-      fontSize: '1.1rem',
+      fontSize: '1.4rem',
       lineHeight: 1.3,
       letterSpacing: '0.02em',
       color: '#2B4570',
@@ -59,27 +59,29 @@ const theme = createTheme({
     h6: {
       fontFamily: 'var(--font-marker), cursive',
       fontWeight: 400,
-      fontSize: '1.2rem',
+      fontSize: '1.45rem',
       color: '#2B4570',
     },
     body1: {
-      fontSize: '1rem',
-      lineHeight: 1.7,
+      fontFamily: 'var(--font-handwriting), cursive',
+      fontSize: '1.3rem',
+      lineHeight: 1.6,
     },
     body2: {
       fontFamily: 'var(--font-handwriting), cursive',
-      fontSize: '0.95rem',
+      fontSize: '1.15rem',
       lineHeight: 1.5,
     },
     button: {
       fontFamily: 'var(--font-condensed), sans-serif',
       textTransform: 'uppercase' as const,
       fontWeight: 700,
+      fontSize: '1.1rem',
       letterSpacing: '0.04em',
     },
     caption: {
       fontFamily: 'var(--font-handwriting), cursive',
-      fontSize: '0.85rem',
+      fontSize: '0.95rem',
     },
   },
   shape: {
@@ -169,6 +171,17 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           boxShadow: '0 1px 2px rgba(60, 40, 20, 0.1)',
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          fontFamily: 'var(--font-condensed), sans-serif',
+          fontWeight: 700,
+          fontSize: '1.1rem',
+          letterSpacing: '0.04em',
+          textTransform: 'uppercase' as const,
         },
       },
     },

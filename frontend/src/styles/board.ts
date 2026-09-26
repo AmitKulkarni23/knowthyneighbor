@@ -68,7 +68,7 @@ export const ctaButtonSx: SxProps<Theme> = {
   color: 'var(--paper)',
   fontFamily: 'var(--font-condensed), sans-serif',
   fontWeight: 700,
-  fontSize: '1.1rem',
+  fontSize: '1.2rem',
   letterSpacing: '0.04em',
   textTransform: 'uppercase',
   borderRadius: 0,

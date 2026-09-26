@@ -36,39 +36,54 @@ export default function AppNavBar() {
       position="sticky"
       elevation={0}
       sx={{
-        bgcolor: 'background.paper',
-        borderBottom: 1,
-        borderColor: 'divider',
+        bgcolor: 'var(--paper)',
+        borderBottom: '2px solid var(--cork-light)',
       }}
     >
       <Toolbar sx={{ maxWidth: 960, width: '100%', mx: 'auto', px: 2 }}>
         <Typography
-          variant="h6"
           sx={{
-            fontWeight: 700,
-            color: 'primary.main',
+            fontFamily: 'var(--font-marker), cursive',
+            fontWeight: 400,
+            fontSize: '1.55rem',
+            color: 'var(--ink-blue)',
             cursor: 'pointer',
             mr: 4,
+            '&:hover': { color: 'var(--pushpin-red)' },
           }}
           onClick={() => router.push('/discover')}
         >
           KnowThyNeighbor
         </Typography>
 
-        <Box sx={{ display: 'flex', gap: 1, flexGrow: 1 }}>
-          {navItems.map((item) => (
-            <Button
-              key={item.href}
-              onClick={() => router.push(item.href)}
-              sx={{
-                color: pathname.startsWith(item.href) ? 'primary.main' : 'text.secondary',
-                fontWeight: pathname.startsWith(item.href) ? 700 : 400,
-                minWidth: 'auto',
-              }}
-            >
-              {item.label}
-            </Button>
-          ))}
+        <Box sx={{ display: 'flex', gap: 0.5, flexGrow: 1 }}>
+          {navItems.map((item) => {
+            const active = pathname.startsWith(item.href);
+            return (
+              <Button
+                key={item.href}
+                onClick={() => router.push(item.href)}
+                sx={{
+                  fontFamily: 'var(--font-condensed), sans-serif',
+                  fontWeight: 700,
+                  fontSize: '1.1rem',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                  color: active ? 'var(--pushpin-red)' : 'var(--ink-blue)',
+                  borderBottom: active ? '3px solid var(--pushpin-red)' : '3px solid transparent',
+                  borderRadius: 0,
+                  px: 1.5,
+                  minWidth: 'auto',
+                  '&:hover': {
+                    color: 'var(--pushpin-red)',
+                    bgcolor: 'transparent',
+                  },
+                }}
+              >
+                {item.label}
+              </Button>
+            );
+          })}
         </Box>
 
         <IconButton
@@ -76,11 +91,12 @@ export default function AppNavBar() {
           sx={{
             width: 36,
             height: 36,
-            bgcolor: 'primary.main',
-            color: 'primary.contrastText',
+            bgcolor: 'var(--pushpin-red)',
+            color: 'var(--paper)',
+            fontFamily: 'var(--font-condensed), sans-serif',
             fontSize: 14,
             fontWeight: 700,
-            '&:hover': { bgcolor: 'primary.dark' },
+            '&:hover': { bgcolor: 'var(--pushpin-red-hover)' },
           }}
         >
           P
@@ -89,11 +105,44 @@ export default function AppNavBar() {
           anchorEl={menuAnchor}
           open={Boolean(menuAnchor)}
           onClose={() => setMenuAnchor(null)}
+          slotProps={{
+            paper: {
+              sx: {
+                bgcolor: 'var(--paper)',
+                boxShadow: 'var(--shadow-card-lift)',
+                borderRadius: 0,
+              },
+            },
+          }}
         >
-          <MenuItem onClick={() => { setMenuAnchor(null); router.push('/profile'); }}>
+          <MenuItem
+            onClick={() => { setMenuAnchor(null); router.push('/profile'); }}
+            sx={{
+              fontFamily: 'var(--font-condensed), sans-serif',
+              fontWeight: 700,
+              fontSize: '1.1rem',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              color: 'var(--ink-blue)',
+              '&:hover': { color: 'var(--pushpin-red)', bgcolor: 'rgba(204, 68, 51, 0.04)' },
+            }}
+          >
             Profile
           </MenuItem>
-          <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
+          <MenuItem
+            onClick={handleSignOut}
+            sx={{
+              fontFamily: 'var(--font-condensed), sans-serif',
+              fontWeight: 700,
+              fontSize: '1.1rem',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              color: 'var(--ink-blue)',
+              '&:hover': { color: 'var(--pushpin-red)', bgcolor: 'rgba(204, 68, 51, 0.04)' },
+            }}
+          >
+            Sign out
+          </MenuItem>
         </Menu>
       </Toolbar>
     </AppBar>
