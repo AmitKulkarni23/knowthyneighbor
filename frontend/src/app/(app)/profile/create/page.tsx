@@ -14,12 +14,12 @@ import Alert from '@mui/material/Alert';
 import { createProfile } from '@/api/profiles';
 import { uploadAvatar, getAvatarUrl } from '@/api/storage';
 import { updateProfile } from '@/api/profiles';
-import useAuth from '@/hooks/useAuth';
+import { useAppContext } from '@/components/AppProvider';
 import { profileSchema, type ProfileFormData } from '@/lib/validations';
 
 export default function CreateProfilePage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user } = useAppContext();
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
 

@@ -5,9 +5,8 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardActionArea from '@mui/material/CardActionArea';
 import Typography from '@mui/material/Typography';
-import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
-import useCouple from '@/hooks/useCouple';
+import { useAppContext } from '@/components/AppProvider';
 import useConversations from '@/hooks/useConversations';
 import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx } from '@/styles/board';
 
@@ -16,16 +15,8 @@ const pins = [pinRedSx, pinGreenSx, pinBlueSx];
 
 export default function ChatListPage() {
   const router = useRouter();
-  const { data: couple, loading: coupleLoading } = useCouple();
+  const { couple } = useAppContext();
   const { data: conversations, loading, error } = useConversations(couple?.id ?? null);
-
-  if (coupleLoading || loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-        <CircularProgress sx={{ color: 'var(--pushpin-red)' }} />
-      </Box>
-    );
-  }
 
   if (error) {
     return <Alert severity="error">{error}</Alert>;

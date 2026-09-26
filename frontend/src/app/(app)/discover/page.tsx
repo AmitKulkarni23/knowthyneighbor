@@ -16,11 +16,10 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import FormHelperText from '@mui/material/FormHelperText';
-import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import useCouple from '@/hooks/useCouple';
+import { useAppContext } from '@/components/AppProvider';
 import useDiscovery from '@/hooks/useDiscovery';
 import { sendJoinRequest } from '@/api/joinRequests';
 import type { DiscoveryCouple } from '@/types/database';
@@ -31,7 +30,7 @@ const rotations = [-1.2, 1.5, -0.5, 1.8, -1, 0.8, -2, 1.2];
 const pins = [pinRedSx, pinGreenSx, pinBlueSx];
 
 export default function DiscoverPage() {
-  const { data: couple, loading: coupleLoading } = useCouple();
+  const { couple } = useAppContext();
   const { data: couples, loading: discoveryLoading, error } = useDiscovery(couple?.id ?? null);
   const [selectedCouple, setSelectedCouple] = useState<DiscoveryCouple | null>(null);
   const [sendError, setSendError] = useState<string | null>(null);
@@ -78,16 +77,6 @@ export default function DiscoverPage() {
     setSendSuccess(false);
     reset();
   };
-
-  const loading = coupleLoading || discoveryLoading;
-
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-        <CircularProgress sx={{ color: 'var(--pushpin-red)' }} />
-      </Box>
-    );
-  }
 
   if (error) {
     return <Alert severity="error">{error}</Alert>;

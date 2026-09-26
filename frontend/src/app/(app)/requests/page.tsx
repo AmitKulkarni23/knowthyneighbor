@@ -8,9 +8,8 @@ import Typography from '@mui/material/Typography';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Chip from '@mui/material/Chip';
-import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
-import useCouple from '@/hooks/useCouple';
+import { useAppContext } from '@/components/AppProvider';
 import useJoinRequests from '@/hooks/useJoinRequests';
 import { respondToJoinRequest } from '@/api/joinRequests';
 import type { JoinRequest } from '@/types/database';
@@ -19,7 +18,7 @@ import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/sty
 const rotations = [1.2, -0.8, 1.5, -1.1, 0.6, -1.8, 0.9, -0.5];
 
 export default function RequestsPage() {
-  const { data: couple, loading: coupleLoading } = useCouple();
+  const { couple } = useAppContext();
   const { received, sent, loading, error, refetch } = useJoinRequests(couple?.id ?? null);
   const [tab, setTab] = useState(0);
   const [responding, setResponding] = useState<string | null>(null);
@@ -30,14 +29,6 @@ export default function RequestsPage() {
     setResponding(null);
     refetch();
   };
-
-  if (coupleLoading || loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-        <CircularProgress sx={{ color: 'var(--pushpin-red)' }} />
-      </Box>
-    );
-  }
 
   if (error) {
     return <Alert severity="error">{error}</Alert>;

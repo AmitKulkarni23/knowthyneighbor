@@ -6,9 +6,8 @@ import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
-import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
-import useCouple from '@/hooks/useCouple';
+import { useAppContext } from '@/components/AppProvider';
 import useConversations from '@/hooks/useConversations';
 import { getMeals, updateMealStatus } from '@/api/meals';
 import type { Meal, MealStatus } from '@/types/database';
@@ -18,7 +17,7 @@ const rotations = [-1, 1.5, -0.5, 1.8, -1.3, 0.8];
 const pins = [pinRedSx, pinGreenSx, pinBlueSx];
 
 export default function MealsPage() {
-  const { data: couple, loading: coupleLoading } = useCouple();
+  const { couple } = useAppContext();
   const { data: conversations, loading: convsLoading } = useConversations(couple?.id ?? null);
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,13 +54,7 @@ export default function MealsPage() {
     setUpdating(null);
   };
 
-  if (coupleLoading || convsLoading || loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-        <CircularProgress sx={{ color: 'var(--pushpin-red)' }} />
-      </Box>
-    );
-  }
+  if (convsLoading || loading) return null;
 
   if (error) {
     return <Alert severity="error">{error}</Alert>;

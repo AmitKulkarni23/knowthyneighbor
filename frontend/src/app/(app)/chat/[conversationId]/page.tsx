@@ -18,7 +18,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import FormHelperText from '@mui/material/FormHelperText';
-import useAuth from '@/hooks/useAuth';
+import { useAppContext } from '@/components/AppProvider';
 import useMessages from '@/hooks/useMessages';
 import { sendMessage } from '@/api/conversations';
 import { createMeal } from '@/api/meals';
@@ -30,7 +30,7 @@ type ChatPageProps = {
 
 export default function ChatPage({ params }: ChatPageProps) {
   const { conversationId } = use(params);
-  const { user } = useAuth();
+  const { user } = useAppContext();
   const { data: messages, loading, error } = useMessages(conversationId);
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);

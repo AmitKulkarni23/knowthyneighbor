@@ -1,25 +1,20 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
 import AppNavBar from '@/components/AppNavBar';
+import { AppProvider, useAppContext } from '@/components/AppProvider';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const [visible, setVisible] = useState(true);
-  const prevPath = useRef(pathname);
+function AppShell({ children }: { children: React.ReactNode }) {
+  const { authLoading, coupleLoading } = useAppContext();
 
-  useEffect(() => {
-    if (prevPath.current !== pathname) {
-      setVisible(false);
-      const timer = setTimeout(() => {
-        setVisible(true);
-        prevPath.current = pathname;
-      }, 80);
-      return () => clearTimeout(timer);
-    }
-  }, [pathname]);
+  if (authLoading || coupleLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <CircularProgress sx={{ color: 'var(--pushpin-red)' }} />
+      </Box>
+    );
+  }
 
   return (
     <>
@@ -32,13 +27,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           px: 2,
           py: 3,
           minHeight: 'calc(100vh - 64px)',
-          opacity: visible ? 1 : 0,
-          transform: visible ? 'translateY(0)' : 'translateY(8px)',
-          transition: 'opacity 0.2s ease-out, transform 0.2s ease-out',
         }}
       >
         {children}
       </Box>
     </>
+  );
+}
+
+export default function AppLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AppProvider>
+      <AppShell>{children}</AppShell>
+    </AppProvider>
   );
 }

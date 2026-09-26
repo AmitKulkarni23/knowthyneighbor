@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 import { claimPartnerInvite } from '@/api/couples';
-import useAuth from '@/hooks/useAuth';
+import { useAppContext } from '@/components/AppProvider';
 
 type JoinPageProps = {
   params: Promise<{ coupleId: string; inviteCode: string }>;
@@ -19,7 +19,7 @@ type JoinPageProps = {
 export default function JoinPage({ params }: JoinPageProps) {
   const { coupleId, inviteCode } = use(params);
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, authLoading } = useAppContext();
   const [claiming, setClaiming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);

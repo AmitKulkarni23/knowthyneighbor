@@ -6,50 +6,32 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
 import Chip from '@mui/material/Chip';
-import useAuth from '@/hooks/useAuth';
+import { useAppContext } from '@/components/AppProvider';
 import { getProfile } from '@/api/profiles';
-import { getCoupleByMember } from '@/api/couples';
 import type { Profile } from '@/types/database';
-import type { Couple } from '@/types/database';
 import { paperCardSx, pinRedSx, pinGreenSx, ctaButtonSx } from '@/styles/board';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, loading: authLoading, signOut } = useAuth();
+  const { user, couple, signOut } = useAppContext();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [couple, setCouple] = useState<Couple | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (authLoading || !user) return;
+    if (!user) return;
 
-    async function load() {
-      const { profile: p } = await getProfile(user!.id);
+    getProfile(user.id).then(({ profile: p }) => {
       if (!p) {
         router.replace('/profile/create');
         return;
       }
       setProfile(p);
-
-      const { couple: c } = await getCoupleByMember(user!.id);
-      setCouple(c);
       setLoading(false);
-    }
+    });
+  }, [user, router]);
 
-    load();
-  }, [user, authLoading, router]);
-
-  if (authLoading || loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-        <CircularProgress sx={{ color: 'var(--pushpin-red)' }} />
-      </Box>
-    );
-  }
-
-  if (!profile) return null;
+  if (loading || !profile) return null;
 
   const handleSignOut = async () => {
     await signOut();

@@ -10,7 +10,7 @@ import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { useState } from 'react';
-import useAuth from '@/hooks/useAuth';
+import { useAppContext } from '@/components/AppProvider';
 
 const navItems = [
   { label: 'Discover', href: '/discover' },
@@ -22,7 +22,7 @@ const navItems = [
 export default function AppNavBar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { signOut } = useAuth();
+  const { signOut } = useAppContext();
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 
   const handleSignOut = async () => {
