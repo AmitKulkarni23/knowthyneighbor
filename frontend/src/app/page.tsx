@@ -35,7 +35,7 @@ export default function Home() {
           <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: 'clamp(1.2rem, 2.5vw, 1.6rem)', color: 'var(--ink-blue-light)', lineHeight: 1.4, mb: 4 }}>
             Find couples in your neighborhood for shared meals
           </Typography>
-          <Typography sx={{ fontFamily: 'var(--font-body), Georgia, serif', fontSize: '1rem', lineHeight: 1.7, color: 'var(--ink-blue)', mb: 3, maxWidth: '55ch' }}>
+          <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.2rem', lineHeight: 1.5, color: 'var(--ink-blue)', mb: 3, maxWidth: '55ch' }}>
             Create a simple couple profile with your name, age, and zip code. Browse other couples nearby. Send a request to join them for dinner, lunch, or brunch. Chat to plan the details. Then sit down and share a real meal with real people.
           </Typography>
           <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.35rem', color: 'var(--thumbtack-green)', p: '12px 16px', bgcolor: 'rgba(91, 127, 94, 0.06)', mb: '20px', lineHeight: 1.5 }}>
@@ -45,7 +45,7 @@ export default function Home() {
           {/* CTA */}
           <Box sx={{ textAlign: 'center', borderTop: '2px dashed var(--cork-dark)', mx: { xs: '-24px', md: '-36px' }, px: { xs: 3, md: '36px' }, pt: 3, pb: '20px', bgcolor: 'var(--paper)' }}>
             <Button onClick={() => setSignInOpen(true)} sx={ctaButtonSx}>Sign Up</Button>
-            <Typography sx={{ fontFamily: 'var(--font-body), Georgia, serif', fontSize: '0.85rem', color: 'var(--ink-blue-light)', mt: 1.5 }}>
+            <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1rem', color: 'var(--ink-blue-light)', mt: 1.5 }}>
               Already have an account?{' '}
               <Link
                 component="button"
@@ -66,7 +66,7 @@ export default function Home() {
             <Typography sx={{ fontFamily: 'var(--font-condensed), sans-serif', fontWeight: 700, fontSize: '1.5rem', color: 'var(--ink-blue)', mb: 0.75 }}>
               The Patels
             </Typography>
-            <Typography sx={{ fontFamily: 'var(--font-body), Georgia, serif', fontSize: '1.05rem', color: 'var(--ink-blue-light)', mb: 1.25 }}>
+            <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.15rem', color: 'var(--ink-blue-light)', mb: 1.25 }}>
               2.3 miles away &middot; Love Thai food
             </Typography>
             <Chip label="Hosts" size="small" sx={{ bgcolor: 'var(--pushpin-red)', color: 'var(--paper)' }} />
@@ -86,7 +86,7 @@ export default function Home() {
             <Typography sx={{ fontFamily: 'var(--font-condensed), sans-serif', fontWeight: 700, fontSize: '1.5rem', color: 'var(--ink-blue)', mb: 0.75 }}>
               The Nguyens
             </Typography>
-            <Typography sx={{ fontFamily: 'var(--font-body), Georgia, serif', fontSize: '1.05rem', color: 'var(--ink-blue-light)', mb: 1.25 }}>
+            <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.15rem', color: 'var(--ink-blue-light)', mb: 1.25 }}>
               4.1 miles away &middot; Brunch enthusiasts
             </Typography>
             <Chip label="Visitors" size="small" sx={{ bgcolor: 'var(--thumbtack-green)', color: 'var(--paper)' }} />
@@ -100,12 +100,12 @@ export default function Home() {
             </Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
               {['Mon', 'Tue', 'Wed', 'Thu'].map((d) => (
-                <Box key={d} sx={{ p: '6px 4px', textAlign: 'center', fontFamily: 'var(--font-body), Georgia, serif', fontSize: '0.9rem', color: 'var(--ink-blue-light)', bgcolor: 'var(--paper-aged)', borderRadius: '2px' }}>{d}</Box>
+                <Box key={d} sx={{ p: '6px 4px', textAlign: 'center', fontFamily: 'var(--font-handwriting), cursive', fontSize: '1rem', color: 'var(--ink-blue-light)', bgcolor: 'var(--paper-aged)', borderRadius: '2px' }}>{d}</Box>
               ))}
               {['Fri Dinner', 'Sat Brunch', 'Sat Dinner', 'Sun Lunch'].map((d) => (
-                <Box key={d} sx={{ p: '6px 4px', textAlign: 'center', fontFamily: 'var(--font-body), Georgia, serif', fontSize: '0.9rem', color: 'var(--paper)', bgcolor: 'var(--thumbtack-green)', borderRadius: '2px', fontWeight: 600 }}>{d}</Box>
+                <Box key={d} sx={{ p: '6px 4px', textAlign: 'center', fontFamily: 'var(--font-handwriting), cursive', fontSize: '1rem', color: 'var(--paper)', bgcolor: 'var(--thumbtack-green)', borderRadius: '2px', fontWeight: 600 }}>{d}</Box>
               ))}
-              <Box sx={{ p: '6px 4px', textAlign: 'center', fontFamily: 'var(--font-body), Georgia, serif', fontSize: '0.9rem', color: 'var(--ink-blue-light)', bgcolor: 'var(--paper-aged)', borderRadius: '2px' }}>Sun</Box>
+              <Box sx={{ p: '6px 4px', textAlign: 'center', fontFamily: 'var(--font-handwriting), cursive', fontSize: '1rem', color: 'var(--ink-blue-light)', bgcolor: 'var(--paper-aged)', borderRadius: '2px' }}>Sun</Box>
             </Box>
           </Card>
         </Box>

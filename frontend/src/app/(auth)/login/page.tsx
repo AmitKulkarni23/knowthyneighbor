@@ -54,7 +54,7 @@ export default function LoginPage() {
           <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.15rem', color: 'var(--ink-blue-light)', lineHeight: 1.5, mb: 3 }}>
             We sent a magic link your way.
           </Typography>
-          <Typography sx={{ fontFamily: 'var(--font-body), Georgia, serif', fontSize: '0.95rem', color: 'var(--ink-blue)', lineHeight: 1.6, mb: 1 }}>
+          <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.05rem', color: 'var(--ink-blue)', lineHeight: 1.6, mb: 1 }}>
             Click the link we sent to{' '}
             <Box component="span" sx={{ fontWeight: 700, color: 'var(--pushpin-red)' }}>{email}</Box>
             {' '}to sign in.
@@ -85,7 +85,7 @@ export default function LoginPage() {
         </Typography>
 
         {serverError && (
-          <Alert severity="error" sx={{ mb: 3, bgcolor: 'rgba(204, 68, 51, 0.08)', color: 'var(--pushpin-red)', fontFamily: 'var(--font-body), Georgia, serif', '& .MuiAlert-icon': { color: 'var(--pushpin-red)' } }}>
+          <Alert severity="error" sx={{ mb: 3, bgcolor: 'rgba(204, 68, 51, 0.08)', color: 'var(--pushpin-red)', fontFamily: 'var(--font-handwriting), cursive', '& .MuiAlert-icon': { color: 'var(--pushpin-red)' } }}>
             {serverError}
           </Alert>
         )}
@@ -101,7 +101,7 @@ export default function LoginPage() {
             error={!!errors.email}
             helperText={errors.email?.message}
             {...register('email')}
-            sx={{ mb: 4, '& .MuiInputLabel-root': { fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.1rem', color: 'var(--ink-blue-light)' }, '& .MuiInput-root': { fontFamily: 'var(--font-body), Georgia, serif', fontSize: '1rem' } }}
+            sx={{ mb: 4, '& .MuiInputLabel-root': { fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.1rem', color: 'var(--ink-blue-light)' }, '& .MuiInput-root': { fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.1rem' } }}
           />
 
           <Button
