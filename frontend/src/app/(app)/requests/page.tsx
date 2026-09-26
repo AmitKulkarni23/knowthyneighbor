@@ -175,16 +175,19 @@ export default function RequestsPage() {
 
       {tab === 0 && (
         received.length === 0 ? (
-          <Typography
-            sx={{
-              fontFamily: 'var(--font-handwriting), cursive',
-              fontSize: '1.4rem',
-              color: 'var(--ink-blue-light)',
-              lineHeight: 1.6,
-            }}
-          >
-            No requests received yet. When someone wants to share a meal with you, it&apos;ll show up here.
-          </Typography>
+          <Card sx={{ ...paperCardSx as object, p: '32px 28px', position: 'relative', transform: 'rotate(-0.6deg)' }}>
+            <Box sx={pinBlueSx} />
+            <Typography
+              sx={{
+                fontFamily: 'var(--font-handwriting), cursive',
+                fontSize: '1.65rem',
+                color: 'var(--ink-blue)',
+                lineHeight: 1.6,
+              }}
+            >
+              No requests received yet. When someone wants to share a meal with you, it&apos;ll show up here.
+            </Typography>
+          </Card>
         ) : (
           received.map((r, i) => renderRequest(r, 'received', i))
         )
@@ -192,16 +195,19 @@ export default function RequestsPage() {
 
       {tab === 1 && (
         sent.length === 0 ? (
-          <Typography
-            sx={{
-              fontFamily: 'var(--font-handwriting), cursive',
-              fontSize: '1.4rem',
-              color: 'var(--ink-blue-light)',
-              lineHeight: 1.6,
-            }}
-          >
-            You haven&apos;t sent any requests yet. Browse couples nearby and send one.
-          </Typography>
+          <Card sx={{ ...paperCardSx as object, p: '32px 28px', position: 'relative', transform: 'rotate(0.8deg)' }}>
+            <Box sx={pinGreenSx} />
+            <Typography
+              sx={{
+                fontFamily: 'var(--font-handwriting), cursive',
+                fontSize: '1.65rem',
+                color: 'var(--ink-blue)',
+                lineHeight: 1.6,
+              }}
+            >
+              You haven&apos;t sent any requests yet. Browse couples nearby and send one.
+            </Typography>
+          </Card>
         ) : (
           sent.map((r, i) => renderRequest(r, 'sent', i))
         )

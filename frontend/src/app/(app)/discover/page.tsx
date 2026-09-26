@@ -94,19 +94,33 @@ export default function DiscoverPage() {
       >
         Find your dinner neighbors
       </Typography>
-      <Typography
-        sx={{
-          fontFamily: 'var(--font-handwriting), cursive',
-          fontSize: '1.45rem',
-          color: 'var(--ink-blue-light)',
-          mb: 3,
-          lineHeight: 1.5,
-        }}
-      >
-        {couples.length === 0
-          ? "No couples nearby yet. Check back soon!"
-          : `${couples.length} couple${couples.length === 1 ? '' : 's'} near you`}
-      </Typography>
+      {couples.length === 0 ? (
+        <Card sx={{ ...paperCardSx as object, p: '32px 28px', position: 'relative', transform: 'rotate(0.6deg)', mb: 3 }}>
+          <Box sx={pinBlueSx} />
+          <Typography
+            sx={{
+              fontFamily: 'var(--font-handwriting), cursive',
+              fontSize: '1.65rem',
+              color: 'var(--ink-blue)',
+              lineHeight: 1.6,
+            }}
+          >
+            No couples nearby yet. Check back soon!
+          </Typography>
+        </Card>
+      ) : (
+        <Typography
+          sx={{
+            fontFamily: 'var(--font-handwriting), cursive',
+            fontSize: '1.55rem',
+            color: 'var(--ink-blue)',
+            mb: 3,
+            lineHeight: 1.5,
+          }}
+        >
+          {`${couples.length} couple${couples.length === 1 ? '' : 's'} near you`}
+        </Typography>
+      )}
 
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
         {couples.map((c, i) => {

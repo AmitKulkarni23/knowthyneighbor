@@ -167,7 +167,7 @@ export default function MealsPage() {
             sx={{
               fontFamily: 'var(--font-condensed), sans-serif',
               fontWeight: 700,
-              fontSize: '1.25rem',
+              fontSize: '1.4rem',
               color: 'var(--ink-blue)',
               textTransform: 'uppercase',
               letterSpacing: '0.02em',
@@ -184,7 +184,7 @@ export default function MealsPage() {
         <Typography
           sx={{
             fontFamily: 'var(--font-handwriting), cursive',
-            fontSize: '1.2rem',
+            fontSize: '1.35rem',
             color: 'var(--ink-blue-light)',
             mb: 2,
           }}
@@ -207,7 +207,7 @@ export default function MealsPage() {
       <Typography
         sx={{
           fontFamily: 'var(--font-marker), cursive',
-          fontSize: 'clamp(1.8rem, 4vw, 2.6rem)',
+          fontSize: 'clamp(2rem, 4.5vw, 2.9rem)',
           color: 'var(--ink-blue)',
           mb: 3,
         }}
@@ -226,17 +226,19 @@ export default function MealsPage() {
         Upcoming
       </Typography>
       {upcoming.length === 0 ? (
-        <Typography
-          sx={{
-            fontFamily: 'var(--font-handwriting), cursive',
-            fontSize: '1.25rem',
-            color: 'var(--ink-blue-light)',
-            lineHeight: 1.6,
-            mb: 3,
-          }}
-        >
-          No upcoming meals. Send a request and plan one!
-        </Typography>
+        <Card sx={{ ...paperCardSx as object, p: '32px 28px', position: 'relative', transform: 'rotate(0.7deg)', mb: 3 }}>
+          <Box sx={pinRedSx} />
+          <Typography
+            sx={{
+              fontFamily: 'var(--font-handwriting), cursive',
+              fontSize: '1.65rem',
+              color: 'var(--ink-blue)',
+              lineHeight: 1.6,
+            }}
+          >
+            No upcoming meals. Send a request and plan one!
+          </Typography>
+        </Card>
       ) : (
         <Box sx={{ mb: 3 }}>{upcoming.map((m, i) => renderMealCard(m, i))}</Box>
       )}
@@ -254,16 +256,19 @@ export default function MealsPage() {
         Past
       </Typography>
       {past.length === 0 ? (
-        <Typography
-          sx={{
-            fontFamily: 'var(--font-handwriting), cursive',
-            fontSize: '1.25rem',
-            color: 'var(--ink-blue-light)',
-            lineHeight: 1.6,
-          }}
-        >
-          No past meals yet. Your first dinner is just around the corner.
-        </Typography>
+        <Card sx={{ ...paperCardSx as object, p: '32px 28px', position: 'relative', transform: 'rotate(-0.5deg)' }}>
+          <Box sx={pinGreenSx} />
+          <Typography
+            sx={{
+              fontFamily: 'var(--font-handwriting), cursive',
+              fontSize: '1.65rem',
+              color: 'var(--ink-blue)',
+              lineHeight: 1.6,
+            }}
+          >
+            No past meals yet. Your first dinner is just around the corner.
+          </Typography>
+        </Card>
       ) : (
         past.map((m, i) => renderMealCard(m, i))
       )}

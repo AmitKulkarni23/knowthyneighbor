@@ -27,7 +27,7 @@ export default function ChatListPage() {
       <Typography
         sx={{
           fontFamily: 'var(--font-marker), cursive',
-          fontSize: 'clamp(1.8rem, 4vw, 2.6rem)',
+          fontSize: 'clamp(2rem, 4.5vw, 2.9rem)',
           color: 'var(--ink-blue)',
           mb: 3,
         }}
@@ -36,16 +36,19 @@ export default function ChatListPage() {
       </Typography>
 
       {conversations.length === 0 ? (
-        <Typography
-          sx={{
-            fontFamily: 'var(--font-handwriting), cursive',
-            fontSize: '1.25rem',
-            color: 'var(--ink-blue-light)',
-            lineHeight: 1.6,
-          }}
-        >
-          No conversations yet. Once a join request is accepted, you can start chatting here.
-        </Typography>
+        <Card sx={{ ...paperCardSx as object, p: '32px 28px', position: 'relative', transform: 'rotate(-0.5deg)' }}>
+          <Box sx={pinRedSx} />
+          <Typography
+            sx={{
+              fontFamily: 'var(--font-handwriting), cursive',
+              fontSize: '1.65rem',
+              color: 'var(--ink-blue)',
+              lineHeight: 1.6,
+            }}
+          >
+            No conversations yet. Once a join request is accepted, you can start chatting here.
+          </Typography>
+        </Card>
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           {conversations.map((conv, i) => {
@@ -74,7 +77,7 @@ export default function ChatListPage() {
                     sx={{
                       fontFamily: 'var(--font-condensed), sans-serif',
                       fontWeight: 700,
-                      fontSize: '1.25rem',
+                      fontSize: '1.4rem',
                       color: 'var(--ink-blue)',
                       textTransform: 'uppercase',
                       letterSpacing: '0.02em',
@@ -86,7 +89,7 @@ export default function ChatListPage() {
                   <Typography
                     sx={{
                       fontFamily: 'var(--font-handwriting), cursive',
-                      fontSize: '1.1rem',
+                      fontSize: '1.25rem',
                       color: 'var(--ink-blue-light)',
                     }}
                   >
