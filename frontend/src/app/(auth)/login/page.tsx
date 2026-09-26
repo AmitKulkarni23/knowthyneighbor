@@ -101,7 +101,7 @@ export default function LoginPage() {
             error={!!errors.email}
             helperText={errors.email?.message}
             {...register('email')}
-            sx={{ mb: 4, '& .MuiInputLabel-root': { fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.1rem', color: 'var(--ink-blue-light)' }, '& .MuiInput-root': { fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.1rem' } }}
+            sx={{ mb: 4, '& .MuiInputLabel-root': { fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.1rem', color: 'var(--ink-blue-light)', overflow: 'visible' }, '& .MuiInput-root': { fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.1rem' } }}
           />
 
           <Button

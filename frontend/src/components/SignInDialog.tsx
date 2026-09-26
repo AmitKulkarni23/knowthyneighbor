@@ -92,7 +92,7 @@ export default function SignInDialog({ open, onClose }: SignInDialogProps) {
           <Typography
             sx={{
               fontFamily: 'var(--font-marker), cursive',
-              fontSize: 'clamp(1.6rem, 4vw, 2.2rem)',
+              fontSize: 'clamp(1.8rem, 4vw, 2.4rem)',
               color: 'var(--ink-blue)',
               mb: 1.5,
             }}
@@ -102,7 +102,7 @@ export default function SignInDialog({ open, onClose }: SignInDialogProps) {
           <Typography
             sx={{
               fontFamily: 'var(--font-handwriting), cursive',
-              fontSize: '1.15rem',
+              fontSize: '1.35rem',
               color: 'var(--ink-blue-light)',
               lineHeight: 1.5,
               mb: 3,
@@ -113,7 +113,7 @@ export default function SignInDialog({ open, onClose }: SignInDialogProps) {
           <Typography
             sx={{
               fontFamily: 'var(--font-handwriting), cursive',
-              fontSize: '1.05rem',
+              fontSize: '1.25rem',
               color: 'var(--ink-blue)',
               lineHeight: 1.6,
               mb: 1,
@@ -128,7 +128,7 @@ export default function SignInDialog({ open, onClose }: SignInDialogProps) {
           <Typography
             sx={{
               fontFamily: 'var(--font-handwriting), cursive',
-              fontSize: '0.9rem',
+              fontSize: '1.1rem',
               color: 'var(--ink-blue-light)',
               mb: 3,
             }}
@@ -140,7 +140,7 @@ export default function SignInDialog({ open, onClose }: SignInDialogProps) {
             sx={{
               fontFamily: 'var(--font-condensed), sans-serif',
               fontWeight: 700,
-              fontSize: '0.85rem',
+              fontSize: '1rem',
               color: 'var(--ink-blue)',
               textTransform: 'uppercase',
               letterSpacing: '0.04em',
@@ -155,7 +155,7 @@ export default function SignInDialog({ open, onClose }: SignInDialogProps) {
           <Typography
             sx={{
               fontFamily: 'var(--font-marker), cursive',
-              fontSize: 'clamp(1.6rem, 4vw, 2.2rem)',
+              fontSize: 'clamp(1.8rem, 4vw, 2.4rem)',
               color: 'var(--ink-blue)',
               textAlign: 'center',
               mb: 1,
@@ -166,7 +166,7 @@ export default function SignInDialog({ open, onClose }: SignInDialogProps) {
           <Typography
             sx={{
               fontFamily: 'var(--font-handwriting), cursive',
-              fontSize: '1.1rem',
+              fontSize: '1.3rem',
               color: 'var(--ink-blue-light)',
               textAlign: 'center',
               lineHeight: 1.5,
@@ -206,12 +206,13 @@ export default function SignInDialog({ open, onClose }: SignInDialogProps) {
                 mb: 4,
                 '& .MuiInputLabel-root': {
                   fontFamily: 'var(--font-handwriting), cursive',
-                  fontSize: '1.1rem',
+                  fontSize: '1.3rem',
                   color: 'var(--ink-blue-light)',
+                  overflow: 'visible',
                 },
                 '& .MuiInput-root': {
                   fontFamily: 'var(--font-handwriting), cursive',
-                  fontSize: '1.1rem',
+                  fontSize: '1.25rem',
                 },
               }}
             />

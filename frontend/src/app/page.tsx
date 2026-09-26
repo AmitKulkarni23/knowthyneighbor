@@ -6,7 +6,6 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
-import Link from '@mui/material/Link';
 import { boardBgSx, paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
 import SignInDialog from '@/components/SignInDialog';
 
@@ -44,17 +43,7 @@ export default function Home() {
 
           {/* CTA */}
           <Box sx={{ textAlign: 'center', borderTop: '2px dashed var(--cork-dark)', mx: { xs: '-24px', md: '-36px' }, px: { xs: 3, md: '36px' }, pt: 3, pb: '20px', bgcolor: 'var(--paper)' }}>
-            <Button onClick={() => setSignInOpen(true)} sx={ctaButtonSx}>Sign Up</Button>
-            <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1rem', color: 'var(--ink-blue-light)', mt: 1.5 }}>
-              Already have an account?{' '}
-              <Link
-                component="button"
-                onClick={() => setSignInOpen(true)}
-                sx={{ color: 'var(--ink-blue)', textDecorationColor: 'var(--ink-blue)', '&:hover': { color: 'var(--pushpin-red)' }, fontFamily: 'inherit', fontSize: 'inherit', verticalAlign: 'baseline', cursor: 'pointer' }}
-              >
-                Sign in
-              </Link>
-            </Typography>
+            <Button onClick={() => setSignInOpen(true)} sx={ctaButtonSx}>Sign In</Button>
           </Box>
         </Card>
 
