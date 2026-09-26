@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -7,6 +8,7 @@ import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
 import Link from '@mui/material/Link';
 import { boardBgSx, paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
+import SignInDialog from '@/components/SignInDialog';
 
 const rotatedCard = (deg: number) => ({
   ...paperCardSx as object,
@@ -18,6 +20,8 @@ const rotatedCard = (deg: number) => ({
 });
 
 export default function Home() {
+  const [signInOpen, setSignInOpen] = useState(false);
+
   return (
     <Box sx={{ ...boardBgSx as object, px: 2, py: 5, pb: 10 }}>
       {/* ── Hero ── */}
@@ -40,10 +44,14 @@ export default function Home() {
 
           {/* CTA */}
           <Box sx={{ textAlign: 'center', borderTop: '2px dashed var(--cork-dark)', mx: { xs: '-24px', md: '-36px' }, px: { xs: 3, md: '36px' }, pt: 3, pb: '20px', bgcolor: 'var(--paper)' }}>
-            <Button href="/login" sx={ctaButtonSx}>Sign Up</Button>
+            <Button onClick={() => setSignInOpen(true)} sx={ctaButtonSx}>Sign Up</Button>
             <Typography sx={{ fontFamily: 'var(--font-body), Georgia, serif', fontSize: '0.85rem', color: 'var(--ink-blue-light)', mt: 1.5 }}>
               Already have an account?{' '}
-              <Link href="/login" sx={{ color: 'var(--ink-blue)', textDecorationColor: 'var(--ink-blue)', '&:hover': { color: 'var(--pushpin-red)' } }}>
+              <Link
+                component="button"
+                onClick={() => setSignInOpen(true)}
+                sx={{ color: 'var(--ink-blue)', textDecorationColor: 'var(--ink-blue)', '&:hover': { color: 'var(--pushpin-red)' }, fontFamily: 'inherit', fontSize: 'inherit', verticalAlign: 'baseline', cursor: 'pointer' }}
+              >
                 Sign in
               </Link>
             </Typography>
@@ -135,10 +143,11 @@ export default function Home() {
           <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.5rem', color: 'var(--ink-blue-light)', lineHeight: 1.6, mb: 3, maxWidth: '50ch', mx: 'auto' }}>
             We built this because people are tired of screens pretending to be connection. KnowThyNeighbor gets you off the app and around a table. The only thing we optimize for is a real meal with real people.
           </Typography>
-          <Button href="/login" sx={ctaButtonSx}>Put Your Card on the Board</Button>
+          <Button onClick={() => setSignInOpen(true)} sx={ctaButtonSx}>Put Your Card on the Board</Button>
         </Card>
       </Box>
 
+      <SignInDialog open={signInOpen} onClose={() => setSignInOpen(false)} />
     </Box>
   );
 }
