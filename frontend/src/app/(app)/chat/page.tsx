@@ -9,6 +9,7 @@ import Alert from '@mui/material/Alert';
 import { useAppContext } from '@/components/AppProvider';
 import useConversations from '@/hooks/useConversations';
 import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx } from '@/styles/board';
+import EmptyStateCard from '@/components/EmptyStateCard';
 
 const rotations = [1.2, -0.8, 1.5, -1.1, 0.6, -1.8];
 const pins = [pinRedSx, pinGreenSx, pinBlueSx];
@@ -36,19 +37,11 @@ export default function ChatListPage() {
       </Typography>
 
       {conversations.length === 0 ? (
-        <Card sx={{ ...paperCardSx as object, p: '32px 28px', position: 'relative', transform: 'rotate(-0.5deg)' }}>
-          <Box sx={pinRedSx} />
-          <Typography
-            sx={{
-              fontFamily: 'var(--font-handwriting), cursive',
-              fontSize: '1.65rem',
-              color: 'var(--ink-blue)',
-              lineHeight: 1.6,
-            }}
-          >
-            No conversations yet. Once a join request is accepted, you can start chatting here.
-          </Typography>
-        </Card>
+        <EmptyStateCard
+          message="No conversations yet. Once a join request is accepted, you can start chatting here."
+          pin="red"
+          rotation={-0.5}
+        />
       ) : (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           {conversations.map((conv, i) => {

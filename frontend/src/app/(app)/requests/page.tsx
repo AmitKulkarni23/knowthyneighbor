@@ -14,6 +14,7 @@ import useJoinRequests from '@/hooks/useJoinRequests';
 import { respondToJoinRequest } from '@/api/joinRequests';
 import type { JoinRequest } from '@/types/database';
 import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
+import EmptyStateCard from '@/components/EmptyStateCard';
 
 const rotations = [1.2, -0.8, 1.5, -1.1, 0.6, -1.8, 0.9, -0.5];
 
@@ -175,19 +176,11 @@ export default function RequestsPage() {
 
       {tab === 0 && (
         received.length === 0 ? (
-          <Card sx={{ ...paperCardSx as object, p: '32px 28px', position: 'relative', transform: 'rotate(-0.6deg)' }}>
-            <Box sx={pinBlueSx} />
-            <Typography
-              sx={{
-                fontFamily: 'var(--font-handwriting), cursive',
-                fontSize: '1.65rem',
-                color: 'var(--ink-blue)',
-                lineHeight: 1.6,
-              }}
-            >
-              No requests received yet. When someone wants to share a meal with you, it&apos;ll show up here.
-            </Typography>
-          </Card>
+          <EmptyStateCard
+            message="No requests received yet. When someone wants to share a meal with you, it'll show up here."
+            pin="blue"
+            rotation={-0.6}
+          />
         ) : (
           received.map((r, i) => renderRequest(r, 'received', i))
         )
@@ -195,19 +188,11 @@ export default function RequestsPage() {
 
       {tab === 1 && (
         sent.length === 0 ? (
-          <Card sx={{ ...paperCardSx as object, p: '32px 28px', position: 'relative', transform: 'rotate(0.8deg)' }}>
-            <Box sx={pinGreenSx} />
-            <Typography
-              sx={{
-                fontFamily: 'var(--font-handwriting), cursive',
-                fontSize: '1.65rem',
-                color: 'var(--ink-blue)',
-                lineHeight: 1.6,
-              }}
-            >
-              You haven&apos;t sent any requests yet. Browse couples nearby and send one.
-            </Typography>
-          </Card>
+          <EmptyStateCard
+            message="You haven't sent any requests yet. Browse couples nearby and send one."
+            pin="green"
+            rotation={0.8}
+          />
         ) : (
           sent.map((r, i) => renderRequest(r, 'sent', i))
         )

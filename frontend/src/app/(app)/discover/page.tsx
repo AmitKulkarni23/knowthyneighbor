@@ -25,6 +25,7 @@ import { sendJoinRequest } from '@/api/joinRequests';
 import type { DiscoveryCouple } from '@/types/database';
 import { joinRequestSchema, type JoinRequestFormData } from '@/lib/validations';
 import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
+import EmptyStateCard from '@/components/EmptyStateCard';
 
 const rotations = [-1.2, 1.5, -0.5, 1.8, -1, 0.8, -2, 1.2];
 const pins = [pinRedSx, pinGreenSx, pinBlueSx];
@@ -95,19 +96,12 @@ export default function DiscoverPage() {
         Find your dinner neighbors
       </Typography>
       {couples.length === 0 ? (
-        <Card sx={{ ...paperCardSx as object, p: '32px 28px', position: 'relative', transform: 'rotate(0.6deg)', mb: 3 }}>
-          <Box sx={pinBlueSx} />
-          <Typography
-            sx={{
-              fontFamily: 'var(--font-handwriting), cursive',
-              fontSize: '1.65rem',
-              color: 'var(--ink-blue)',
-              lineHeight: 1.6,
-            }}
-          >
-            No couples nearby yet. Check back soon!
-          </Typography>
-        </Card>
+        <EmptyStateCard
+          message="No couples nearby yet. Check back soon!"
+          pin="blue"
+          rotation={0.6}
+          sx={{ mb: 3 }}
+        />
       ) : (
         <Typography
           sx={{

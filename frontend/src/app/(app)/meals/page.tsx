@@ -12,6 +12,7 @@ import useConversations from '@/hooks/useConversations';
 import { getMeals, updateMealStatus } from '@/api/meals';
 import type { Meal, MealStatus } from '@/types/database';
 import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
+import EmptyStateCard from '@/components/EmptyStateCard';
 
 const rotations = [-1, 1.5, -0.5, 1.8, -1.3, 0.8];
 const pins = [pinRedSx, pinGreenSx, pinBlueSx];
@@ -226,19 +227,12 @@ export default function MealsPage() {
         Upcoming
       </Typography>
       {upcoming.length === 0 ? (
-        <Card sx={{ ...paperCardSx as object, p: '32px 28px', position: 'relative', transform: 'rotate(0.7deg)', mb: 3 }}>
-          <Box sx={pinRedSx} />
-          <Typography
-            sx={{
-              fontFamily: 'var(--font-handwriting), cursive',
-              fontSize: '1.65rem',
-              color: 'var(--ink-blue)',
-              lineHeight: 1.6,
-            }}
-          >
-            No upcoming meals. Send a request and plan one!
-          </Typography>
-        </Card>
+        <EmptyStateCard
+          message="No upcoming meals. Send a request and plan one!"
+          pin="red"
+          rotation={0.7}
+          sx={{ mb: 3 }}
+        />
       ) : (
         <Box sx={{ mb: 3 }}>{upcoming.map((m, i) => renderMealCard(m, i))}</Box>
       )}
@@ -256,19 +250,11 @@ export default function MealsPage() {
         Past
       </Typography>
       {past.length === 0 ? (
-        <Card sx={{ ...paperCardSx as object, p: '32px 28px', position: 'relative', transform: 'rotate(-0.5deg)' }}>
-          <Box sx={pinGreenSx} />
-          <Typography
-            sx={{
-              fontFamily: 'var(--font-handwriting), cursive',
-              fontSize: '1.65rem',
-              color: 'var(--ink-blue)',
-              lineHeight: 1.6,
-            }}
-          >
-            No past meals yet. Your first dinner is just around the corner.
-          </Typography>
-        </Card>
+        <EmptyStateCard
+          message="No past meals yet. Your first dinner is just around the corner."
+          pin="green"
+          rotation={-0.5}
+        />
       ) : (
         past.map((m, i) => renderMealCard(m, i))
       )}
