@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Permanent_Marker, Caveat, Barlow_Condensed, Source_Sans_3 } from "next/font/google";
 import ThemeRegistry from "@/components/ThemeRegistry";
+import MSWProvider from "@/mocks/MSWProvider";
 import "./globals.css";
 
 const permanentMarker = Permanent_Marker({
@@ -43,7 +44,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${permanentMarker.variable} ${caveat.variable} ${barlowCondensed.variable} ${sourceSans.variable}`}
     >
       <body>
-        <ThemeRegistry>{children}</ThemeRegistry>
+        <MSWProvider>
+          <ThemeRegistry>{children}</ThemeRegistry>
+        </MSWProvider>
       </body>
     </html>
   );

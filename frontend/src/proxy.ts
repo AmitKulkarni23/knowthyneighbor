@@ -26,6 +26,11 @@ export async function proxy(request: NextRequest) {
     }
   );
 
+  // When MSW is enabled, skip server-side auth so client-side mocks handle it
+  if (process.env.NEXT_PUBLIC_MSW === 'true') {
+    return supabaseResponse;
+  }
+
   // Refresh the session so it stays alive
   const { data: { user } } = await supabase.auth.getUser();
 
