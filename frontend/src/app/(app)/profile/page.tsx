@@ -292,7 +292,7 @@ export default function ProfilePage() {
                     ? 'We like to host'
                     : couple.hosting_preference === 'visit'
                     ? 'We prefer to visit'
-                    : 'Either works for us'}
+                    : 'Happy to host or visit'}
                 </Typography>
               </Box>
             </Box>
