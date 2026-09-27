@@ -26,8 +26,12 @@ export async function proxy(request: NextRequest) {
     }
   );
 
-  // When MSW is enabled, skip server-side auth so client-side mocks handle it
-  if (process.env.NEXT_PUBLIC_MSW === 'true') {
+  // Skip all auth checks when auth is disabled or MSW is enabled
+  if (process.env.NEXT_PUBLIC_SKIP_AUTH === 'true' || process.env.NEXT_PUBLIC_MSW === 'true') {
+    // Redirect /login straight to /discover when auth is skipped
+    if (process.env.NEXT_PUBLIC_SKIP_AUTH === 'true' && request.nextUrl.pathname === '/login') {
+      return NextResponse.redirect(new URL('/discover', request.url));
+    }
     return supabaseResponse;
   }
 

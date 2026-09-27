@@ -6,6 +6,18 @@ import { getCoupleByMember } from '@/api/couples';
 import type { User } from '@supabase/supabase-js';
 import type { Couple } from '@/types/database';
 
+const SKIP_AUTH = process.env.NEXT_PUBLIC_SKIP_AUTH === 'true';
+
+const FAKE_USER = {
+  id: '00000000-0000-0000-0000-000000000000',
+  email: 'dev@localhost',
+  aud: 'authenticated',
+  role: 'authenticated',
+  app_metadata: {},
+  user_metadata: {},
+  created_at: new Date().toISOString(),
+} as User;
+
 type AppContextValue = {
   user: User | null;
   couple: Couple | null;
@@ -24,6 +36,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [coupleLoading, setCoupleLoading] = useState(true);
 
   useEffect(() => {
+    if (SKIP_AUTH) {
+      setUser(FAKE_USER);
+      setAuthLoading(false);
+      return;
+    }
+
     const supabase = createSupabaseClient();
 
     supabase.auth.getUser().then(({ data }) => {
