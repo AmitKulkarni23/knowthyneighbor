@@ -127,11 +127,6 @@ export default function ProfilePage() {
     setTimeout(() => setSaveSuccess(false), 2000);
   };
 
-  const hostingLabel = couple?.hosting_preference === 'host'
-    ? 'We like to host'
-    : couple?.hosting_preference === 'visit'
-    ? 'We prefer to visit'
-    : 'Either works for us';
 
   return (
     <Box sx={{ maxWidth: 520, mx: 'auto' }}>
@@ -291,19 +286,14 @@ export default function ProfilePage() {
                 <Typography sx={valueSx}>{couple.zip_code}</Typography>
               </Box>
               <Box>
-                <Typography sx={labelSx}>Hosting</Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.25 }}>
-                  <Chip
-                    label={couple.hosting_preference === 'host' ? 'HOSTS' : couple.hosting_preference === 'visit' ? 'VISITORS' : 'EITHER'}
-                    size="small"
-                    sx={{
-                      bgcolor: couple.hosting_preference === 'host' ? 'var(--pushpin-red)' : couple.hosting_preference === 'visit' ? 'var(--ink-blue)' : 'var(--thumbtack-green)',
-                      color: 'var(--paper)',
-                      fontFamily: 'var(--font-condensed), sans-serif',
-                      fontWeight: 700,
-                    }}
-                  />
-                </Box>
+                <Typography sx={labelSx}>Hosting preference</Typography>
+                <Typography sx={valueSx}>
+                  {couple.hosting_preference === 'host'
+                    ? 'We like to host'
+                    : couple.hosting_preference === 'visit'
+                    ? 'We prefer to visit'
+                    : 'Either works for us'}
+                </Typography>
               </Box>
             </Box>
 
