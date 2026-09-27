@@ -4,7 +4,11 @@ import { useEffect, useState } from 'react';
 import { discoverCouples } from '@/api/discovery';
 import type { DiscoveryCouple } from '@/types/database';
 
-export default function useDiscovery(coupleId: string | null) {
+export default function useDiscovery(
+  coupleId: string | null,
+  refLat?: number,
+  refLng?: number
+) {
   const [data, setData] = useState<DiscoveryCouple[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,12 +20,12 @@ export default function useDiscovery(coupleId: string | null) {
     }
 
     setLoading(true);
-    discoverCouples(coupleId).then((result) => {
+    discoverCouples(coupleId, refLat, refLng).then((result) => {
       setData(result.couples);
       setError(result.error);
       setLoading(false);
     });
-  }, [coupleId]);
+  }, [coupleId, refLat, refLng]);
 
   return { data, loading, error };
 }

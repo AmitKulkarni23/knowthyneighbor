@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
@@ -18,10 +18,13 @@ import InputLabel from '@mui/material/InputLabel';
 import FormHelperText from '@mui/material/FormHelperText';
 import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
 import CloseIcon from '@mui/icons-material/Close';
+import SearchIcon from '@mui/icons-material/Search';
 import { useAppContext } from '@/components/AppProvider';
 import useDiscovery from '@/hooks/useDiscovery';
 import { sendJoinRequest } from '@/api/joinRequests';
+import { geocodeZip } from '@/lib/geocode';
 import type { DiscoveryCouple } from '@/types/database';
 import { joinRequestSchema, type JoinRequestFormData } from '@/lib/validations';
 import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
@@ -32,10 +35,51 @@ const pins = [pinRedSx, pinGreenSx, pinBlueSx];
 
 export default function DiscoverPage() {
   const { couple } = useAppContext();
-  const { data: couples, loading: discoveryLoading, error } = useDiscovery(couple?.id ?? null);
+  const [searchZip, setSearchZip] = useState('');
+  const [searchCoords, setSearchCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [searchLabel, setSearchLabel] = useState<string | null>(null);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [searching, setSearching] = useState(false);
+  const { data: couples, loading: discoveryLoading, error } = useDiscovery(
+    couple?.id ?? null,
+    searchCoords?.lat,
+    searchCoords?.lng
+  );
   const [selectedCouple, setSelectedCouple] = useState<DiscoveryCouple | null>(null);
   const [sendError, setSendError] = useState<string | null>(null);
   const [sendSuccess, setSendSuccess] = useState(false);
+
+  const handleSearch = useCallback(async () => {
+    const zip = searchZip.trim();
+    if (!zip) {
+      setSearchCoords(null);
+      setSearchLabel(null);
+      setSearchError(null);
+      return;
+    }
+    if (!/^\d{5}$/.test(zip)) {
+      setSearchError('Enter a 5-digit zip code');
+      return;
+    }
+    setSearching(true);
+    setSearchError(null);
+    const coords = await geocodeZip(zip);
+    if (!coords) {
+      setSearchError('Could not find that zip code');
+      setSearching(false);
+      return;
+    }
+    setSearchCoords(coords);
+    setSearchLabel(zip);
+    setSearching(false);
+  }, [searchZip]);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchZip('');
+    setSearchCoords(null);
+    setSearchLabel(null);
+    setSearchError(null);
+  }, []);
 
   const {
     register,
@@ -95,9 +139,75 @@ export default function DiscoverPage() {
       >
         Find your dinner neighbors
       </Typography>
+
+      {/* Zip code search */}
+      <Box
+        component="form"
+        onSubmit={(e: React.FormEvent) => { e.preventDefault(); handleSearch(); }}
+        sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'flex-start' }}
+      >
+        <TextField
+          value={searchZip}
+          onChange={(e) => setSearchZip(e.target.value)}
+          placeholder={couple?.zip_code ? `Search near zip (yours: ${couple.zip_code})` : 'Search near a zip code'}
+          error={!!searchError}
+          helperText={searchError}
+          size="small"
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: 'var(--ink-blue-light)', fontSize: '1.2rem' }} />
+                </InputAdornment>
+              ),
+              sx: {
+                fontFamily: 'var(--font-handwriting), cursive',
+                fontSize: '1.15rem',
+                bgcolor: 'var(--paper)',
+              },
+            },
+          }}
+          sx={{ flex: 1, maxWidth: 360 }}
+        />
+        <Button
+          type="submit"
+          disabled={searching}
+          sx={{
+            fontFamily: 'var(--font-condensed), sans-serif',
+            fontWeight: 700,
+            fontSize: '0.9rem',
+            color: 'var(--paper)',
+            bgcolor: 'var(--ink-blue)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em',
+            px: 2,
+            minHeight: 40,
+            '&:hover': { bgcolor: 'var(--pushpin-red)' },
+          }}
+        >
+          {searching ? 'Searching...' : 'Go'}
+        </Button>
+        {searchLabel && (
+          <Button
+            onClick={handleClearSearch}
+            sx={{
+              fontFamily: 'var(--font-condensed), sans-serif',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              color: 'var(--ink-blue-light)',
+              textTransform: 'uppercase',
+              minHeight: 40,
+              '&:hover': { color: 'var(--pushpin-red)', bgcolor: 'transparent' },
+            }}
+          >
+            Reset
+          </Button>
+        )}
+      </Box>
+
       {couples.length === 0 ? (
         <EmptyStateCard
-          message="No couples nearby yet. Check back soon!"
+          message={searchLabel ? `No couples found near ${searchLabel}.` : 'No couples nearby yet. Check back soon!'}
           pin="blue"
           rotation={0.6}
           sx={{ mb: 3 }}
@@ -112,7 +222,9 @@ export default function DiscoverPage() {
             lineHeight: 1.5,
           }}
         >
-          {`${couples.length} couple${couples.length === 1 ? '' : 's'} near you`}
+          {searchLabel
+            ? `${couples.length} couple${couples.length === 1 ? '' : 's'} near ${searchLabel}`
+            : `${couples.length} couple${couples.length === 1 ? '' : 's'} near you`}
         </Typography>
       )}
 
