@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Permanent_Marker, Caveat, Barlow_Condensed, Source_Sans_3 } from "next/font/google";
 import ThemeRegistry from "@/components/ThemeRegistry";
+import AuthErrorHandler from "@/components/AuthErrorHandler";
 import MSWProvider from "@/mocks/MSWProvider";
 import "./globals.css";
 
@@ -45,7 +46,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body>
         <MSWProvider>
-          <ThemeRegistry>{children}</ThemeRegistry>
+          <ThemeRegistry>
+            <AuthErrorHandler />
+            {children}
+          </ThemeRegistry>
         </MSWProvider>
       </body>
     </html>

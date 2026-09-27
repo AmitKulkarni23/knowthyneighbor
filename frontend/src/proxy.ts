@@ -50,8 +50,8 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Redirect authenticated users away from login
-  if (pathname === '/login' && user) {
+  // Redirect authenticated users away from login (unless showing an auth error)
+  if (pathname === '/login' && user && !request.nextUrl.searchParams.has('error')) {
     return NextResponse.redirect(new URL('/discover', request.url));
   }
 

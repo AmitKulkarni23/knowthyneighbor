@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
@@ -14,10 +14,24 @@ import { signInWithOtp } from '@/api/auth';
 import { loginSchema, type LoginFormData } from '@/lib/validations';
 import { boardBgSx, paperCardSx, pinRedSx, ctaButtonSx } from '@/styles/board';
 
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  link_expired: 'Your magic link has expired. Enter your email below to get a new one.',
+  auth_error: 'Something went wrong with your sign-in link. Please try again.',
+};
+
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [submitted, setSubmitted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    if (errorParam) {
+      setAuthError(AUTH_ERROR_MESSAGES[errorParam] ?? AUTH_ERROR_MESSAGES.auth_error);
+    }
+  }, [searchParams]);
 
   const {
     register,
@@ -83,6 +97,12 @@ export default function LoginPage() {
         <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.1rem', color: 'var(--ink-blue-light)', textAlign: 'center', lineHeight: 1.5, mb: 4 }}>
           Enter your email and we&apos;ll send you a magic link. No password needed.
         </Typography>
+
+        {authError && (
+          <Alert severity="warning" sx={{ mb: 3, bgcolor: 'rgba(204, 152, 51, 0.08)', color: 'var(--ink-blue)', fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.05rem', '& .MuiAlert-icon': { color: '#c49833' } }}>
+            {authError}
+          </Alert>
+        )}
 
         {serverError && (
           <Alert severity="error" sx={{ mb: 3, bgcolor: 'rgba(204, 68, 51, 0.08)', color: 'var(--pushpin-red)', fontFamily: 'var(--font-handwriting), cursive', '& .MuiAlert-icon': { color: 'var(--pushpin-red)' } }}>

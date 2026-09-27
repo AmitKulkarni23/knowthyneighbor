@@ -30,6 +30,9 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Auth error - redirect to login with error
-  return NextResponse.redirect(new URL('/login', request.url));
+  // Auth error - redirect to login with error context
+  const errorDesc = searchParams.get('error_description') ?? 'link_expired';
+  const loginUrl = new URL('/login', request.url);
+  loginUrl.searchParams.set('error', errorDesc);
+  return NextResponse.redirect(loginUrl);
 }
