@@ -62,19 +62,40 @@ Core tables: `profiles`, `couples`, `pending_partners`, `availability`, `join_re
 
 ```bash
 # Install dependencies
-cd frontend && npm install
+cd frontend && bun install
 
 # Run locally
-cd frontend && npm run dev
+cd frontend && bun run dev
 
 # Build for production
-cd frontend && npm run build
+cd frontend && bun run build
 
 # Lint
-cd frontend && npm run lint
+cd frontend && bun run lint
 ```
 
-### Supabase
+### Local Supabase
+
+OrbStack (or Docker Desktop) must be running before starting the local Supabase stack.
+
+```bash
+# Start local Supabase stack (runs migrations + seed automatically)
+supabase start
+
+# Reset database (re-run all migrations + seed data)
+supabase db reset
+
+# Stop local Supabase stack
+supabase stop
+
+# Supabase Studio (browse/edit data): http://127.0.0.1:54323
+```
+
+The dev server (`bun run dev`) automatically connects to the local Supabase stack via `frontend/.env.development.local`. Production builds use `frontend/.env.local` which points to the hosted Supabase project.
+
+Test users are seeded via `supabase/seed.sql` (e.g. `pat@example.com` / `password123`).
+
+### Remote Supabase
 
 ```bash
 # Link to your Supabase project (one-time setup)
@@ -85,12 +106,6 @@ supabase db push
 
 # Create a new migration file
 supabase migration new <migration-name>
-
-# Start local Supabase stack
-supabase start
-
-# Stop local Supabase stack
-supabase stop
 ```
 
 ### Vercel

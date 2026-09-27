@@ -73,7 +73,7 @@ export const mockDiscoveryCouples: DiscoveryCouple[] = [
 
 export const mockReceivedRequests: JoinRequest[] = [
   {
-    id: 'r0000000-0000-0000-0000-000000000001',
+    id: 'd0000000-0000-0000-0000-000000000001',
     requester_couple_id: 'c0000000-0000-0000-0000-000000000011',
     host_couple_id: MOCK_COUPLE_ID,
     meal_type: 'dinner',
@@ -83,7 +83,7 @@ export const mockReceivedRequests: JoinRequest[] = [
     responded_at: null,
   },
   {
-    id: 'r0000000-0000-0000-0000-000000000002',
+    id: 'd0000000-0000-0000-0000-000000000002',
     requester_couple_id: 'c0000000-0000-0000-0000-000000000013',
     host_couple_id: MOCK_COUPLE_ID,
     meal_type: 'brunch',
@@ -93,7 +93,7 @@ export const mockReceivedRequests: JoinRequest[] = [
     responded_at: null,
   },
   {
-    id: 'r0000000-0000-0000-0000-000000000003',
+    id: 'd0000000-0000-0000-0000-000000000003',
     requester_couple_id: 'c0000000-0000-0000-0000-000000000010',
     host_couple_id: MOCK_COUPLE_ID,
     meal_type: 'dinner',
@@ -106,7 +106,7 @@ export const mockReceivedRequests: JoinRequest[] = [
 
 export const mockSentRequests: JoinRequest[] = [
   {
-    id: 'r0000000-0000-0000-0000-000000000010',
+    id: 'd0000000-0000-0000-0000-000000000010',
     requester_couple_id: MOCK_COUPLE_ID,
     host_couple_id: 'c0000000-0000-0000-0000-000000000012',
     meal_type: 'dinner',
@@ -116,7 +116,7 @@ export const mockSentRequests: JoinRequest[] = [
     responded_at: '2026-09-21T08:30:00Z',
   },
   {
-    id: 'r0000000-0000-0000-0000-000000000011',
+    id: 'd0000000-0000-0000-0000-000000000011',
     requester_couple_id: MOCK_COUPLE_ID,
     host_couple_id: 'c0000000-0000-0000-0000-000000000014',
     meal_type: 'lunch',
@@ -129,14 +129,14 @@ export const mockSentRequests: JoinRequest[] = [
 
 export const mockConversations: Conversation[] = [
   {
-    id: 'conv0000-0000-0000-0000-000000000001',
+    id: 'e0000000-0000-0000-0000-000000000001',
     couple_1_id: MOCK_COUPLE_ID,
     couple_2_id: 'c0000000-0000-0000-0000-000000000010',
     created_at: '2026-09-16T10:00:00Z',
     last_message_at: '2026-09-25T19:30:00Z',
   },
   {
-    id: 'conv0000-0000-0000-0000-000000000002',
+    id: 'e0000000-0000-0000-0000-000000000002',
     couple_1_id: 'c0000000-0000-0000-0000-000000000012',
     couple_2_id: MOCK_COUPLE_ID,
     created_at: '2026-09-21T08:30:00Z',
@@ -146,8 +146,8 @@ export const mockConversations: Conversation[] = [
 
 export const mockMeals: Meal[] = [
   {
-    id: 'm0000000-0000-0000-0000-000000000001',
-    conversation_id: 'conv0000-0000-0000-0000-000000000001',
+    id: 'f0000000-0000-0000-0000-000000000001',
+    conversation_id: 'e0000000-0000-0000-0000-000000000001',
     host_couple_id: MOCK_COUPLE_ID,
     guest_couple_id: 'c0000000-0000-0000-0000-000000000010',
     meal_type: 'dinner',
@@ -157,8 +157,8 @@ export const mockMeals: Meal[] = [
     updated_at: '2026-09-25T20:00:00Z',
   },
   {
-    id: 'm0000000-0000-0000-0000-000000000002',
-    conversation_id: 'conv0000-0000-0000-0000-000000000002',
+    id: 'f0000000-0000-0000-0000-000000000002',
+    conversation_id: 'e0000000-0000-0000-0000-000000000002',
     host_couple_id: 'c0000000-0000-0000-0000-000000000012',
     guest_couple_id: MOCK_COUPLE_ID,
     meal_type: 'dinner',
@@ -168,8 +168,8 @@ export const mockMeals: Meal[] = [
     updated_at: '2026-09-23T14:15:00Z',
   },
   {
-    id: 'm0000000-0000-0000-0000-000000000003',
-    conversation_id: 'conv0000-0000-0000-0000-000000000001',
+    id: 'f0000000-0000-0000-0000-000000000003',
+    conversation_id: 'e0000000-0000-0000-0000-000000000001',
     host_couple_id: 'c0000000-0000-0000-0000-000000000010',
     guest_couple_id: MOCK_COUPLE_ID,
     meal_type: 'brunch',
@@ -181,9 +181,9 @@ export const mockMeals: Meal[] = [
 ];
 
 export const mockAvailability: Availability[] = [
-  { id: 'a1', couple_id: MOCK_COUPLE_ID, day_of_week: 5, specific_date: null, time_slot: 'dinner', recurring: true, created_at: '2026-06-01T00:00:00Z' },
-  { id: 'a2', couple_id: MOCK_COUPLE_ID, day_of_week: 6, specific_date: null, time_slot: 'brunch', recurring: true, created_at: '2026-06-01T00:00:00Z' },
-  { id: 'a3', couple_id: MOCK_COUPLE_ID, day_of_week: 6, specific_date: null, time_slot: 'dinner', recurring: true, created_at: '2026-06-01T00:00:00Z' },
-  { id: 'a4', couple_id: MOCK_COUPLE_ID, day_of_week: 0, specific_date: null, time_slot: 'brunch', recurring: true, created_at: '2026-06-01T00:00:00Z' },
-  { id: 'a5', couple_id: MOCK_COUPLE_ID, day_of_week: 0, specific_date: null, time_slot: 'lunch', recurring: true, created_at: '2026-06-01T00:00:00Z' },
+  { id: 'a0000000-0000-0000-0000-000000000001', couple_id: MOCK_COUPLE_ID, day_of_week: 5, specific_date: null, time_slot: 'dinner', recurring: true, created_at: '2026-06-01T00:00:00Z' },
+  { id: 'a0000000-0000-0000-0000-000000000002', couple_id: MOCK_COUPLE_ID, day_of_week: 6, specific_date: null, time_slot: 'brunch', recurring: true, created_at: '2026-06-01T00:00:00Z' },
+  { id: 'a0000000-0000-0000-0000-000000000003', couple_id: MOCK_COUPLE_ID, day_of_week: 6, specific_date: null, time_slot: 'dinner', recurring: true, created_at: '2026-06-01T00:00:00Z' },
+  { id: 'a0000000-0000-0000-0000-000000000004', couple_id: MOCK_COUPLE_ID, day_of_week: 0, specific_date: null, time_slot: 'brunch', recurring: true, created_at: '2026-06-01T00:00:00Z' },
+  { id: 'a0000000-0000-0000-0000-000000000005', couple_id: MOCK_COUPLE_ID, day_of_week: 0, specific_date: null, time_slot: 'lunch', recurring: true, created_at: '2026-06-01T00:00:00Z' },
 ];

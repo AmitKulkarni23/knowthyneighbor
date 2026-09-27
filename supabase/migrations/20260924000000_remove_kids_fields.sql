@@ -49,7 +49,8 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Recreate discover_couples without total_kids
-CREATE OR REPLACE FUNCTION discover_couples(user_couple_id uuid)
+DROP FUNCTION IF EXISTS discover_couples(uuid);
+CREATE FUNCTION discover_couples(user_couple_id uuid)
 RETURNS TABLE (
   couple_id uuid,
   couple_name text,

@@ -38,7 +38,14 @@ export async function proxy(request: NextRequest) {
   // Refresh the session so it stays alive
   const { data: { user } } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
+
+  // Magic link PKCE: Supabase redirects to /?code=... but the handler is at /auth/callback
+  if (pathname === '/' && searchParams.has('code')) {
+    const callbackUrl = new URL('/auth/callback', request.url);
+    callbackUrl.searchParams.set('code', searchParams.get('code')!);
+    return NextResponse.redirect(callbackUrl);
+  }
 
   // Protected routes: redirect to login if no session
   if (pathname.startsWith('/discover') ||

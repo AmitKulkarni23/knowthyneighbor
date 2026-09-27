@@ -19,8 +19,9 @@ People are tired of AI slop. They crave real human interaction. KnowThyNeighbor 
 
 ### Prerequisites
 
-- Node.js 18+
+- [Bun](https://bun.sh/)
 - [Supabase CLI](https://supabase.com/docs/guides/cli)
+- [OrbStack](https://orbstack.dev/) (or Docker Desktop) — required for local Supabase
 - [Vercel CLI](https://vercel.com/docs/cli) (optional, for deployments)
 
 ### Local Development
@@ -31,23 +32,43 @@ git clone https://github.com/AmitKulkarni23/knowthyneighbor.git
 cd knowthyneighbor
 
 # Install frontend dependencies
-cd frontend && npm install
+cd frontend && bun install
 
 # Set up environment variables
 cp .env.example .env.local
 # Fill in your Supabase project URL and anon key
 
-# Run the dev server
-npm run dev
-```
-
-### Supabase Setup
-
-```bash
-# Start local Supabase
+# Start OrbStack (or Docker Desktop), then start local Supabase
 supabase start
 
-# Apply migrations
+# Run the dev server (automatically connects to local Supabase via .env.development.local)
+cd frontend && bun run dev
+```
+
+The dev server uses `.env.development.local` which points to the local Supabase stack. Production builds use `.env.local` which points to the hosted Supabase project. No file swapping needed.
+
+### Local Supabase
+
+```bash
+# Start local Supabase (OrbStack/Docker must be running)
+supabase start
+
+# Reset database (re-runs all migrations + seed data)
+supabase db reset
+
+# Stop local Supabase
+supabase stop
+
+# Supabase Studio (browse/edit data visually)
+# http://127.0.0.1:54323
+```
+
+Test users are seeded automatically (e.g. `pat@example.com` / `password123`). See `supabase/seed.sql` for all test data.
+
+### Remote Supabase
+
+```bash
+# Apply migrations to remote
 supabase db push
 ```
 

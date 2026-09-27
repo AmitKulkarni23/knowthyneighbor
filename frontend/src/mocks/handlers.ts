@@ -91,10 +91,9 @@ export const handlers = [
     const url = new URL(request.url);
     const convFilter = url.searchParams.get('conversation_id');
     if (convFilter) {
-      const filtered = mockMeals.filter(
-        (m) => m.conversation_id === `eq.${convFilter}`.replace('eq.', '') || m.conversation_id === convFilter
-      );
-      return HttpResponse.json(filtered.length > 0 ? filtered : mockMeals);
+      const convId = convFilter.replace(/^eq\./, '');
+      const filtered = mockMeals.filter((m) => m.conversation_id === convId);
+      return HttpResponse.json(filtered);
     }
     return HttpResponse.json(mockMeals);
   }),
