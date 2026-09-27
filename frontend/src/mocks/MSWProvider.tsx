@@ -45,7 +45,7 @@ export default function MSWProvider({ children }: { children: React.ReactNode })
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (process.env.NEXT_PUBLIC_MSW !== 'true') {
+    if (process.env.NEXT_PUBLIC_MSW !== 'true' && process.env.NEXT_PUBLIC_SKIP_AUTH !== 'true') {
       setReady(true);
       return;
     }

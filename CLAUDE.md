@@ -136,6 +136,10 @@ All infrastructure is managed as code via the Supabase CLI — no Terraform, no 
 - **Environments**: Local dev via `supabase start`, remote via `supabase link --project-ref <ref>`.
 - **Never** configure database schema, RLS policies, triggers, or functions through the Supabase dashboard. All changes go through migration files so they are version-controlled and reproducible.
 
+## Browser Automation
+
+Use the `/playwright-cli` skill for all browser automation tasks (screenshots, clicking, form filling, testing UI changes). Do **not** use claude-in-chrome MCP tools.
+
 ## Git Conventions
 
 - Commit messages must be at most 2 sentences/phrases long.

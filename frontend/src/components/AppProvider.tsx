@@ -9,13 +9,13 @@ import type { Couple } from '@/types/database';
 const SKIP_AUTH = process.env.NEXT_PUBLIC_SKIP_AUTH === 'true';
 
 const FAKE_USER = {
-  id: '00000000-0000-0000-0000-000000000000',
-  email: 'dev@localhost',
+  id: '00000000-0000-0000-0000-000000000001',
+  email: 'demo@knowthyneighbor.com',
   aud: 'authenticated',
   role: 'authenticated',
-  app_metadata: {},
-  user_metadata: {},
-  created_at: new Date().toISOString(),
+  app_metadata: { provider: 'email', providers: ['email'] },
+  user_metadata: { full_name: 'Pat Delgado' },
+  created_at: '2026-06-01T00:00:00Z',
 } as User;
 
 type AppContextValue = {
