@@ -93,4 +93,6 @@ export type DiscoveryCouple = {
   bio: string | null;
   hosting_preference: HostingPreference;
   distance_miles: number;
+  has_availability: boolean;
+  has_pending_request: boolean;
 };

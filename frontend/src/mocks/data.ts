@@ -40,6 +40,8 @@ export const mockDiscoveryCouples: DiscoveryCouple[] = [
     bio: 'Huge fans of Sunday brunch — we make killer eggs benedict. Two kids, one golden retriever.',
     hosting_preference: 'host',
     distance_miles: 0.8,
+    has_availability: false,
+    has_pending_request: false,
   },
   {
     couple_id: 'c0000000-0000-0000-0000-000000000011',
@@ -47,6 +49,8 @@ export const mockDiscoveryCouples: DiscoveryCouple[] = [
     bio: 'Just moved to the neighborhood! Would love to meet people over homemade curry or pizza.',
     hosting_preference: 'visit',
     distance_miles: 1.3,
+    has_availability: false,
+    has_pending_request: false,
   },
   {
     couple_id: 'c0000000-0000-0000-0000-000000000012',
@@ -54,6 +58,8 @@ export const mockDiscoveryCouples: DiscoveryCouple[] = [
     bio: 'Empty nesters with a big backyard grill. We host BBQs every other weekend in the summer.',
     hosting_preference: 'host',
     distance_miles: 2.1,
+    has_availability: true,
+    has_pending_request: false,
   },
   {
     couple_id: 'c0000000-0000-0000-0000-000000000013',
@@ -61,6 +67,8 @@ export const mockDiscoveryCouples: DiscoveryCouple[] = [
     bio: 'Foodies who document every meal. Always hunting for the next great dinner conversation.',
     hosting_preference: 'both',
     distance_miles: 3.5,
+    has_availability: true,
+    has_pending_request: false,
   },
   {
     couple_id: 'c0000000-0000-0000-0000-000000000014',
@@ -68,6 +76,8 @@ export const mockDiscoveryCouples: DiscoveryCouple[] = [
     bio: null,
     hosting_preference: 'visit',
     distance_miles: 4.7,
+    has_availability: false,
+    has_pending_request: true,
   },
 ];
 

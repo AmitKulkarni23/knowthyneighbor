@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
@@ -31,6 +32,7 @@ const rotations = [-1.2, 1.5, -0.5, 1.8, -1, 0.8, -2, 1.2];
 const pins = [pinRedSx, pinGreenSx, pinBlueSx];
 
 export default function DiscoverPage() {
+  const router = useRouter();
   const { couple } = useAppContext();
   const [searchZip, setSearchZip] = useState('');
   const [searchCoords, setSearchCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -45,6 +47,7 @@ export default function DiscoverPage() {
   const [selectedCouple, setSelectedCouple] = useState<DiscoveryCouple | null>(null);
   const [hostSlots, setHostSlots] = useState<Availability[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
+  const [sentTo, setSentTo] = useState<Set<string>>(new Set());
   const [sendError, setSendError] = useState<string | null>(null);
   const [sendSuccess, setSendSuccess] = useState(false);
 
@@ -122,6 +125,7 @@ export default function DiscoverPage() {
       return;
     }
 
+    setSentTo(prev => new Set(prev).add(selectedCouple.couple_id));
     setSendSuccess(true);
     setTimeout(() => {
       setSelectedCouple(null);
@@ -308,17 +312,47 @@ export default function DiscoverPage() {
               >
                 {c.distance_miles.toFixed(1)} miles away
               </Typography>
-              <Button
-                onClick={() => setSelectedCouple(c)}
-                sx={{
-                  ...ctaButtonSx as object,
-                  py: '10px',
-                  px: '28px',
-                  fontSize: '0.95rem',
-                }}
-              >
-                Send request
-              </Button>
+              <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+                {(() => {
+                  const alreadySent = c.has_pending_request || sentTo.has(c.couple_id);
+                  const noAvailability = !c.has_availability;
+                  const disabled = alreadySent || noAvailability;
+                  return (
+                    <Button
+                      onClick={() => setSelectedCouple(c)}
+                      disabled={disabled}
+                      sx={{
+                        ...ctaButtonSx as object,
+                        py: '10px',
+                        px: '28px',
+                        fontSize: '0.95rem',
+                        '&.Mui-disabled': {
+                          bgcolor: 'var(--cork-dark)',
+                          color: 'var(--paper-aged)',
+                        },
+                      }}
+                    >
+                      {alreadySent ? 'Request sent' : noAvailability ? 'No dates available' : 'Send request'}
+                    </Button>
+                  );
+                })()}
+                <Button
+                  onClick={() => router.push(`/couple/${c.couple_id}`)}
+                  sx={{
+                    fontFamily: 'var(--font-condensed), sans-serif',
+                    fontWeight: 700,
+                    fontSize: '0.95rem',
+                    color: 'var(--ink-blue)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em',
+                    py: '10px',
+                    px: '20px',
+                    '&:hover': { color: 'var(--pushpin-red)', bgcolor: 'transparent' },
+                  }}
+                >
+                  View profile
+                </Button>
+              </Box>
             </Card>
           );
         })}
