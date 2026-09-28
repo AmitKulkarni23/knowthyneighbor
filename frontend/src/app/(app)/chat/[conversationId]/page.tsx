@@ -31,9 +31,10 @@ type ChatPageProps = {
 export default function ChatPage({ params }: ChatPageProps) {
   const { conversationId } = use(params);
   const { user } = useAppContext();
-  const { data: messages, loading, error } = useMessages(conversationId);
+  const { data: messages, loading, error, addOptimistic } = useMessages(conversationId);
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
   const [mealDialogOpen, setMealDialogOpen] = useState(false);
   const [mealServerError, setMealServerError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -57,10 +58,17 @@ export default function ChatPage({ params }: ChatPageProps) {
     if (!newMessage.trim()) return;
 
     setSending(true);
+    setSendError(null);
     const body = newMessage;
     setNewMessage('');
 
-    await sendMessage(conversationId, body);
+    const result = await sendMessage(conversationId, body);
+    if (result.error) {
+      setSendError(result.error);
+      setNewMessage(body);
+    } else if (result.message) {
+      addOptimistic(result.message);
+    }
     setSending(false);
   };
 
@@ -171,6 +179,9 @@ export default function ChatPage({ params }: ChatPageProps) {
       </Box>
 
       {/* Input */}
+      {sendError && (
+        <Alert severity="error" sx={{ mb: 1 }}>{sendError}</Alert>
+      )}
       <Box sx={{ display: 'flex', gap: 1, pt: 2, borderTop: 1, borderColor: 'divider' }}>
         <TextField
           value={newMessage}

@@ -234,8 +234,8 @@ export default function DiscoverPage() {
           const pin = pins[i % pins.length];
 
           return (
+            <div key={c.id}>
             <Card
-              key={c.id}
               sx={{
                 ...paperCardSx as object,
                 transform: `rotate(${deg}deg)`,
@@ -305,6 +305,7 @@ export default function DiscoverPage() {
                 Send request
               </Button>
             </Card>
+            </div>
           );
         })}
       </Box>
