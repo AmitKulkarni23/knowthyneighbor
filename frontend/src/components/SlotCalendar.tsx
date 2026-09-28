@@ -156,18 +156,18 @@ export default function SlotCalendar({ slots, value, onChange }: Props) {
                 bgcolor: isSelected
                   ? 'var(--thumbtack-green)'
                   : hasSlots && !isPast
-                  ? 'var(--paper-aged)'
+                  ? 'rgba(91, 127, 94, 0.15)'
                   : 'transparent',
                 border: '1.5px solid',
                 borderColor: isSelected
                   ? 'var(--thumbtack-green)'
                   : hasSlots && !isPast
-                  ? 'var(--cork-dark)'
+                  ? 'var(--thumbtack-green)'
                   : 'transparent',
-                opacity: isPast ? 0.35 : 1,
+                opacity: hasSlots && !isPast ? 1 : 0.3,
                 transition: 'background-color 0.12s ease',
                 '&:hover': hasSlots && !isPast ? {
-                  bgcolor: isSelected ? 'var(--thumbtack-green)' : 'var(--cork-highlight)',
+                  bgcolor: isSelected ? 'var(--thumbtack-green)' : 'rgba(91, 127, 94, 0.3)',
                 } : {},
               }}
             >
@@ -182,17 +182,6 @@ export default function SlotCalendar({ slots, value, onChange }: Props) {
               >
                 {day}
               </Typography>
-              {hasSlots && !isPast && !isSelected && (
-                <Box
-                  sx={{
-                    width: 5,
-                    height: 5,
-                    borderRadius: '50%',
-                    bgcolor: 'var(--thumbtack-green)',
-                    mt: '2px',
-                  }}
-                />
-              )}
             </Box>
           );
         })}
