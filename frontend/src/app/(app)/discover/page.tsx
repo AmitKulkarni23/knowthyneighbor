@@ -25,17 +25,7 @@ import type { DiscoveryCouple, Availability, MealSlot } from '@/types/database';
 import { joinRequestSchema, type JoinRequestFormData } from '@/lib/validations';
 import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
 import EmptyStateCard from '@/components/EmptyStateCard';
-
-const MEAL_LABELS: Record<MealSlot, string> = {
-  brunch: 'Brunch ~10 am',
-  lunch: 'Lunch ~12 pm',
-  dinner: 'Dinner ~6 pm',
-};
-
-function formatSlotDate(date: string): string {
-  const d = new Date(date + 'T12:00:00');
-  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-}
+import SlotCalendar from '@/components/SlotCalendar';
 
 const rotations = [-1.2, 1.5, -0.5, 1.8, -1, 0.8, -2, 1.2];
 const pins = [pinRedSx, pinGreenSx, pinBlueSx];
@@ -426,20 +416,6 @@ export default function DiscoverPage() {
                 </Alert>
               )}
 
-              <Typography
-                sx={{
-                  fontFamily: 'var(--font-condensed), sans-serif',
-                  fontWeight: 700,
-                  fontSize: '0.85rem',
-                  color: 'var(--ink-blue-light)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  mb: 1,
-                }}
-              >
-                Pick a date &amp; meal
-              </Typography>
-
               {slotsLoading ? (
                 <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.1rem', color: 'var(--ink-blue-light)', mb: 2 }}>
                   Loading availability...
@@ -449,32 +425,12 @@ export default function DiscoverPage() {
                   No available dates yet. Check back later!
                 </Typography>
               ) : (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-                  {hostSlots.map(s => {
-                    if (!s.specific_date) return null;
-                    const value = `${s.specific_date}|${s.time_slot}`;
-                    const isSelected = selectedSlot === value;
-                    return (
-                      <Chip
-                        key={value}
-                        label={`${formatSlotDate(s.specific_date)} — ${MEAL_LABELS[s.time_slot]}`}
-                        onClick={() => setValue('slot', value, { shouldValidate: true })}
-                        sx={{
-                          fontFamily: 'var(--font-handwriting), cursive',
-                          fontSize: '1rem',
-                          bgcolor: isSelected ? 'var(--thumbtack-green)' : 'var(--paper-aged)',
-                          color: isSelected ? 'var(--paper)' : 'var(--ink-blue)',
-                          border: '1.5px solid',
-                          borderColor: isSelected ? 'var(--thumbtack-green)' : 'var(--cork-dark)',
-                          borderRadius: 0,
-                          cursor: 'pointer',
-                          '&:hover': {
-                            bgcolor: isSelected ? 'var(--thumbtack-green)' : 'var(--cork-highlight)',
-                          },
-                        }}
-                      />
-                    );
-                  })}
+                <Box sx={{ mb: 2 }}>
+                  <SlotCalendar
+                    slots={hostSlots}
+                    value={selectedSlot}
+                    onChange={(v) => setValue('slot', v, { shouldValidate: true })}
+                  />
                 </Box>
               )}
               {errors.slot && (
@@ -524,12 +480,16 @@ export default function DiscoverPage() {
               <Button
                 type="submit"
                 form="request-form"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !selectedSlot || slotsLoading || hostSlots.length === 0}
                 sx={{
                   ...ctaButtonSx as object,
                   py: '10px',
                   px: '28px',
                   fontSize: '0.95rem',
+                  '&.Mui-disabled': {
+                    bgcolor: 'var(--cork-dark)',
+                    color: 'var(--paper-aged)',
+                  },
                 }}
               >
                 {isSubmitting ? 'Sending...' : 'Send request'}
