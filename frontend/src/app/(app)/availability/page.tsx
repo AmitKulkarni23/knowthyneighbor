@@ -11,7 +11,7 @@ export default function AvailabilityPage() {
   if (!couple) return null;
 
   return (
-    <Box sx={{ maxWidth: 520, mx: 'auto' }}>
+    <Box sx={{ maxWidth: 640, mx: 'auto' }}>
       <Typography
         sx={{
           fontFamily: 'var(--font-marker), cursive',

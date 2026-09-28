@@ -52,7 +52,7 @@ function formatDayName(d: Date): string {
 const labelSx = {
   fontFamily: 'var(--font-condensed), sans-serif',
   fontWeight: 700,
-  fontSize: '0.9rem',
+  fontSize: '1.05rem',
   color: 'var(--ink-blue-light)',
   textTransform: 'uppercase',
   letterSpacing: '0.06em',
@@ -225,7 +225,7 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
         sx={{
           display: 'grid',
           gridTemplateColumns: 'auto repeat(7, 1fr)',
-          gap: '8px',
+          gap: '10px',
           mb: 2,
           opacity: loading ? 0.5 : 1,
           pointerEvents: loading ? 'none' : 'auto',
@@ -244,7 +244,7 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
               <Typography
                 sx={{
                   fontFamily: 'var(--font-handwriting), cursive',
-                  fontSize: '1.05rem',
+                  fontSize: '1.25rem',
                   color: isToday ? 'var(--pushpin-red)' : 'var(--ink-blue)',
                   fontWeight: isToday ? 700 : 400,
                   lineHeight: 1.2,
@@ -266,7 +266,7 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
               <Typography
                 sx={{
                   fontFamily: 'var(--font-handwriting), cursive',
-                  fontSize: '0.8rem',
+                  fontSize: '0.95rem',
                   color: 'var(--ink-blue-light)',
                   lineHeight: 1,
                   mt: '2px',
@@ -285,7 +285,7 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
                   onClick={() => !isPast && toggle(dateStr, slot)}
                   sx={{
                     aspectRatio: '1',
-                    minHeight: 44,
+                    minHeight: 52,
                     borderRadius: 0,
                     bgcolor: isActive ? 'var(--thumbtack-green)' : 'var(--paper-aged)',
                     border: '1.5px solid',
@@ -306,7 +306,7 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
                     <Typography
                       sx={{
                         fontFamily: 'var(--font-marker), cursive',
-                        fontSize: '1.3rem',
+                        fontSize: '1.5rem',
                         color: 'var(--paper)',
                         lineHeight: 1,
                       }}
