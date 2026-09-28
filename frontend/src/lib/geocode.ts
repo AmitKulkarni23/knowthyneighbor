@@ -1,3 +1,5 @@
+'use server';
+
 type GeoResult = { lat: number; lng: number } | null;
 
 export async function geocodeZip(zip: string): Promise<GeoResult> {
