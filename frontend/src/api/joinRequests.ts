@@ -5,6 +5,7 @@ type SendJoinRequestData = {
   requester_couple_id: string;
   host_couple_id: string;
   meal_type: MealSlot;
+  proposed_date: string;
   message?: string;
 };
 
@@ -18,6 +19,7 @@ export async function sendJoinRequest(
       requester_couple_id: data.requester_couple_id,
       host_couple_id: data.host_couple_id,
       meal_type: data.meal_type,
+      proposed_date: data.proposed_date,
       message: data.message ?? null,
     })
     .select()

@@ -52,6 +52,7 @@ export type JoinRequest = {
   requester_couple_id: string;
   host_couple_id: string;
   meal_type: MealSlot;
+  proposed_date: string | null;
   message: string | null;
   status: RequestStatus;
   created_at: string;

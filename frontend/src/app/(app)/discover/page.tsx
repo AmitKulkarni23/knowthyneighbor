@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useState, useCallback, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -11,11 +11,6 @@ import Chip from '@mui/material/Chip';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import FormHelperText from '@mui/material/FormHelperText';
 import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -24,11 +19,23 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useAppContext } from '@/components/AppProvider';
 import useDiscovery from '@/hooks/useDiscovery';
 import { sendJoinRequest } from '@/api/joinRequests';
+import { getFutureAvailability } from '@/api/availability';
 import { geocodeZip } from '@/lib/geocode';
-import type { DiscoveryCouple } from '@/types/database';
+import type { DiscoveryCouple, Availability, MealSlot } from '@/types/database';
 import { joinRequestSchema, type JoinRequestFormData } from '@/lib/validations';
 import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
 import EmptyStateCard from '@/components/EmptyStateCard';
+
+const MEAL_LABELS: Record<MealSlot, string> = {
+  brunch: 'Brunch ~10 am',
+  lunch: 'Lunch ~12 pm',
+  dinner: 'Dinner ~6 pm',
+};
+
+function formatSlotDate(date: string): string {
+  const d = new Date(date + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
 
 const rotations = [-1.2, 1.5, -0.5, 1.8, -1, 0.8, -2, 1.2];
 const pins = [pinRedSx, pinGreenSx, pinBlueSx];
@@ -46,8 +53,19 @@ export default function DiscoverPage() {
     searchCoords?.lng
   );
   const [selectedCouple, setSelectedCouple] = useState<DiscoveryCouple | null>(null);
+  const [hostSlots, setHostSlots] = useState<Availability[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [sendSuccess, setSendSuccess] = useState(false);
+
+  useEffect(() => {
+    if (!selectedCouple) return;
+    setSlotsLoading(true);
+    getFutureAvailability(selectedCouple.couple_id).then(({ slots }) => {
+      setHostSlots(slots);
+      setSlotsLoading(false);
+    });
+  }, [selectedCouple]);
 
   const handleSearch = useCallback(async () => {
     const zip = searchZip.trim();
@@ -84,22 +102,28 @@ export default function DiscoverPage() {
   const {
     register,
     handleSubmit,
-    control,
     reset,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<JoinRequestFormData>({
     resolver: zodResolver(joinRequestSchema),
-    defaultValues: { mealType: 'dinner', message: '' },
+    defaultValues: { slot: '', message: '' },
   });
+
+  const selectedSlot = watch('slot');
 
   const onSubmit = async (data: JoinRequestFormData) => {
     if (!couple || !selectedCouple) return;
     setSendError(null);
 
+    const [proposedDate, mealType] = data.slot.split('|') as [string, MealSlot];
+
     const result = await sendJoinRequest({
       requester_couple_id: couple.id,
       host_couple_id: selectedCouple.couple_id,
-      meal_type: data.mealType,
+      meal_type: mealType,
+      proposed_date: proposedDate,
       message: data.message || undefined,
     });
 
@@ -118,6 +142,7 @@ export default function DiscoverPage() {
 
   const handleCloseDialog = () => {
     setSelectedCouple(null);
+    setHostSlots([]);
     setSendError(null);
     setSendSuccess(false);
     reset();
@@ -400,39 +425,64 @@ export default function DiscoverPage() {
                   {sendError}
                 </Alert>
               )}
-              <Controller
-                name="mealType"
-                control={control}
-                render={({ field }) => (
-                  <FormControl fullWidth sx={{ mt: 1, mb: 2 }} error={!!errors.mealType}>
-                    <InputLabel
-                      sx={{
-                        fontFamily: 'var(--font-handwriting), cursive',
-                        fontSize: '1.2rem',
-                        color: 'var(--ink-blue-light)',
-                      }}
-                    >
-                      Meal type
-                    </InputLabel>
-                    <Select
-                      value={field.value}
-                      onChange={field.onChange}
-                      label="Meal type"
-                      sx={{
-                        fontFamily: 'var(--font-handwriting), cursive',
-                        fontSize: '1.15rem',
-                      }}
-                    >
-                      <MenuItem value="brunch">Brunch</MenuItem>
-                      <MenuItem value="lunch">Lunch</MenuItem>
-                      <MenuItem value="dinner">Dinner</MenuItem>
-                    </Select>
-                    {errors.mealType && (
-                      <FormHelperText>{errors.mealType.message}</FormHelperText>
-                    )}
-                  </FormControl>
-                )}
-              />
+
+              <Typography
+                sx={{
+                  fontFamily: 'var(--font-condensed), sans-serif',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  color: 'var(--ink-blue-light)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  mb: 1,
+                }}
+              >
+                Pick a date &amp; meal
+              </Typography>
+
+              {slotsLoading ? (
+                <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.1rem', color: 'var(--ink-blue-light)', mb: 2 }}>
+                  Loading availability...
+                </Typography>
+              ) : hostSlots.length === 0 ? (
+                <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.1rem', color: 'var(--ink-blue-light)', mb: 2 }}>
+                  No available dates yet. Check back later!
+                </Typography>
+              ) : (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                  {hostSlots.map(s => {
+                    if (!s.specific_date) return null;
+                    const value = `${s.specific_date}|${s.time_slot}`;
+                    const isSelected = selectedSlot === value;
+                    return (
+                      <Chip
+                        key={value}
+                        label={`${formatSlotDate(s.specific_date)} — ${MEAL_LABELS[s.time_slot]}`}
+                        onClick={() => setValue('slot', value, { shouldValidate: true })}
+                        sx={{
+                          fontFamily: 'var(--font-handwriting), cursive',
+                          fontSize: '1rem',
+                          bgcolor: isSelected ? 'var(--thumbtack-green)' : 'var(--paper-aged)',
+                          color: isSelected ? 'var(--paper)' : 'var(--ink-blue)',
+                          border: '1.5px solid',
+                          borderColor: isSelected ? 'var(--thumbtack-green)' : 'var(--cork-dark)',
+                          borderRadius: 0,
+                          cursor: 'pointer',
+                          '&:hover': {
+                            bgcolor: isSelected ? 'var(--thumbtack-green)' : 'var(--cork-highlight)',
+                          },
+                        }}
+                      />
+                    );
+                  })}
+                </Box>
+              )}
+              {errors.slot && (
+                <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '0.95rem', color: 'var(--pushpin-red)', mb: 1.5 }}>
+                  {errors.slot.message}
+                </Typography>
+              )}
+
               <TextField
                 label="Add a note (optional)"
                 {...register('message')}

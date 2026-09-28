@@ -62,6 +62,21 @@ export async function setAvailability(
   return { error: insertError?.message ?? null };
 }
 
+export async function getFutureAvailability(
+  coupleId: string
+): Promise<{ slots: Availability[]; error: string | null }> {
+  const supabase = createSupabaseClient();
+  const today = new Date().toISOString().split('T')[0];
+  const { data, error } = await supabase
+    .from('availability')
+    .select('*')
+    .eq('couple_id', coupleId)
+    .gte('specific_date', today)
+    .order('specific_date', { ascending: true });
+
+  return { slots: data ?? [], error: error?.message ?? null };
+}
+
 export async function setAvailabilityForWeek(
   coupleId: string,
   startDate: string,

@@ -52,7 +52,7 @@ export const mealProposalSchema = z.object({
 export type MealProposalFormData = z.infer<typeof mealProposalSchema>;
 
 export const joinRequestSchema = z.object({
-  mealType: z.enum(['brunch', 'lunch', 'dinner']),
+  slot: z.string().min(1, 'Pick a date and meal'),
   message: z.string().max(500, 'Message must be under 500 characters').optional().or(z.literal('')),
 });
 
