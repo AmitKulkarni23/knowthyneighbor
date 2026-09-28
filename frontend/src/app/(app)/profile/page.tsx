@@ -22,6 +22,7 @@ import { updateCouple } from '@/api/couples';
 import { uploadAvatar } from '@/api/storage';
 import type { Profile } from '@/types/database';
 import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
+import AvailabilityCard from '@/components/AvailabilityCard';
 
 const editSchema = z.object({
   coupleName: z.string().max(100, 'Name is too long').optional().or(z.literal('')),
@@ -409,6 +410,9 @@ export default function ProfilePage() {
           </Box>
         )}
       </Card>
+
+      {/* ── Availability ── */}
+      {couple && <AvailabilityCard coupleId={couple.id} />}
 
       {/* ── Sign out ── */}
       <Card
