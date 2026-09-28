@@ -207,7 +207,7 @@ export default function DiscoverPage() {
 
       {couples.length === 0 ? (
         <EmptyStateCard
-          message={searchLabel ? `No couples found near ${searchLabel}.` : 'No couples nearby yet. Check back soon!'}
+          message={searchLabel ? `No couples found within 10 miles of ${searchLabel}.` : 'No couples within 10 miles yet. Check back soon!'}
           pin="blue"
           rotation={0.6}
           sx={{ mb: 3 }}
@@ -223,8 +223,8 @@ export default function DiscoverPage() {
           }}
         >
           {searchLabel
-            ? `${couples.length} couple${couples.length === 1 ? '' : 's'} near ${searchLabel}`
-            : `${couples.length} couple${couples.length === 1 ? '' : 's'} near you`}
+            ? `${couples.length} couple${couples.length === 1 ? '' : 's'} within 10 miles of ${searchLabel}`
+            : `${couples.length} couple${couples.length === 1 ? '' : 's'} within 10 miles`}
         </Typography>
       )}
 
