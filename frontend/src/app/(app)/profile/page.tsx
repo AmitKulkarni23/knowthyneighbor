@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Box from '@mui/material/Box';
@@ -11,10 +11,6 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import TextField from '@mui/material/TextField';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
 import Alert from '@mui/material/Alert';
 import { useAppContext } from '@/components/AppProvider';
 import { getProfile, updateProfile } from '@/api/profiles';
@@ -26,7 +22,6 @@ import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/sty
 const editSchema = z.object({
   coupleName: z.string().max(100, 'Name is too long').optional().or(z.literal('')),
   bio: z.string().max(500, 'Bio must be under 500 characters').optional().or(z.literal('')),
-  hostingPreference: z.enum(['host', 'visit', 'both']),
 });
 
 type EditFormData = z.infer<typeof editSchema>;
@@ -63,7 +58,6 @@ export default function ProfilePage() {
   const {
     register,
     handleSubmit,
-    control,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<EditFormData>({
@@ -71,7 +65,6 @@ export default function ProfilePage() {
     defaultValues: {
       coupleName: '',
       bio: '',
-      hostingPreference: 'both',
     },
   });
 
@@ -94,7 +87,6 @@ export default function ProfilePage() {
       reset({
         coupleName: couple.couple_name ?? '',
         bio: couple.bio ?? '',
-        hostingPreference: couple.hosting_preference,
       });
     }
   }, [couple, editing, reset]);
@@ -123,7 +115,6 @@ export default function ProfilePage() {
     const result = await updateCouple(couple.id, {
       couple_name: data.coupleName || null,
       bio: data.bio || null,
-      hosting_preference: data.hostingPreference,
     });
     if (result.error) { setSaveError(result.error); return; }
     await refreshCouple();
@@ -285,21 +276,9 @@ export default function ProfilePage() {
             )}
 
             {/* Details row */}
-            <Box sx={{ display: 'flex', gap: 4, mb: 2.5, pt: couple.bio ? 0 : 2, borderTop: couple.bio ? 'none' : '1px dashed var(--cork-dark)' }}>
-              <Box>
-                <Typography sx={labelSx}>Neighborhood</Typography>
-                <Typography sx={valueSx}>{couple.zip_code}</Typography>
-              </Box>
-              <Box>
-                <Typography sx={labelSx}>Hosting preference</Typography>
-                <Typography sx={valueSx}>
-                  {couple.hosting_preference === 'host'
-                    ? 'We like to host'
-                    : couple.hosting_preference === 'visit'
-                    ? 'We prefer to visit'
-                    : 'Happy to host or visit'}
-                </Typography>
-              </Box>
+            <Box sx={{ mb: 2.5, pt: couple.bio ? 0 : 2, borderTop: couple.bio ? 'none' : '1px dashed var(--cork-dark)' }}>
+              <Typography sx={labelSx}>Neighborhood</Typography>
+              <Typography sx={valueSx}>{couple.zip_code}</Typography>
             </Box>
 
             {/* Edit action in dashed footer */}
@@ -366,27 +345,6 @@ export default function ProfilePage() {
                 '& .MuiInputLabel-root': { fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.2rem' },
                 '& .MuiInput-root': { fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.15rem' },
               }}
-            />
-            <Controller
-              name="hostingPreference"
-              control={control}
-              render={({ field }) => (
-                <FormControl fullWidth sx={{ mb: 3 }}>
-                  <InputLabel sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.2rem' }}>
-                    Hosting preference
-                  </InputLabel>
-                  <Select
-                    value={field.value}
-                    onChange={field.onChange}
-                    label="Hosting preference"
-                    sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.15rem' }}
-                  >
-                    <MenuItem value="host">We like to host</MenuItem>
-                    <MenuItem value="visit">We prefer to visit</MenuItem>
-                    <MenuItem value="both">Either works for us</MenuItem>
-                  </Select>
-                </FormControl>
-              )}
             />
             <Box sx={{ display: 'flex', gap: 1.5, borderTop: '2px dashed var(--cork-dark)', pt: 2 }}>
               <Button

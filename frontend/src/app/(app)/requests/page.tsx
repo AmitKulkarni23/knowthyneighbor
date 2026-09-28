@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
@@ -12,6 +13,7 @@ import Alert from '@mui/material/Alert';
 import { useAppContext } from '@/components/AppProvider';
 import useJoinRequests from '@/hooks/useJoinRequests';
 import { respondToJoinRequest } from '@/api/joinRequests';
+import { getConversationByCouples } from '@/api/conversations';
 import type { JoinRequest } from '@/types/database';
 import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
 import EmptyStateCard from '@/components/EmptyStateCard';
@@ -19,10 +21,28 @@ import EmptyStateCard from '@/components/EmptyStateCard';
 const rotations = [1.2, -0.8, 1.5, -1.1, 0.6, -1.8, 0.9, -0.5];
 
 export default function RequestsPage() {
+  const router = useRouter();
   const { couple } = useAppContext();
   const { received, sent, loading, error, refetch } = useJoinRequests(couple?.id ?? null);
   const [tab, setTab] = useState(0);
   const [responding, setResponding] = useState<string | null>(null);
+  const [conversationMap, setConversationMap] = useState<Record<string, string>>({});
+
+  const loadConversations = useCallback(async () => {
+    if (!couple) return;
+    const accepted = [...received, ...sent].filter(r => r.status === 'accepted');
+    const map: Record<string, string> = {};
+    await Promise.all(
+      accepted.map(async (r) => {
+        const otherCoupleId = r.requester_couple_id === couple.id ? r.host_couple_id : r.requester_couple_id;
+        const { conversation } = await getConversationByCouples(couple.id, otherCoupleId);
+        if (conversation) map[r.id] = conversation.id;
+      })
+    );
+    setConversationMap(map);
+  }, [couple, received, sent]);
+
+  useEffect(() => { loadConversations(); }, [loadConversations]);
 
   const handleRespond = async (id: string, status: 'accepted' | 'declined') => {
     setResponding(id);
@@ -106,6 +126,22 @@ export default function RequestsPage() {
         >
           {new Date(request.created_at).toLocaleDateString()}
         </Typography>
+
+        {request.status === 'accepted' && conversationMap[request.id] && (
+          <Box sx={{ display: 'flex', gap: 1.5 }}>
+            <Button
+              onClick={() => router.push(`/chat/${conversationMap[request.id]}`)}
+              sx={{
+                ...ctaButtonSx as object,
+                py: '10px',
+                px: '28px',
+                fontSize: '0.95rem',
+              }}
+            >
+              Chat
+            </Button>
+          </Box>
+        )}
 
         {type === 'received' && request.status === 'pending' && (
           <Box sx={{ display: 'flex', gap: 1.5 }}>

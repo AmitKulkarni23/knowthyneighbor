@@ -8,7 +8,6 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import Chip from '@mui/material/Chip';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import TextField from '@mui/material/TextField';
@@ -267,7 +266,7 @@ export default function DiscoverPage() {
               }}
             >
               <Box sx={pin} />
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5, mt: 0.5 }}>
+              <Box sx={{ mb: 1.5, mt: 0.5 }}>
                 <Typography
                   sx={{
                     fontFamily: 'var(--font-condensed), sans-serif',
@@ -280,14 +279,6 @@ export default function DiscoverPage() {
                 >
                   {c.couple_name ?? 'A couple nearby'}
                 </Typography>
-                <Chip
-                  label={c.hosting_preference === 'host' ? 'HOSTS' : c.hosting_preference === 'visit' ? 'VISITORS' : 'EITHER'}
-                  size="small"
-                  sx={{
-                    bgcolor: c.hosting_preference === 'host' ? 'var(--pushpin-red)' : 'var(--thumbtack-green)',
-                    color: 'var(--paper)',
-                  }}
-                />
               </Box>
               {c.bio && (
                 <Typography
@@ -369,7 +360,8 @@ export default function DiscoverPage() {
               ...paperCardSx as object,
               p: { xs: '48px 24px 28px', sm: '56px 36px 32px' },
               position: 'relative',
-              overflow: 'visible',
+              overflowY: 'auto',
+              maxHeight: '85vh',
             },
           },
         }}

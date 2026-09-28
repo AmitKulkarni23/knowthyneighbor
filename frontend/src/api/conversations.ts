@@ -15,6 +15,23 @@ export async function getConversations(
   return { conversations: data ?? [], error: error?.message ?? null };
 }
 
+export async function getConversationByCouples(
+  coupleId1: string,
+  coupleId2: string
+): Promise<{ conversation: Conversation | null; error: string | null }> {
+  const supabase = createSupabaseClient();
+  const { data, error } = await supabase
+    .from('conversations')
+    .select('*')
+    .or(
+      `and(couple_1_id.eq.${coupleId1},couple_2_id.eq.${coupleId2}),and(couple_1_id.eq.${coupleId2},couple_2_id.eq.${coupleId1})`
+    )
+    .limit(1)
+    .maybeSingle();
+
+  return { conversation: data ?? null, error: error?.message ?? null };
+}
+
 export async function getMessages(
   conversationId: string
 ): Promise<{ messages: Message[]; error: string | null }> {
