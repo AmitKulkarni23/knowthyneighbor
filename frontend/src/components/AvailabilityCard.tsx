@@ -260,13 +260,13 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
         {MEALS.map(({ slot, label, time }) => (
           <Box key={slot} sx={{ display: 'contents' }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', pr: 1 }}>
-              <Typography sx={{ ...labelSx, textAlign: 'right' }}>
+              <Typography sx={{ ...labelSx, textAlign: 'right', fontSize: '1.15rem' }}>
                 {label}
               </Typography>
               <Typography
                 sx={{
                   fontFamily: 'var(--font-handwriting), cursive',
-                  fontSize: '0.95rem',
+                  fontSize: '1.1rem',
                   color: 'var(--ink-blue-light)',
                   lineHeight: 1,
                   mt: '2px',
