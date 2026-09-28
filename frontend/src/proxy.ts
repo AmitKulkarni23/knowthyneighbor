@@ -53,7 +53,8 @@ export async function proxy(request: NextRequest) {
       pathname.startsWith('/couple') ||
       pathname.startsWith('/requests') ||
       pathname.startsWith('/chat') ||
-      pathname.startsWith('/meals')) {
+      pathname.startsWith('/meals') ||
+      pathname.startsWith('/availability')) {
     if (!user) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('next', pathname);

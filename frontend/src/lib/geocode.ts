@@ -1,16 +1,9 @@
-'use server';
-
 type GeoResult = { lat: number; lng: number } | null;
 
 export async function geocodeZip(zip: string): Promise<GeoResult> {
   try {
     const resp = await fetch(
-      `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(zip)}&country=US&format=json&limit=1`,
-      {
-        headers: {
-          'User-Agent': 'KnowThyNeighbor/1.0 (neighborhood dining app)',
-        },
-      }
+      `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(zip)}&country=US&format=json&limit=1`
     );
     if (!resp.ok) return null;
     const results = await resp.json();
