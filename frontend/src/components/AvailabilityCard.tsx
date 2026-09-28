@@ -52,7 +52,7 @@ function formatDayName(d: Date): string {
 const labelSx = {
   fontFamily: 'var(--font-condensed), sans-serif',
   fontWeight: 700,
-  fontSize: '0.75rem',
+  fontSize: '0.9rem',
   color: 'var(--ink-blue-light)',
   textTransform: 'uppercase',
   letterSpacing: '0.06em',
@@ -225,7 +225,7 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
         sx={{
           display: 'grid',
           gridTemplateColumns: 'auto repeat(7, 1fr)',
-          gap: '6px',
+          gap: '8px',
           mb: 2,
           opacity: loading ? 0.5 : 1,
           pointerEvents: loading ? 'none' : 'auto',
@@ -244,7 +244,7 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
               <Typography
                 sx={{
                   fontFamily: 'var(--font-handwriting), cursive',
-                  fontSize: '0.85rem',
+                  fontSize: '1.05rem',
                   color: isToday ? 'var(--pushpin-red)' : 'var(--ink-blue)',
                   fontWeight: isToday ? 700 : 400,
                   lineHeight: 1.2,
@@ -266,10 +266,10 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
               <Typography
                 sx={{
                   fontFamily: 'var(--font-handwriting), cursive',
-                  fontSize: '0.65rem',
+                  fontSize: '0.8rem',
                   color: 'var(--ink-blue-light)',
                   lineHeight: 1,
-                  mt: '1px',
+                  mt: '2px',
                 }}
               >
                 {time}
@@ -285,7 +285,7 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
                   onClick={() => !isPast && toggle(dateStr, slot)}
                   sx={{
                     aspectRatio: '1',
-                    minHeight: 36,
+                    minHeight: 44,
                     borderRadius: 0,
                     bgcolor: isActive ? 'var(--thumbtack-green)' : 'var(--paper-aged)',
                     border: '1.5px solid',
@@ -306,7 +306,7 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
                     <Typography
                       sx={{
                         fontFamily: 'var(--font-marker), cursive',
-                        fontSize: '1.1rem',
+                        fontSize: '1.3rem',
                         color: 'var(--paper)',
                         lineHeight: 1,
                       }}
