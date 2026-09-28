@@ -73,6 +73,22 @@ INSERT INTO availability (couple_id, day_of_week, time_slot, recurring) VALUES
   ('c0000000-0000-0000-0000-000000000001', 0, 'brunch',  true),
   ('c0000000-0000-0000-0000-000000000001', 0, 'lunch',   true);
 
+-- ── Availability (Sara & Tomoko) ──
+INSERT INTO availability (couple_id, specific_date, time_slot, recurring) VALUES
+  ('c0000000-0000-0000-0000-000000000013', '2026-10-03', 'dinner',  false),
+  ('c0000000-0000-0000-0000-000000000013', '2026-10-04', 'brunch',  false),
+  ('c0000000-0000-0000-0000-000000000013', '2026-10-04', 'dinner',  false),
+  ('c0000000-0000-0000-0000-000000000013', '2026-10-05', 'brunch',  false),
+  ('c0000000-0000-0000-0000-000000000013', '2026-10-10', 'dinner',  false),
+  ('c0000000-0000-0000-0000-000000000013', '2026-10-11', 'lunch',   false);
+
+-- ── Availability (The Johnsons) ──
+INSERT INTO availability (couple_id, specific_date, time_slot, recurring) VALUES
+  ('c0000000-0000-0000-0000-000000000012', '2026-10-03', 'dinner',  false),
+  ('c0000000-0000-0000-0000-000000000012', '2026-10-04', 'lunch',   false),
+  ('c0000000-0000-0000-0000-000000000012', '2026-10-04', 'dinner',  false),
+  ('c0000000-0000-0000-0000-000000000012', '2026-10-11', 'dinner',  false);
+
 -- ── Join requests ──
 -- Received by The Delgados
 INSERT INTO join_requests (requester_couple_id, host_couple_id, meal_type, message, status, created_at, responded_at) VALUES
