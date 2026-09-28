@@ -87,7 +87,7 @@ export type Meal = {
 };
 
 export type DiscoveryCouple = {
-  id: string;
+  couple_id: string;
   couple_name: string | null;
   bio: string | null;
   hosting_preference: HostingPreference;

@@ -98,7 +98,7 @@ export default function DiscoverPage() {
 
     const result = await sendJoinRequest({
       requester_couple_id: couple.id,
-      host_couple_id: selectedCouple.id,
+      host_couple_id: selectedCouple.couple_id,
       meal_type: data.mealType,
       message: data.message || undefined,
     });
@@ -167,7 +167,7 @@ export default function DiscoverPage() {
               },
             },
           }}
-          sx={{ flex: 1, maxWidth: 360 }}
+          sx={{ flex: 1, maxWidth: 480 }}
         />
         <Button
           type="submit"
@@ -234,8 +234,8 @@ export default function DiscoverPage() {
           const pin = pins[i % pins.length];
 
           return (
-            <div key={c.id}>
             <Card
+              key={c.couple_id}
               sx={{
                 ...paperCardSx as object,
                 transform: `rotate(${deg}deg)`,
@@ -305,7 +305,6 @@ export default function DiscoverPage() {
                 Send request
               </Button>
             </Card>
-            </div>
           );
         })}
       </Box>
