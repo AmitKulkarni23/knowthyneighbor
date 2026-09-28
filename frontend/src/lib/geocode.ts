@@ -3,13 +3,18 @@ type GeoResult = { lat: number; lng: number } | null;
 export async function geocodeZip(zip: string): Promise<GeoResult> {
   try {
     const resp = await fetch(
-      `https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?address=${encodeURIComponent(zip)}&benchmark=Public_AR_Current&vintage=Current_Current&format=json`
+      `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(zip)}&country=US&format=json&limit=1`,
+      {
+        headers: {
+          'User-Agent': 'KnowThyNeighbor/1.0 (neighborhood dining app)',
+        },
+      }
     );
     if (!resp.ok) return null;
-    const json = await resp.json();
-    const match = json?.result?.addressMatches?.[0];
-    if (!match?.coordinates) return null;
-    return { lat: match.coordinates.y, lng: match.coordinates.x };
+    const results = await resp.json();
+    const match = results?.[0];
+    if (!match?.lat || !match?.lon) return null;
+    return { lat: parseFloat(match.lat), lng: parseFloat(match.lon) };
   } catch {
     return null;
   }
