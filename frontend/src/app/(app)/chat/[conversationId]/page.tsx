@@ -1,28 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect, use } from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import FormHelperText from '@mui/material/FormHelperText';
 import { useAppContext } from '@/components/AppProvider';
 import useMessages from '@/hooks/useMessages';
 import { sendMessage } from '@/api/conversations';
-import { createMeal } from '@/api/meals';
-import { mealProposalSchema, type MealProposalFormData } from '@/lib/validations';
 
 type ChatPageProps = {
   params: Promise<{ conversationId: string }>;
@@ -35,20 +22,7 @@ export default function ChatPage({ params }: ChatPageProps) {
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
-  const [mealDialogOpen, setMealDialogOpen] = useState(false);
-  const [mealServerError, setMealServerError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const {
-    register: registerMeal,
-    handleSubmit: handleMealSubmit,
-    control: mealControl,
-    reset: resetMealForm,
-    formState: { errors: mealErrors, isSubmitting: mealSubmitting },
-  } = useForm<MealProposalFormData>({
-    resolver: zodResolver(mealProposalSchema),
-    defaultValues: { mealType: 'dinner', mealDate: '' },
-  });
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -79,32 +53,6 @@ export default function ChatPage({ params }: ChatPageProps) {
     }
   };
 
-  const onMealSubmit = async (data: MealProposalFormData) => {
-    setMealServerError(null);
-
-    const result = await createMeal({
-      conversation_id: conversationId,
-      host_couple_id: '',
-      guest_couple_id: '',
-      meal_type: data.mealType,
-      scheduled_at: new Date(data.mealDate).toISOString(),
-    });
-
-    if (result.error) {
-      setMealServerError(result.error);
-      return;
-    }
-
-    setMealDialogOpen(false);
-    resetMealForm();
-  };
-
-  const handleCloseMealDialog = () => {
-    setMealDialogOpen(false);
-    setMealServerError(null);
-    resetMealForm();
-  };
-
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
@@ -120,15 +68,8 @@ export default function ChatPage({ params }: ChatPageProps) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 128px)' }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 2, borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{ pb: 2, borderBottom: 1, borderColor: 'divider' }}>
         <Typography variant="h2">Chat</Typography>
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={() => setMealDialogOpen(true)}
-        >
-          Plan a meal
-        </Button>
       </Box>
 
       {/* Messages */}
@@ -203,65 +144,6 @@ export default function ChatPage({ params }: ChatPageProps) {
         </Button>
       </Box>
 
-      {/* Meal proposal dialog */}
-      <Dialog
-        open={mealDialogOpen}
-        onClose={handleCloseMealDialog}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle>Plan a meal</DialogTitle>
-        <DialogContent>
-          <Box component="form" id="meal-form" onSubmit={handleMealSubmit(onMealSubmit)} noValidate>
-            {mealServerError && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                {mealServerError}
-              </Alert>
-            )}
-            <Controller
-              name="mealType"
-              control={mealControl}
-              render={({ field }) => (
-                <FormControl fullWidth sx={{ mt: 1, mb: 2 }} error={!!mealErrors.mealType}>
-                  <InputLabel>Meal type</InputLabel>
-                  <Select
-                    value={field.value}
-                    onChange={field.onChange}
-                    label="Meal type"
-                  >
-                    <MenuItem value="brunch">Brunch</MenuItem>
-                    <MenuItem value="lunch">Lunch</MenuItem>
-                    <MenuItem value="dinner">Dinner</MenuItem>
-                  </Select>
-                  {mealErrors.mealType && (
-                    <FormHelperText>{mealErrors.mealType.message}</FormHelperText>
-                  )}
-                </FormControl>
-              )}
-            />
-            <TextField
-              label="Date and time"
-              type="datetime-local"
-              {...registerMeal('mealDate')}
-              error={!!mealErrors.mealDate}
-              helperText={mealErrors.mealDate?.message}
-              fullWidth
-              slotProps={{ inputLabel: { shrink: true } }}
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={handleCloseMealDialog}>Cancel</Button>
-          <Button
-            type="submit"
-            form="meal-form"
-            variant="contained"
-            disabled={mealSubmitting}
-          >
-            {mealSubmitting ? 'Proposing...' : 'Propose meal'}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 }

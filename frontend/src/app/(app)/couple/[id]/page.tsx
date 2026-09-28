@@ -109,6 +109,46 @@ export default function CoupleProfilePage() {
         {couple.couple_name ?? 'A couple nearby'}
       </Typography>
 
+      {/* Photo card */}
+      <Card
+        sx={{
+          ...paperCardSx as object,
+          transform: 'rotate(0.6deg)',
+          position: 'relative',
+          mb: 2.5,
+          overflow: 'hidden',
+          '&:hover': {
+            ...(paperCardSx as any)['&:hover'],
+            transform: 'rotate(0.6deg) translateY(-4px) scale(1.01)',
+          },
+        }}
+      >
+        <Box sx={pinBlueSx} />
+        {partner1?.avatar_url ? (
+          <Box
+            component="img"
+            src={partner1.avatar_url}
+            alt={partner1.full_name}
+            sx={{ width: '100%', height: 240, objectFit: 'cover', display: 'block' }}
+          />
+        ) : (
+          <Box
+            sx={{
+              width: '100%',
+              height: 240,
+              bgcolor: 'var(--paper-aged)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Typography sx={{ ...valueSx, color: 'var(--ink-blue-light)', fontSize: '1.2rem' }}>
+              No photo yet
+            </Typography>
+          </Box>
+        )}
+      </Card>
+
       {/* Info card */}
       <Card
         sx={{
@@ -146,23 +186,9 @@ export default function CoupleProfilePage() {
           </Box>
         )}
 
-        <Box sx={{ display: 'flex', gap: 4, pt: couple.bio ? 0 : 2, borderTop: couple.bio ? 'none' : '1px dashed var(--cork-dark)' }}>
-          <Box>
-            <Typography sx={labelSx}>Neighborhood</Typography>
-            <Typography sx={valueSx}>{couple.zip_code}</Typography>
-          </Box>
-          <Box>
-            <Typography sx={labelSx}>Hosting preference</Typography>
-            <Chip
-              label={couple.hosting_preference === 'host' ? 'HOSTS' : couple.hosting_preference === 'visit' ? 'VISITORS' : 'EITHER'}
-              size="small"
-              sx={{
-                bgcolor: couple.hosting_preference === 'host' ? 'var(--pushpin-red)' : 'var(--thumbtack-green)',
-                color: 'var(--paper)',
-                mt: 0.5,
-              }}
-            />
-          </Box>
+        <Box sx={{ pt: couple.bio ? 0 : 2, borderTop: couple.bio ? 'none' : '1px dashed var(--cork-dark)' }}>
+          <Typography sx={labelSx}>Neighborhood</Typography>
+          <Typography sx={valueSx}>{couple.zip_code}</Typography>
         </Box>
       </Card>
 
