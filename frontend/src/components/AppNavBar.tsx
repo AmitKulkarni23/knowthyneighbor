@@ -16,7 +16,7 @@ const navItems = [
   { label: 'Discover', href: '/discover' },
   { label: 'Requests', href: '/requests' },
   { label: 'Chat', href: '/chat' },
-  { label: 'Meals', href: '/meals' },
+  { label: 'Availability', href: '/availability' },
 ];
 
 export default function AppNavBar() {

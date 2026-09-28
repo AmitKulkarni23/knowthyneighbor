@@ -1,23 +1,52 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import Alert from '@mui/material/Alert';
-import { getAvailability, setAvailability } from '@/api/availability';
+import { getAvailabilityForWeek, setAvailabilityForWeek } from '@/api/availability';
 import type { MealSlot } from '@/types/database';
 import { paperCardSx, pinGreenSx, ctaButtonSx } from '@/styles/board';
 
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
-const DAY_MAP: Record<string, number> = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 0 };
-const DAY_FROM_NUM: Record<number, string> = { 1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat', 0: 'Sun' };
-const MEALS: MealSlot[] = ['brunch', 'lunch', 'dinner'];
+const MEALS: { slot: MealSlot; label: string; time: string }[] = [
+  { slot: 'brunch', label: 'Brunch', time: '~10 am' },
+  { slot: 'lunch', label: 'Lunch', time: '~12 pm' },
+  { slot: 'dinner', label: 'Dinner', time: '~6 pm' },
+];
 
-type SlotKey = `${number}-${MealSlot}`;
-function key(dayNum: number, meal: MealSlot): SlotKey {
-  return `${dayNum}-${meal}`;
+type SlotKey = `${string}-${MealSlot}`;
+function slotKey(date: string, meal: MealSlot): SlotKey {
+  return `${date}-${meal}`;
+}
+
+function getMonday(d: Date): Date {
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(d);
+  monday.setDate(diff);
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+}
+
+function addDays(d: Date, n: number): Date {
+  const result = new Date(d);
+  result.setDate(result.getDate() + n);
+  return result;
+}
+
+function formatDate(d: Date): string {
+  return d.toISOString().split('T')[0];
+}
+
+function formatShortDate(d: Date): string {
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function formatDayName(d: Date): string {
+  return d.toLocaleDateString('en-US', { weekday: 'short' });
 }
 
 const labelSx = {
@@ -32,6 +61,7 @@ const labelSx = {
 } as const;
 
 export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
+  const [weekStart, setWeekStart] = useState(() => getMonday(new Date()));
   const [active, setActive] = useState<Set<SlotKey>>(new Set());
   const [saved, setSaved] = useState<Set<SlotKey>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -39,23 +69,31 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  const weekDates = useMemo(() => {
+    return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  }, [weekStart]);
+
+  const startStr = formatDate(weekStart);
+  const endStr = formatDate(addDays(weekStart, 6));
+
   useEffect(() => {
-    getAvailability(coupleId).then(({ slots, error: e }) => {
+    setLoading(true);
+    getAvailabilityForWeek(coupleId, startStr, endStr).then(({ slots, error: e }) => {
       if (e) { setError(e); setLoading(false); return; }
       const set = new Set<SlotKey>();
       for (const s of slots) {
-        if (s.day_of_week != null) set.add(key(s.day_of_week, s.time_slot));
+        if (s.specific_date) set.add(slotKey(s.specific_date, s.time_slot));
       }
       setActive(set);
       setSaved(set);
       setLoading(false);
     });
-  }, [coupleId]);
+  }, [coupleId, startStr, endStr]);
 
-  const toggle = useCallback((dayNum: number, meal: MealSlot) => {
+  const toggle = useCallback((date: string, meal: MealSlot) => {
     setActive(prev => {
       const next = new Set(prev);
-      const k = key(dayNum, meal);
+      const k = slotKey(date, meal);
       if (next.has(k)) next.delete(k); else next.add(k);
       return next;
     });
@@ -68,10 +106,12 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
     setSaving(true);
     setError(null);
     const slots = [...active].map(k => {
-      const [d, m] = k.split('-') as [string, MealSlot];
-      return { day_of_week: Number(d), specific_date: null, time_slot: m, recurring: true };
+      const lastDash = k.lastIndexOf('-');
+      const date = k.slice(0, lastDash);
+      const meal = k.slice(lastDash + 1) as MealSlot;
+      return { day_of_week: null, specific_date: date, time_slot: meal, recurring: false };
     });
-    const result = await setAvailability(coupleId, slots);
+    const result = await setAvailabilityForWeek(coupleId, startStr, endStr, slots);
     if (result.error) { setError(result.error); setSaving(false); return; }
     setSaved(new Set(active));
     setSaving(false);
@@ -81,7 +121,14 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
 
   const handleReset = () => { setActive(new Set(saved)); setError(null); };
 
-  if (loading) return null;
+  const prevWeek = () => setWeekStart(addDays(weekStart, -7));
+  const nextWeek = () => setWeekStart(addDays(weekStart, 7));
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const isPastWeek = addDays(weekStart, 6) < today;
+
+  const weekLabel = `${formatShortDate(weekStart)} – ${formatShortDate(addDays(weekStart, 6))}`;
 
   return (
     <Card
@@ -99,31 +146,49 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
     >
       <Box sx={pinGreenSx} />
 
-      <Typography
-        sx={{
-          fontFamily: 'var(--font-condensed), sans-serif',
-          fontWeight: 700,
-          fontSize: '0.8rem',
-          color: 'var(--ink-blue-light)',
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-          mb: 0.5,
-          mt: 0.5,
-        }}
-      >
-        Availability
-      </Typography>
-      <Typography
-        sx={{
-          fontFamily: 'var(--font-handwriting), cursive',
-          fontSize: '1.25rem',
-          color: 'var(--ink-blue)',
-          lineHeight: 1.5,
-          mb: 2,
-        }}
-      >
-        When are you free for a meal?
-      </Typography>
+      {/* Week navigation */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, mt: 0.5 }}>
+        <IconButton
+          onClick={prevWeek}
+          size="small"
+          sx={{
+            color: 'var(--ink-blue)',
+            fontFamily: 'var(--font-condensed), sans-serif',
+            fontWeight: 700,
+            fontSize: '1.2rem',
+            width: 32,
+            height: 32,
+            '&:hover': { color: 'var(--pushpin-red)', bgcolor: 'transparent' },
+          }}
+        >
+          ‹
+        </IconButton>
+        <Typography
+          sx={{
+            fontFamily: 'var(--font-handwriting), cursive',
+            fontSize: '1.25rem',
+            color: 'var(--ink-blue)',
+            lineHeight: 1.5,
+          }}
+        >
+          {weekLabel}
+        </Typography>
+        <IconButton
+          onClick={nextWeek}
+          size="small"
+          sx={{
+            color: 'var(--ink-blue)',
+            fontFamily: 'var(--font-condensed), sans-serif',
+            fontWeight: 700,
+            fontSize: '1.2rem',
+            width: 32,
+            height: 32,
+            '&:hover': { color: 'var(--pushpin-red)', bgcolor: 'transparent' },
+          }}
+        >
+          ›
+        </IconButton>
+      </Box>
 
       {error && (
         <Alert
@@ -162,36 +227,62 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
           gridTemplateColumns: 'auto repeat(7, 1fr)',
           gap: '6px',
           mb: 2,
+          opacity: loading ? 0.5 : 1,
+          pointerEvents: loading ? 'none' : 'auto',
         }}
       >
-        {/* Day headers */}
+        {/* Day + date headers */}
         <Box />
-        {DAYS.map(d => (
-          <Typography key={d} sx={labelSx}>{d}</Typography>
-        ))}
+        {weekDates.map(d => {
+          const dateStr = formatDate(d);
+          const isToday = dateStr === formatDate(today);
+          return (
+            <Box key={dateStr} sx={{ textAlign: 'center' }}>
+              <Typography sx={{ ...labelSx, color: isToday ? 'var(--pushpin-red)' : 'var(--ink-blue-light)' }}>
+                {formatDayName(d)}
+              </Typography>
+              <Typography
+                sx={{
+                  fontFamily: 'var(--font-handwriting), cursive',
+                  fontSize: '0.85rem',
+                  color: isToday ? 'var(--pushpin-red)' : 'var(--ink-blue)',
+                  fontWeight: isToday ? 700 : 400,
+                  lineHeight: 1.2,
+                }}
+              >
+                {d.getDate()}
+              </Typography>
+            </Box>
+          );
+        })}
 
         {/* Meal rows */}
-        {MEALS.map(meal => (
-          <Box key={meal} sx={{ display: 'contents' }}>
-            <Typography
-              sx={{
-                ...labelSx,
-                textAlign: 'right',
-                pr: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'flex-end',
-              }}
-            >
-              {meal}
-            </Typography>
-            {DAYS.map(d => {
-              const dayNum = DAY_MAP[d];
-              const isActive = active.has(key(dayNum, meal));
+        {MEALS.map(({ slot, label, time }) => (
+          <Box key={slot} sx={{ display: 'contents' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', pr: 1 }}>
+              <Typography sx={{ ...labelSx, textAlign: 'right' }}>
+                {label}
+              </Typography>
+              <Typography
+                sx={{
+                  fontFamily: 'var(--font-handwriting), cursive',
+                  fontSize: '0.65rem',
+                  color: 'var(--ink-blue-light)',
+                  lineHeight: 1,
+                  mt: '1px',
+                }}
+              >
+                {time}
+              </Typography>
+            </Box>
+            {weekDates.map(d => {
+              const dateStr = formatDate(d);
+              const isPast = d < today;
+              const isActive = active.has(slotKey(dateStr, slot));
               return (
                 <Box
-                  key={d}
-                  onClick={() => toggle(dayNum, meal)}
+                  key={dateStr}
+                  onClick={() => !isPast && toggle(dateStr, slot)}
                   sx={{
                     aspectRatio: '1',
                     minHeight: 36,
@@ -199,12 +290,13 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
                     bgcolor: isActive ? 'var(--thumbtack-green)' : 'var(--paper-aged)',
                     border: '1.5px solid',
                     borderColor: isActive ? 'var(--thumbtack-green)' : 'var(--cork-dark)',
-                    cursor: 'pointer',
+                    cursor: isPast ? 'default' : 'pointer',
+                    opacity: isPast ? 0.4 : 1,
                     transition: 'background-color 0.12s ease, border-color 0.12s ease',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    '&:hover': {
+                    '&:hover': isPast ? {} : {
                       bgcolor: isActive ? 'var(--thumbtack-green)' : 'var(--cork-highlight)',
                       borderColor: isActive ? 'var(--thumbtack-green)' : 'var(--ink-blue-light)',
                     },
@@ -230,7 +322,7 @@ export default function AvailabilityCard({ coupleId }: { coupleId: string }) {
       </Box>
 
       {/* Save/Reset */}
-      {dirty && (
+      {dirty && !isPastWeek && (
         <Box sx={{ display: 'flex', gap: 1.5, borderTop: '2px dashed var(--cork-dark)', pt: 2 }}>
           <Button
             onClick={handleSave}

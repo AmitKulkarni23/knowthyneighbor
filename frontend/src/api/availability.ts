@@ -16,7 +16,24 @@ export async function getAvailability(
     .from('availability')
     .select('*')
     .eq('couple_id', coupleId)
-    .order('day_of_week', { ascending: true });
+    .order('specific_date', { ascending: true });
+
+  return { slots: data ?? [], error: error?.message ?? null };
+}
+
+export async function getAvailabilityForWeek(
+  coupleId: string,
+  startDate: string,
+  endDate: string
+): Promise<{ slots: Availability[]; error: string | null }> {
+  const supabase = createSupabaseClient();
+  const { data, error } = await supabase
+    .from('availability')
+    .select('*')
+    .eq('couple_id', coupleId)
+    .gte('specific_date', startDate)
+    .lte('specific_date', endDate)
+    .order('specific_date', { ascending: true });
 
   return { slots: data ?? [], error: error?.message ?? null };
 }
@@ -32,6 +49,33 @@ export async function setAvailability(
     .from('availability')
     .delete()
     .eq('couple_id', coupleId);
+
+  if (deleteError) return { error: deleteError.message };
+
+  if (slots.length === 0) return { error: null };
+
+  const rows = slots.map((slot) => ({ couple_id: coupleId, ...slot }));
+  const { error: insertError } = await supabase
+    .from('availability')
+    .insert(rows);
+
+  return { error: insertError?.message ?? null };
+}
+
+export async function setAvailabilityForWeek(
+  coupleId: string,
+  startDate: string,
+  endDate: string,
+  slots: AvailabilitySlot[]
+): Promise<{ error: string | null }> {
+  const supabase = createSupabaseClient();
+
+  const { error: deleteError } = await supabase
+    .from('availability')
+    .delete()
+    .eq('couple_id', coupleId)
+    .gte('specific_date', startDate)
+    .lte('specific_date', endDate);
 
   if (deleteError) return { error: deleteError.message };
 
