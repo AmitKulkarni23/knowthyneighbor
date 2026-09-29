@@ -44,7 +44,7 @@ knowthyneighbor/
 
 ## Data Model
 
-Core tables: `profiles`, `couples`, `pending_partners`, `availability`, `join_requests`, `conversations`, `messages`. Profiles hold individual info. Couples link two profiles. Pending partners hold partner 2's info until they join. Join requests gate access to chat. Messages power real-time chat via Supabase Realtime.
+Core tables: `profiles`, `couples`, `pending_partners`, `availability`, `join_requests`, `conversations`, `messages`, `couple_blocks`. Profiles hold individual info. Couples link two profiles. Pending partners hold partner 2's info until they join. Join requests gate access to chat. Messages power real-time chat via Supabase Realtime.
 
 ## Key Behaviors
 
@@ -146,7 +146,15 @@ When building new screens, import shared sx objects from `board.ts` for cork bac
 - **No API routes on Vercel.** Next.js is the frontend. All data access through the Supabase JS client with RLS policies for authorization.
 - **Supabase Realtime** for chat messaging between matched couples.
 - **PostGIS** extension on Supabase Postgres for geolocation-based neighbor search.
-- **Supabase Edge Functions** for webhook-triggered actions (e.g., sending join request emails via Resend).
+- **Supabase Edge Functions** for server-side actions (e.g., sending join request emails via Resend).
+
+## Security Model
+
+- Other couples' data is read only through `SECURITY DEFINER` RPCs (`discover_couples`, `get_couple_profile`, `get_couple_availability`, `browse_couples_public`), never by loosening table RLS. The `couples` row holds the secret `invite_code`.
+- Writes are limited by column-level grants as well as RLS: clients may only set the columns granted in `supabase/migrations/20260929110100_security_hardening.sql`. New writable columns need an explicit `GRANT`.
+- Every `SECURITY DEFINER` function sets `search_path = ''` and fully qualifies names; `anon` may execute only `browse_couples_public`.
+- Extensions live in the `extensions` schema, never `public` (PostGIS in `public` exposes `spatial_ref_sys` without RLS).
+- After changing migrations, run `supabase db reset` and `psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -f supabase/scripts/security_regression.sql`.
 
 ## Infrastructure as Code
 
