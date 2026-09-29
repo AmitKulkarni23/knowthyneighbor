@@ -27,12 +27,15 @@ export default function LoginPage() {
   );
 }
 
+const COOLDOWN_SECONDS = 60;
+
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [submitted, setSubmitted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
     const errorParam = searchParams.get('error');
@@ -40,6 +43,12 @@ function LoginContent() {
       setAuthError(AUTH_ERROR_MESSAGES[errorParam] ?? AUTH_ERROR_MESSAGES.auth_error);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
 
   const {
     register,
@@ -63,6 +72,7 @@ function LoginContent() {
     }
 
     setSubmitted(true);
+    setCooldown(COOLDOWN_SECONDS);
   };
 
   if (submitted) {
@@ -135,10 +145,10 @@ function LoginContent() {
           <Button
             type="submit"
             fullWidth
-            disabled={isSubmitting}
+            disabled={isSubmitting || cooldown > 0}
             sx={{ ...ctaButtonSx as object, width: '100%' }}
           >
-            {isSubmitting ? 'Sending...' : 'Send Magic Link'}
+            {isSubmitting ? 'Sending...' : cooldown > 0 ? `Try again in ${cooldown}s` : 'Send Magic Link'}
           </Button>
         </Box>
 
