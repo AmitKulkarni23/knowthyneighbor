@@ -1,7 +1,7 @@
 CREATE FUNCTION browse_couples_public(
   ref_lat float,
   ref_lng float,
-  radius_miles float DEFAULT 10
+  radius_miles float DEFAULT 25
 )
 RETURNS TABLE (
   couple_id uuid,
