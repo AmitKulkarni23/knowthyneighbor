@@ -94,6 +94,8 @@ export type DiscoveryCouple = {
   couple_id: string;
   couple_name: string | null;
   bio: string | null;
+  city: string | null;
+  state: string | null;
   hosting_preference: HostingPreference;
   distance_miles: number;
   has_availability: boolean;

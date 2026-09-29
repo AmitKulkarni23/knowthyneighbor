@@ -20,7 +20,6 @@ import { useAppContext } from '@/components/AppProvider';
 import useDiscovery from '@/hooks/useDiscovery';
 import { sendJoinRequest } from '@/api/joinRequests';
 import { getFutureAvailability } from '@/api/availability';
-import { geocodeZip } from '@/lib/geocode';
 import type { DiscoveryCouple, Availability, MealSlot } from '@/types/database';
 import { joinRequestSchema, type JoinRequestFormData } from '@/lib/validations';
 import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
@@ -33,15 +32,14 @@ const pins = [pinRedSx, pinGreenSx, pinBlueSx];
 export default function DiscoverPage() {
   const router = useRouter();
   const { couple } = useAppContext();
-  const [searchZip, setSearchZip] = useState('');
-  const [searchCoords, setSearchCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCity, setActiveCity] = useState<string | undefined>(undefined);
+  const [activeZip, setActiveZip] = useState<string | undefined>(undefined);
   const [searchLabel, setSearchLabel] = useState<string | null>(null);
-  const [searchError, setSearchError] = useState<string | null>(null);
-  const [searching, setSearching] = useState(false);
   const { data: couples, loading: discoveryLoading, error } = useDiscovery(
     couple?.id ?? null,
-    searchCoords?.lat,
-    searchCoords?.lng
+    activeCity,
+    activeZip
   );
   const [selectedCouple, setSelectedCouple] = useState<DiscoveryCouple | null>(null);
   const [hostSlots, setHostSlots] = useState<Availability[]>([]);
@@ -59,36 +57,29 @@ export default function DiscoverPage() {
     });
   }, [selectedCouple]);
 
-  const handleSearch = useCallback(async () => {
-    const zip = searchZip.trim();
-    if (!zip) {
-      setSearchCoords(null);
+  const handleSearch = useCallback(() => {
+    const trimmed = searchQuery.trim();
+    if (!trimmed) {
+      setActiveCity(undefined);
+      setActiveZip(undefined);
       setSearchLabel(null);
-      setSearchError(null);
       return;
     }
-    if (!/^\d{5}$/.test(zip)) {
-      setSearchError('Enter a 5-digit zip code');
-      return;
+    if (/^\d+$/.test(trimmed)) {
+      setActiveCity(undefined);
+      setActiveZip(trimmed);
+    } else {
+      setActiveCity(trimmed);
+      setActiveZip(undefined);
     }
-    setSearching(true);
-    setSearchError(null);
-    const coords = await geocodeZip(zip);
-    if (!coords) {
-      setSearchError('Could not find that zip code');
-      setSearching(false);
-      return;
-    }
-    setSearchCoords(coords);
-    setSearchLabel(zip);
-    setSearching(false);
-  }, [searchZip]);
+    setSearchLabel(trimmed);
+  }, [searchQuery]);
 
   const handleClearSearch = useCallback(() => {
-    setSearchZip('');
-    setSearchCoords(null);
+    setSearchQuery('');
+    setActiveCity(undefined);
+    setActiveZip(undefined);
     setSearchLabel(null);
-    setSearchError(null);
   }, []);
 
   const {
@@ -165,11 +156,9 @@ export default function DiscoverPage() {
         sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'flex-start' }}
       >
         <TextField
-          value={searchZip}
-          onChange={(e) => setSearchZip(e.target.value)}
-          placeholder={couple?.zip_code ? `Search near zip (yours: ${couple.zip_code})` : 'Search near a zip code'}
-          error={!!searchError}
-          helperText={searchError}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder={couple?.city ? `City or zip code (yours: ${couple.city})` : 'City or zip code'}
           size="small"
           slotProps={{
             input: {
@@ -189,7 +178,7 @@ export default function DiscoverPage() {
         />
         <Button
           type="submit"
-          disabled={searching}
+          disabled={discoveryLoading}
           sx={{
             fontFamily: 'var(--font-condensed), sans-serif',
             fontWeight: 700,
@@ -203,7 +192,7 @@ export default function DiscoverPage() {
             '&:hover': { bgcolor: 'var(--pushpin-red)' },
           }}
         >
-          {searching ? 'Searching...' : 'Go'}
+          {discoveryLoading ? 'Searching...' : 'Go'}
         </Button>
         {searchLabel && (
           <Button
@@ -225,7 +214,7 @@ export default function DiscoverPage() {
 
       {couples.length === 0 ? (
         <EmptyStateCard
-          message={searchLabel ? `No couples found within 10 miles of ${searchLabel}.` : 'No couples within 10 miles yet. Check back soon!'}
+          message={searchLabel ? `No couples found for "${searchLabel}".` : 'No couples nearby yet. Check back soon!'}
           pin="blue"
           rotation={0.6}
           sx={{ mb: 3 }}
@@ -241,8 +230,8 @@ export default function DiscoverPage() {
           }}
         >
           {searchLabel
-            ? `${couples.length} couple${couples.length === 1 ? '' : 's'} within 10 miles of ${searchLabel}`
-            : `${couples.length} couple${couples.length === 1 ? '' : 's'} within 10 miles`}
+            ? `${couples.length} couple${couples.length === 1 ? '' : 's'} matching "${searchLabel}"`
+            : `${couples.length} couple${couples.length === 1 ? '' : 's'} nearby`}
         </Typography>
       )}
 
@@ -301,7 +290,7 @@ export default function DiscoverPage() {
                   mb: 2,
                 }}
               >
-                {c.distance_miles.toFixed(1)} miles away
+                {[c.city, c.state].filter(Boolean).join(', ') || `${c.distance_miles.toFixed(1)} miles away`}
               </Typography>
               <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
                 {(() => {

@@ -6,8 +6,8 @@ import type { DiscoveryCouple } from '@/types/database';
 
 export default function useDiscovery(
   coupleId: string | null,
-  refLat?: number,
-  refLng?: number
+  searchCity?: string,
+  searchZip?: string
 ) {
   const [data, setData] = useState<DiscoveryCouple[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,12 +20,12 @@ export default function useDiscovery(
     }
 
     setLoading(true);
-    discoverCouples(coupleId, refLat, refLng).then((result) => {
+    discoverCouples(coupleId, searchCity, searchZip).then((result) => {
       setData(result.couples);
       setError(result.error);
       setLoading(false);
     });
-  }, [coupleId, refLat, refLng]);
+  }, [coupleId, searchCity, searchZip]);
 
   return { data, loading, error };
 }
