@@ -101,8 +101,16 @@ Test users are seeded via `supabase/seed.sql` (e.g. `pat@example.com` / `passwor
 # Link to your Supabase project (one-time setup)
 supabase link --project-ref <your-project-ref>
 
-# Push schema to remote Supabase database
+# Push schema to remote Supabase database (migrations, RLS, functions)
+# NOT automatic — must run manually after each migration or `supabase db reset`
 supabase db push
+
+# Deploy edge functions to remote Supabase
+# NOT automatic — must run manually after changing functions in supabase/functions/
+supabase functions deploy <function-name>
+
+# Deploy all edge functions at once
+supabase functions deploy
 
 # Create a new migration file
 supabase migration new <migration-name>
