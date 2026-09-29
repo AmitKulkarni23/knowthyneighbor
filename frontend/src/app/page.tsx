@@ -34,6 +34,37 @@ export default function Home() {
 
   return (
     <Box sx={{ ...boardBgSx as object, px: 2, py: 5, pb: 10 }}>
+      {/* ── Browse link ── */}
+      <Box sx={{ maxWidth: 1100, mx: 'auto', display: 'flex', justifyContent: 'flex-end', mb: 2, position: 'relative', zIndex: 2 }}>
+        <Button
+          onClick={() => router.push('/browse')}
+          sx={{
+            fontFamily: 'var(--font-condensed), sans-serif',
+            fontWeight: 700,
+            fontSize: '0.95rem',
+            color: 'var(--paper)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em',
+            textShadow: '1px 1px 3px rgba(60, 40, 20, 0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            '&:hover': { color: 'var(--index-yellow)', bgcolor: 'transparent' },
+            '&::before': {
+              content: '""',
+              width: 12,
+              height: 12,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 35% 35%, #7aa87d, var(--thumbtack-green) 60%, #4a6a4d)',
+              boxShadow: '0 1px 3px rgba(60, 40, 20, 0.35)',
+              flexShrink: 0,
+            },
+          }}
+        >
+          Browse the Board
+        </Button>
+      </Box>
+
       {/* ── Hero ── */}
       <Box sx={{ maxWidth: 1100, mx: 'auto', display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 4, alignItems: 'start', position: 'relative', zIndex: 1 }}>
         {/* Main flyer */}
