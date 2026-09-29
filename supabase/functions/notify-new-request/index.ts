@@ -1,8 +1,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const RESEND_API_URL = "https://api.resend.com/emails";
-const APP_URL = "https://knowthyneighbor.app";
-const FROM_EMAIL = "KnowThyNeighbor <notifications@knowthyneighbor.app>";
+const APP_URL = "https://www.nextdoorish.com";
+const FROM_EMAIL = "KnowThyNeighbor <noreply@nextdoorish.com>";
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") {
@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
     return new Response("Missing record in payload", { status: 400 });
   }
 
-  const { requester_couple_id, host_couple_id, meal_type, message } = record;
+  const { requester_couple_id, host_couple_id, message } = record;
 
   // Verify caller belongs to the requester couple
   const { data: callerCouple } = await supabaseAdmin
@@ -103,8 +103,8 @@ Deno.serve(async (req) => {
     return new Response("No recipient emails", { status: 404 });
   }
 
-  const subject = `${requesterName} wants to join you for ${meal_type}!`;
-  const html = buildEmailHtml(requesterName, meal_type, message);
+  const subject = `${requesterName} wants to connect with you!`;
+  const html = buildEmailHtml(requesterName, message);
 
   // Send emails in parallel
   const sendResults = await Promise.all(
@@ -140,31 +140,39 @@ Deno.serve(async (req) => {
 
 function buildEmailHtml(
   requesterName: string,
-  mealType: string,
   message: string | null,
 ): string {
   const messageBlock = message
-    ? `<p style="margin:16px 0;padding:12px 16px;background:#f9f7f4;border-left:3px solid #e8a87c;border-radius:4px;font-style:italic;">"${escapeHtml(message)}"</p>`
+    ? `<p style="margin:16px 0;padding:12px 16px;background:#FDF8ED;border-left:3px solid #CC4433;font-style:italic;">"${escapeHtml(message)}"</p>`
     : "";
 
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#333;background:#ffffff;">
-  <div style="max-width:520px;margin:0 auto;padding:32px 24px;">
-    <h1 style="font-size:22px;margin:0 0 8px;">You've got a ${escapeHtml(mealType)} invite!</h1>
-    <p style="margin:0 0 20px;font-size:16px;line-height:1.5;">
-      <strong>${escapeHtml(requesterName)}</strong> would love to share a ${escapeHtml(mealType)} with you.
-    </p>
-    ${messageBlock}
-    <a href="${APP_URL}/requests"
-       style="display:inline-block;margin:24px 0;padding:12px 24px;background:#e8a87c;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;font-size:15px;">
-      View Request
-    </a>
-    <p style="margin:24px 0 0;font-size:13px;color:#999;">
-      KnowThyNeighbor &mdash; real neighbors, real meals.
-    </p>
-  </div>
+<body style="margin:0;padding:0;background-color:#C4A366;font-family:Georgia,'Times New Roman',serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 16px;">
+    <tr><td align="center">
+      <table width="440" cellpadding="0" cellspacing="0" style="background-color:#FDF8ED;box-shadow:2px 3px 8px rgba(60,40,20,0.18);max-width:100%;">
+        <tr><td style="padding:48px 36px 36px;text-align:center;">
+          <h1 style="margin:0 0 8px;font-size:28px;color:#2B4570;font-family:Georgia,serif;font-weight:normal;">KnowThyNeighbor</h1>
+          <p style="margin:0 0 24px;font-size:18px;color:#2B4570;line-height:1.6;">
+            <strong>${escapeHtml(requesterName)}</strong> wants to connect with you!
+          </p>
+          ${messageBlock}
+          <a href="${APP_URL}/requests"
+             style="display:inline-block;margin:24px 0;padding:14px 36px;background-color:#CC4433;color:#FDF8ED;font-size:16px;font-weight:bold;text-decoration:none;text-transform:uppercase;letter-spacing:0.04em;font-family:Arial,Helvetica,sans-serif;">
+            View Request
+          </a>
+          <p style="margin:24px 0 0;font-size:13px;color:#3D5A8A;">
+            If you didn&rsquo;t expect this, you can safely ignore it.
+          </p>
+        </td></tr>
+      </table>
+      <p style="margin:24px 0 0;font-size:12px;color:#F0E8D5;text-align:center;">
+        &copy; KnowThyNeighbor &mdash; nextdoorish.com
+      </p>
+    </td></tr>
+  </table>
 </body>
 </html>`;
 }
