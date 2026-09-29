@@ -1,9 +1,8 @@
 import { createSupabaseClient } from '@/config/supabase';
 import { logger } from '@/lib/logger';
 
+// Anonymous browse results carry no ids or names
 export type BrowseCouple = {
-  couple_id: string;
-  couple_name: string | null;
   bio: string | null;
   city: string | null;
   state: string | null;

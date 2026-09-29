@@ -27,7 +27,7 @@ create table join_requests (
 
 1. Visiting couple sends a join request from discovery results
 2. Row inserted into `join_requests` with status `pending`
-3. **Database Webhook** fires on INSERT → triggers a **Supabase Edge Function**
+3. The requester's browser calls the **`notify-new-request` Edge Function** with the new request's id
 4. Edge Function sends an email to the host couple via **Resend**
 5. Host couple sees the request in-app (and via email)
 6. Host accepts → status updated to `accepted` → a `conversations` row is auto-created
@@ -64,21 +64,15 @@ create trigger trigger_join_request_status_change
 
 ## Email Notification — Edge Function + Resend
 
-Triggered by a database webhook on `INSERT` into `join_requests`.
+`supabase/functions/notify-new-request` is invoked by the requester's browser right after the insert, with `{ join_request_id }` only. It:
 
-```typescript
-// supabase/functions/notify-join-request/index.ts (pseudocode)
+1. Verifies the caller's JWT and that the caller belongs to the request's requester couple
+2. Reads the request row itself (the email never uses caller-supplied content)
+3. Only proceeds if the request is `pending`, less than 10 minutes old, and not yet notified
+4. Atomically sets `join_requests.notified_at`, so each request emails at most once
+5. Emails the host partners via Resend
 
-import { Resend } from 'resend';
-
-// 1. Receive the webhook payload (the new join_request row)
-// 2. Look up host couple's partner emails from profiles
-// 3. Look up requester couple's display name
-// 4. Send email via Resend:
-//    Subject: "The Smiths want to join you for dinner!"
-//    Body: requester's message, link to app to accept/decline
-//    Template: managed in Resend dashboard or inline React Email
-```
+Do **not** add a Database Webhook for this function; it expects a user JWT and a request id.
 
 Email templates for join request notifications are managed via Resend (React Email or Resend dashboard templates). Auth-related emails (magic link, etc.) use Supabase's built-in email templates configured in `supabase/config.toml`.
 

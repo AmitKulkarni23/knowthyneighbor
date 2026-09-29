@@ -12,7 +12,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import { createProfile } from '@/api/profiles';
-import { uploadAvatar, getAvatarUrl } from '@/api/storage';
+import { uploadAvatar } from '@/api/storage';
 import { updateProfile } from '@/api/profiles';
 import { useAppContext } from '@/components/AppProvider';
 import { profileSchema, type ProfileFormData } from '@/lib/validations';
@@ -52,8 +52,8 @@ export default function CreateProfilePage() {
 
     if (avatarFile && result.profile) {
       const uploadResult = await uploadAvatar(user.id, avatarFile);
-      if (uploadResult.url) {
-        await updateProfile(user.id, { avatar_url: uploadResult.url });
+      if (uploadResult.path) {
+        await updateProfile(user.id, { avatar_url: uploadResult.path });
       }
     }
 

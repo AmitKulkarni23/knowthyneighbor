@@ -1,5 +1,6 @@
 import { createSupabaseClient } from '@/config/supabase';
 import { logger } from '@/lib/logger';
+import { isUuid } from '@/lib/uuid';
 import type { Conversation, Message } from '@/types/database';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -11,6 +12,7 @@ export type ConversationWithNames = Conversation & {
 export async function getConversations(
   coupleId: string
 ): Promise<{ conversations: ConversationWithNames[]; error: string | null }> {
+  if (!isUuid(coupleId)) return { conversations: [], error: 'Invalid couple id' };
   const supabase = createSupabaseClient();
   const { data, error } = await supabase
     .from('conversations')
@@ -37,6 +39,7 @@ export async function getConversationByCouples(
   coupleId1: string,
   coupleId2: string
 ): Promise<{ conversation: Conversation | null; error: string | null }> {
+  if (!isUuid(coupleId1) || !isUuid(coupleId2)) return { conversation: null, error: 'Invalid couple id' };
   const supabase = createSupabaseClient();
   const { data, error } = await supabase
     .from('conversations')
@@ -48,6 +51,20 @@ export async function getConversationByCouples(
     .maybeSingle();
 
   if (error) logger.error('getConversationByCouples failed', { coupleId1, coupleId2, code: error.code, message: error.message });
+  return { conversation: data ?? null, error: error?.message ?? null };
+}
+
+export async function getConversation(
+  id: string
+): Promise<{ conversation: Conversation | null; error: string | null }> {
+  const supabase = createSupabaseClient();
+  const { data, error } = await supabase
+    .from('conversations')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) logger.error('getConversation failed', { conversationId: id, code: error.code, message: error.message });
   return { conversation: data ?? null, error: error?.message ?? null };
 }
 

@@ -1,7 +1,8 @@
 import { createSupabaseClient } from '@/config/supabase';
-import { geocodeZip } from '@/lib/geocode';
+import { geocodeLocation, geocodeZip } from '@/lib/geocode';
+import { isUuid } from '@/lib/uuid';
 import { logger } from '@/lib/logger';
-import type { Couple, HostingPreference } from '@/types/database';
+import type { Couple, CoupleProfile, HostingPreference } from '@/types/database';
 
 type CreateCoupleData = {
   couple_name: string | null;
@@ -15,7 +16,8 @@ type CreateCoupleData = {
   partner_age: number;
 };
 
-type UpdateCoupleData = Partial<Pick<Couple, 'couple_name' | 'bio' | 'zip_code' | 'hosting_preference'>>;
+// Location fields and membership are fixed after creation (enforced by column grants)
+type UpdateCoupleData = Partial<Pick<Couple, 'couple_name' | 'bio' | 'hosting_preference'>>;
 
 export async function createCouple(
   data: CreateCoupleData
@@ -24,10 +26,13 @@ export async function createCouple(
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) return { couple: null, error: 'Not authenticated' };
 
-  const geo = data.zip_code ? await geocodeZip(data.zip_code) : null;
-  const point = geo
-    ? `POINT(${geo.lng} ${geo.lat})`
-    : `POINT(0 0)`;
+  const geo =
+    (data.zip_code ? await geocodeZip(data.zip_code) : null) ??
+    (await geocodeLocation([data.city, data.state, data.country].filter(Boolean).join(', ')));
+  if (!geo) {
+    return { couple: null, error: "We couldn't find that location. Check the city and zip code." };
+  }
+  const point = `POINT(${geo.lng} ${geo.lat})`;
 
   const { data: couple, error } = await supabase
     .from('couples')
@@ -67,16 +72,17 @@ export async function createCouple(
   return { couple, error: null };
 }
 
-export async function getCouple(id: string): Promise<{ couple: Couple | null; error: string | null }> {
+// Another couple's public-facing profile (the couples row itself is private to its members)
+export async function getCoupleProfile(
+  id: string
+): Promise<{ profile: CoupleProfile | null; error: string | null }> {
   const supabase = createSupabaseClient();
-  const { data: couple, error } = await supabase
-    .from('couples')
-    .select('*')
-    .eq('id', id)
-    .single();
+  const { data, error } = await supabase
+    .rpc('get_couple_profile', { p_couple_id: id })
+    .maybeSingle<CoupleProfile>();
 
-  if (error) logger.error('getCouple failed', { coupleId: id, code: error.code, message: error.message });
-  return { couple, error: error?.message ?? null };
+  if (error) logger.error('getCoupleProfile failed', { coupleId: id, code: error.code, message: error.message });
+  return { profile: data ?? null, error: error?.message ?? null };
 }
 
 export async function updateCouple(
@@ -98,6 +104,7 @@ export async function updateCouple(
 export async function getCoupleByMember(
   userId: string
 ): Promise<{ couple: Couple | null; error: string | null }> {
+  if (!isUuid(userId)) return { couple: null, error: 'Invalid user id' };
   const supabase = createSupabaseClient();
   const { data: couple, error } = await supabase
     .from('couples')

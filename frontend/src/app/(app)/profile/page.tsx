@@ -15,7 +15,7 @@ import Alert from '@mui/material/Alert';
 import { useAppContext } from '@/components/AppProvider';
 import { getProfile, updateProfile } from '@/api/profiles';
 import { updateCouple } from '@/api/couples';
-import { uploadAvatar } from '@/api/storage';
+import { uploadAvatar, getAvatarPublicUrl } from '@/api/storage';
 import type { Profile } from '@/types/database';
 import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
 
@@ -103,8 +103,8 @@ export default function ProfilePage() {
     setPhotoUploading(true);
     const uploadResult = await uploadAvatar(user.id, file);
     if (uploadResult.error) { setPhotoError(uploadResult.error); setPhotoUploading(false); return; }
-    if (uploadResult.url) {
-      const { profile: updated } = await updateProfile(user.id, { avatar_url: uploadResult.url });
+    if (uploadResult.path) {
+      const { profile: updated } = await updateProfile(user.id, { avatar_url: uploadResult.path });
       if (updated) setProfile(updated);
     }
     setPhotoUploading(false);
@@ -183,7 +183,7 @@ export default function ProfilePage() {
         {profile.avatar_url ? (
           <Box
             component="img"
-            src={profile.avatar_url}
+            src={getAvatarPublicUrl(profile.avatar_url)}
             alt={profile.full_name}
             sx={{ width: '100%', height: 240, objectFit: 'cover', display: 'block' }}
           />

@@ -7,10 +7,10 @@ import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
-import { getCouple } from '@/api/couples';
-import { getProfile } from '@/api/profiles';
-import { getFutureAvailability } from '@/api/availability';
-import type { Couple, Profile, Availability, MealSlot } from '@/types/database';
+import { getCoupleProfile } from '@/api/couples';
+import { getCoupleAvailability } from '@/api/availability';
+import { getAvatarPublicUrl } from '@/api/storage';
+import type { CoupleProfile, AvailableSlot, MealSlot } from '@/types/database';
 import { paperCardSx, pinRedSx, pinBlueSx, pinGreenSx } from '@/styles/board';
 
 const MEAL_LABELS: Record<MealSlot, string> = {
@@ -46,27 +46,18 @@ export default function CoupleProfilePage() {
   const router = useRouter();
   const coupleId = params.id as string;
 
-  const [couple, setCouple] = useState<Couple | null>(null);
-  const [partner1, setPartner1] = useState<Profile | null>(null);
-  const [partner2, setPartner2] = useState<Profile | null>(null);
-  const [slots, setSlots] = useState<Availability[]>([]);
+  const [couple, setCouple] = useState<CoupleProfile | null>(null);
+  const [slots, setSlots] = useState<AvailableSlot[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getCouple(coupleId).then(async ({ couple: c }) => {
-      if (!c) { setLoading(false); return; }
-      setCouple(c);
-
-      const [p1, p2, avail] = await Promise.all([
-        getProfile(c.partner_1_id),
-        c.partner_2_id ? getProfile(c.partner_2_id) : Promise.resolve({ profile: null }),
-        getFutureAvailability(c.id),
-      ]);
-      setPartner1(p1.profile);
-      setPartner2(p2.profile);
-      setSlots(avail.slots);
-      setLoading(false);
-    });
+    Promise.all([getCoupleProfile(coupleId), getCoupleAvailability(coupleId)]).then(
+      ([{ profile }, { slots: avail }]) => {
+        setCouple(profile);
+        setSlots(avail);
+        setLoading(false);
+      }
+    );
   }, [coupleId]);
 
   if (loading) return null;
@@ -124,11 +115,11 @@ export default function CoupleProfilePage() {
         }}
       >
         <Box sx={pinBlueSx} />
-        {partner1?.avatar_url ? (
+        {couple.partner_1_avatar ? (
           <Box
             component="img"
-            src={partner1.avatar_url}
-            alt={partner1.full_name}
+            src={getAvatarPublicUrl(couple.partner_1_avatar)}
+            alt={couple.partner_1_first_name}
             sx={{ width: '100%', height: 240, objectFit: 'cover', display: 'block' }}
           />
         ) : (
@@ -167,14 +158,12 @@ export default function CoupleProfilePage() {
 
         <Box sx={{ mb: 2.5, mt: 0.5 }}>
           <Typography sx={labelSx}>Who they are</Typography>
-          {partner1 && (
-            <Typography sx={{ ...valueSx, fontSize: '1.5rem', fontFamily: 'var(--font-marker), cursive', mb: 0.25 }}>
-              {partner1.full_name}, {partner1.age}
-            </Typography>
-          )}
-          {partner2 && (
+          <Typography sx={{ ...valueSx, fontSize: '1.5rem', fontFamily: 'var(--font-marker), cursive', mb: 0.25 }}>
+            {couple.partner_1_first_name}, {couple.partner_1_age}
+          </Typography>
+          {couple.partner_2_first_name && (
             <Typography sx={valueSx}>
-              &amp; {partner2.full_name}, {partner2.age}
+              &amp; {couple.partner_2_first_name}, {couple.partner_2_age}
             </Typography>
           )}
         </Box>
@@ -189,7 +178,7 @@ export default function CoupleProfilePage() {
         <Box sx={{ pt: couple.bio ? 0 : 2, borderTop: couple.bio ? 'none' : '1px dashed var(--cork-dark)' }}>
           <Typography sx={labelSx}>Neighborhood</Typography>
           <Typography sx={valueSx}>
-            {[couple.city, couple.state].filter(Boolean).join(', ') || couple.zip_code}
+            {[couple.city, couple.state].filter(Boolean).join(', ')}
           </Typography>
         </Box>
       </Card>

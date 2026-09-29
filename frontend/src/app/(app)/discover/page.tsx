@@ -19,8 +19,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useAppContext } from '@/components/AppProvider';
 import useDiscovery from '@/hooks/useDiscovery';
 import { sendJoinRequest } from '@/api/joinRequests';
-import { getFutureAvailability } from '@/api/availability';
-import type { DiscoveryCouple, Availability, MealSlot } from '@/types/database';
+import { getCoupleAvailability } from '@/api/availability';
+import type { DiscoveryCouple, AvailableSlot, MealSlot } from '@/types/database';
 import { joinRequestSchema, type JoinRequestFormData } from '@/lib/validations';
 import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
 import EmptyStateCard from '@/components/EmptyStateCard';
@@ -42,7 +42,7 @@ export default function DiscoverPage() {
     activeZip
   );
   const [selectedCouple, setSelectedCouple] = useState<DiscoveryCouple | null>(null);
-  const [hostSlots, setHostSlots] = useState<Availability[]>([]);
+  const [hostSlots, setHostSlots] = useState<AvailableSlot[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [sentTo, setSentTo] = useState<Set<string>>(new Set());
   const [sendError, setSendError] = useState<string | null>(null);
@@ -51,7 +51,7 @@ export default function DiscoverPage() {
   useEffect(() => {
     if (!selectedCouple) return;
     setSlotsLoading(true);
-    getFutureAvailability(selectedCouple.couple_id).then(({ slots }) => {
+    getCoupleAvailability(selectedCouple.couple_id).then(({ slots }) => {
       setHostSlots(slots);
       setSlotsLoading(false);
     });
