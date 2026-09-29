@@ -21,7 +21,7 @@ export async function geocodeZip(zip: string): Promise<GeoResult> {
 export async function geocodeCity(query: string): Promise<GeoResult> {
   try {
     const resp = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&country=US&format=json&addressdetails=1&limit=1`
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ', USA')}&format=json&addressdetails=1&limit=1`
     );
     if (!resp.ok) return null;
     const results = await resp.json();
