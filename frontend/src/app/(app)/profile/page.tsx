@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -52,6 +52,7 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -203,8 +204,15 @@ export default function ProfilePage() {
           </Box>
         )}
         <Box sx={{ p: '12px 20px', borderTop: '2px dashed var(--cork-dark)', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            hidden
+            onChange={handlePhotoChange}
+          />
           <Button
-            component="label"
+            onClick={() => fileInputRef.current?.click()}
             disabled={photoUploading}
             sx={{
               fontFamily: 'var(--font-condensed), sans-serif',
@@ -219,7 +227,6 @@ export default function ProfilePage() {
             }}
           >
             {photoUploading ? 'Uploading...' : profile.avatar_url ? 'Change photo' : 'Upload photo'}
-            <input type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={handlePhotoChange} />
           </Button>
           {photoError && (
             <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1rem', color: 'var(--pushpin-red)' }}>
@@ -278,7 +285,9 @@ export default function ProfilePage() {
             {/* Details row */}
             <Box sx={{ mb: 2.5, pt: couple.bio ? 0 : 2, borderTop: couple.bio ? 'none' : '1px dashed var(--cork-dark)' }}>
               <Typography sx={labelSx}>Neighborhood</Typography>
-              <Typography sx={valueSx}>{couple.zip_code}</Typography>
+              <Typography sx={valueSx}>
+                {[couple.city, couple.state].filter(Boolean).join(', ') || couple.zip_code}
+              </Typography>
             </Box>
 
             {/* Edit action in dashed footer */}
