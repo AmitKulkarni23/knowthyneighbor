@@ -1,4 +1,5 @@
 import { createSupabaseClient } from '@/config/supabase';
+import { logger } from '@/lib/logger';
 import type { Profile } from '@/types/database';
 
 type CreateProfileData = {
@@ -19,6 +20,7 @@ export async function createProfile(data: CreateProfileData): Promise<{ profile:
     .select()
     .single();
 
+  if (error) logger.error('createProfile failed', { code: error.code, message: error.message });
   return { profile, error: error?.message ?? null };
 }
 
@@ -30,6 +32,7 @@ export async function getProfile(id: string): Promise<{ profile: Profile | null;
     .eq('id', id)
     .single();
 
+  if (error) logger.error('getProfile failed', { profileId: id, code: error.code, message: error.message });
   return { profile, error: error?.message ?? null };
 }
 
@@ -45,5 +48,6 @@ export async function updateProfile(
     .select()
     .single();
 
+  if (error) logger.error('updateProfile failed', { profileId: id, code: error.code, message: error.message });
   return { profile, error: error?.message ?? null };
 }

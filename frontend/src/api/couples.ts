@@ -1,5 +1,6 @@
 import { createSupabaseClient } from '@/config/supabase';
 import { geocodeZip } from '@/lib/geocode';
+import { logger } from '@/lib/logger';
 import type { Couple, HostingPreference } from '@/types/database';
 
 type CreateCoupleData = {
@@ -44,7 +45,10 @@ export async function createCouple(
     .select()
     .single();
 
-  if (error || !couple) return { couple: null, error: error?.message ?? 'Failed to create couple' };
+  if (error || !couple) {
+    logger.error('createCouple failed', { code: error?.code, message: error?.message, hint: error?.details });
+    return { couple: null, error: error?.message ?? 'Failed to create couple' };
+  }
 
   // Create pending partner row
   const { error: partnerError } = await supabase
@@ -55,7 +59,10 @@ export async function createCouple(
       age: data.partner_age,
     });
 
-  if (partnerError) return { couple, error: partnerError.message };
+  if (partnerError) {
+    logger.error('createCouple: pending partner insert failed', { coupleId: couple.id, code: partnerError.code, message: partnerError.message });
+    return { couple, error: partnerError.message };
+  }
 
   return { couple, error: null };
 }
@@ -68,6 +75,7 @@ export async function getCouple(id: string): Promise<{ couple: Couple | null; er
     .eq('id', id)
     .single();
 
+  if (error) logger.error('getCouple failed', { coupleId: id, code: error.code, message: error.message });
   return { couple, error: error?.message ?? null };
 }
 
@@ -83,6 +91,7 @@ export async function updateCouple(
     .select()
     .single();
 
+  if (error) logger.error('updateCouple failed', { coupleId: id, code: error.code, message: error.message });
   return { couple, error: error?.message ?? null };
 }
 
@@ -96,6 +105,7 @@ export async function getCoupleByMember(
     .or(`partner_1_id.eq.${userId},partner_2_id.eq.${userId}`)
     .single();
 
+  if (error && error.code !== 'PGRST116') logger.error('getCoupleByMember failed', { userId, code: error.code, message: error.message });
   return { couple, error: error?.message ?? null };
 }
 
@@ -109,5 +119,6 @@ export async function claimPartnerInvite(
     p_invite_code: inviteCode,
   });
 
+  if (error) logger.error('claimPartnerInvite failed', { coupleId, code: error.code, message: error.message });
   return { success: !error, error: error?.message ?? null };
 }

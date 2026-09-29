@@ -26,6 +26,7 @@ export default function RequestsPage() {
   const { received, sent, loading, error, refetch } = useJoinRequests(couple?.id ?? null);
   const [tab, setTab] = useState(0);
   const [responding, setResponding] = useState<string | null>(null);
+  const [respondError, setRespondError] = useState<string | null>(null);
   const [conversationMap, setConversationMap] = useState<Record<string, string>>({});
 
   const loadConversations = useCallback(async () => {
@@ -46,14 +47,21 @@ export default function RequestsPage() {
 
   const handleRespond = async (id: string, status: 'accepted' | 'declined') => {
     setResponding(id);
-    await respondToJoinRequest(id, status);
+    setRespondError(null);
+    const result = await respondToJoinRequest(id, status);
     setResponding(null);
+    if (result.error) {
+      setRespondError(result.error);
+      return;
+    }
     refetch();
   };
 
   if (error) {
     return <Alert severity="error">{error}</Alert>;
   }
+
+  const displayError = respondError;
 
   const statusChipSx = (status: string) => {
     switch (status) {
@@ -194,6 +202,10 @@ export default function RequestsPage() {
       >
         Requests
       </Typography>
+
+      {displayError && (
+        <Alert severity="error" onClose={() => setRespondError(null)} sx={{ mb: 2 }}>{displayError}</Alert>
+      )}
 
       <Tabs
         value={tab}

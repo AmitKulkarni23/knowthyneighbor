@@ -1,4 +1,5 @@
 import { createSupabaseClient } from '@/config/supabase';
+import { logger } from '@/lib/logger';
 import type { JoinRequest, MealSlot, RequestStatus } from '@/types/database';
 
 type SendJoinRequestData = {
@@ -25,6 +26,7 @@ export async function sendJoinRequest(
     .select()
     .single();
 
+  if (error) logger.error('sendJoinRequest failed', { hostCoupleId: data.host_couple_id, code: error.code, message: error.message });
   return { request, error: error?.message ?? null };
 }
 
@@ -46,6 +48,9 @@ export async function getJoinRequests(
       .order('created_at', { ascending: false }),
   ]);
 
+  if (receivedResult.error) logger.error('getJoinRequests (received) failed', { coupleId, code: receivedResult.error.code, message: receivedResult.error.message });
+  if (sentResult.error) logger.error('getJoinRequests (sent) failed', { coupleId, code: sentResult.error.code, message: sentResult.error.message });
+
   const error = receivedResult.error?.message ?? sentResult.error?.message ?? null;
   return {
     received: receivedResult.data ?? [],
@@ -64,5 +69,6 @@ export async function respondToJoinRequest(
     .update({ status, responded_at: new Date().toISOString() })
     .eq('id', id);
 
+  if (error) logger.error('respondToJoinRequest failed', { requestId: id, status, code: error.code, message: error.message });
   return { error: error?.message ?? null };
 }

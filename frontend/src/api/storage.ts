@@ -1,4 +1,5 @@
 import { createSupabaseClient } from '@/config/supabase';
+import { logger } from '@/lib/logger';
 
 export async function uploadAvatar(
   userId: string,
@@ -12,7 +13,10 @@ export async function uploadAvatar(
     .from('avatars')
     .upload(filePath, file, { upsert: true });
 
-  if (error) return { url: null, error: error.message };
+  if (error) {
+    logger.error('uploadAvatar failed', { userId, filePath, message: error.message });
+    return { url: null, error: error.message };
+  }
 
   const { data } = supabase.storage
     .from('avatars')

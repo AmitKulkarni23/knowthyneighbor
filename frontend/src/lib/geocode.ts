@@ -1,3 +1,5 @@
+import { logger } from '@/lib/logger';
+
 export type GeoResult = { lat: number; lng: number; city: string | null; state: string | null } | null;
 
 function parseGeoResult(match: any): GeoResult {
@@ -13,10 +15,14 @@ export async function geocodeZip(zip: string): Promise<GeoResult> {
     const resp = await fetch(
       `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(zip)}&format=json&addressdetails=1&limit=1`
     );
-    if (!resp.ok) return null;
+    if (!resp.ok) {
+      logger.warn('geocodeZip: Nominatim returned non-OK', { zip, status: resp.status });
+      return null;
+    }
     const results = await resp.json();
     return parseGeoResult(results?.[0]);
-  } catch {
+  } catch (err) {
+    logger.error('geocodeZip: network error', { zip, error: (err as Error).message });
     return null;
   }
 }
@@ -28,10 +34,14 @@ export async function geocodeLocation(input: string): Promise<GeoResult> {
     const resp = await fetch(
       `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed)}&format=json&addressdetails=1&limit=1`
     );
-    if (!resp.ok) return null;
+    if (!resp.ok) {
+      logger.warn('geocodeLocation: Nominatim returned non-OK', { input: trimmed, status: resp.status });
+      return null;
+    }
     const results = await resp.json();
     return parseGeoResult(results?.[0]);
-  } catch {
+  } catch (err) {
+    logger.error('geocodeLocation: network error', { input: trimmed, error: (err as Error).message });
     return null;
   }
 }

@@ -1,4 +1,5 @@
 import { createSupabaseClient } from '@/config/supabase';
+import { logger } from '@/lib/logger';
 import type { Conversation, Message } from '@/types/database';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -16,6 +17,8 @@ export async function getConversations(
     .select('*, couple_1:couples!couple_1_id(couple_name), couple_2:couples!couple_2_id(couple_name)')
     .or(`couple_1_id.eq.${coupleId},couple_2_id.eq.${coupleId}`)
     .order('last_message_at', { ascending: false });
+
+  if (error) logger.error('getConversations failed', { coupleId, code: error.code, message: error.message });
 
   const conversations: ConversationWithNames[] = (data ?? []).map((row: any) => ({
     id: row.id,
@@ -44,6 +47,7 @@ export async function getConversationByCouples(
     .limit(1)
     .maybeSingle();
 
+  if (error) logger.error('getConversationByCouples failed', { coupleId1, coupleId2, code: error.code, message: error.message });
   return { conversation: data ?? null, error: error?.message ?? null };
 }
 
@@ -57,6 +61,7 @@ export async function getMessages(
     .eq('conversation_id', conversationId)
     .order('created_at', { ascending: true });
 
+  if (error) logger.error('getMessages failed', { conversationId, code: error.code, message: error.message });
   return { messages: data ?? [], error: error?.message ?? null };
 }
 
@@ -78,6 +83,7 @@ export async function sendMessage(
     .select()
     .single();
 
+  if (error) logger.error('sendMessage failed', { conversationId, code: error.code, message: error.message });
   return { message, error: error?.message ?? null };
 }
 
@@ -100,7 +106,9 @@ export function subscribeToMessages(
         callback(payload.new as Message);
       }
     )
-    .subscribe();
+    .subscribe((status, err) => {
+      if (err) logger.error('Realtime subscription error', { conversationId, status, error: err.message });
+    });
 
   return channel;
 }

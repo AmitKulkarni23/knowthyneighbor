@@ -1,4 +1,5 @@
 import { createSupabaseClient } from '@/config/supabase';
+import { logger } from '@/lib/logger';
 import type { DiscoveryCouple } from '@/types/database';
 
 export async function discoverCouples(
@@ -12,5 +13,6 @@ export async function discoverCouples(
   if (searchZip) params.search_zip = searchZip;
   const { data, error } = await supabase.rpc('discover_couples', params);
 
+  if (error) logger.error('discoverCouples failed', { userCoupleId, searchCity, searchZip, code: error.code, message: error.message });
   return { couples: data ?? [], error: error?.message ?? null };
 }

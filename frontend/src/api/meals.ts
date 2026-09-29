@@ -1,4 +1,5 @@
 import { createSupabaseClient } from '@/config/supabase';
+import { logger } from '@/lib/logger';
 import type { Meal, MealSlot, MealStatus } from '@/types/database';
 
 type CreateMealData = {
@@ -19,6 +20,7 @@ export async function createMeal(
     .select()
     .single();
 
+  if (error) logger.error('createMeal failed', { conversationId: data.conversation_id, code: error.code, message: error.message });
   return { meal, error: error?.message ?? null };
 }
 
@@ -32,6 +34,7 @@ export async function updateMealStatus(
     .update({ status, updated_at: new Date().toISOString() })
     .eq('id', id);
 
+  if (error) logger.error('updateMealStatus failed', { mealId: id, status, code: error.code, message: error.message });
   return { error: error?.message ?? null };
 }
 
@@ -45,5 +48,6 @@ export async function getMeals(
     .eq('conversation_id', conversationId)
     .order('scheduled_at', { ascending: true });
 
+  if (error) logger.error('getMeals failed', { conversationId, code: error.code, message: error.message });
   return { meals: data ?? [], error: error?.message ?? null };
 }

@@ -1,4 +1,5 @@
 import { createSupabaseClient } from '@/config/supabase';
+import { logger } from '@/lib/logger';
 
 export type BrowseCouple = {
   couple_id: string;
@@ -24,5 +25,6 @@ export async function browseCouplesPublic(
     search_zip: zipCode || null,
   });
 
+  if (error) logger.error('browseCouplesPublic failed', { city, state, country, zipCode, code: error.code, message: error.message });
   return { couples: data ?? [], error: error?.message ?? null };
 }

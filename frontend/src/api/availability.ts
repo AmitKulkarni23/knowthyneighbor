@@ -1,4 +1,5 @@
 import { createSupabaseClient } from '@/config/supabase';
+import { logger } from '@/lib/logger';
 import type { Availability, MealSlot } from '@/types/database';
 
 type AvailabilitySlot = {
@@ -18,6 +19,7 @@ export async function getAvailability(
     .eq('couple_id', coupleId)
     .order('specific_date', { ascending: true });
 
+  if (error) logger.error('getAvailability failed', { coupleId, code: error.code, message: error.message });
   return { slots: data ?? [], error: error?.message ?? null };
 }
 
@@ -35,6 +37,7 @@ export async function getAvailabilityForWeek(
     .lte('specific_date', endDate)
     .order('specific_date', { ascending: true });
 
+  if (error) logger.error('getAvailabilityForWeek failed', { coupleId, startDate, endDate, code: error.code, message: error.message });
   return { slots: data ?? [], error: error?.message ?? null };
 }
 
@@ -50,7 +53,10 @@ export async function setAvailability(
     .delete()
     .eq('couple_id', coupleId);
 
-  if (deleteError) return { error: deleteError.message };
+  if (deleteError) {
+    logger.error('setAvailability: delete failed', { coupleId, code: deleteError.code, message: deleteError.message });
+    return { error: deleteError.message };
+  }
 
   if (slots.length === 0) return { error: null };
 
@@ -59,6 +65,7 @@ export async function setAvailability(
     .from('availability')
     .insert(rows);
 
+  if (insertError) logger.error('setAvailability: insert failed', { coupleId, code: insertError.code, message: insertError.message });
   return { error: insertError?.message ?? null };
 }
 
@@ -74,6 +81,7 @@ export async function getFutureAvailability(
     .gte('specific_date', today)
     .order('specific_date', { ascending: true });
 
+  if (error) logger.error('getFutureAvailability failed', { coupleId, code: error.code, message: error.message });
   return { slots: data ?? [], error: error?.message ?? null };
 }
 
@@ -92,7 +100,10 @@ export async function setAvailabilityForWeek(
     .gte('specific_date', startDate)
     .lte('specific_date', endDate);
 
-  if (deleteError) return { error: deleteError.message };
+  if (deleteError) {
+    logger.error('setAvailabilityForWeek: delete failed', { coupleId, startDate, endDate, code: deleteError.code, message: deleteError.message });
+    return { error: deleteError.message };
+  }
 
   if (slots.length === 0) return { error: null };
 
@@ -101,5 +112,6 @@ export async function setAvailabilityForWeek(
     .from('availability')
     .insert(rows);
 
+  if (insertError) logger.error('setAvailabilityForWeek: insert failed', { coupleId, code: insertError.code, message: insertError.message });
   return { error: insertError?.message ?? null };
 }
