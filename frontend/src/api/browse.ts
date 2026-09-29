@@ -8,7 +8,6 @@ export type BrowseCouple = {
   city: string | null;
   state: string | null;
   country: string | null;
-  zip_code: string | null;
 };
 
 export async function browseCouplesPublic(
