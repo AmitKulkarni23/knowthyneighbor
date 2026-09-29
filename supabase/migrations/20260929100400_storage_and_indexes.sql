@@ -23,3 +23,7 @@ CREATE POLICY avatars_delete ON storage.objects
   );
 
 CREATE INDEX idx_couples_location ON couples USING gist (location);
+CREATE INDEX idx_couples_city ON couples (city);
+CREATE INDEX idx_couples_state ON couples (state);
+CREATE INDEX idx_couples_country ON couples (country);
+CREATE INDEX idx_messages_conversation ON messages (conversation_id, created_at);
