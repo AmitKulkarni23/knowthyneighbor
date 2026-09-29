@@ -30,40 +30,40 @@ VALUES
   (gen_random_uuid(), '00000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000010', '{"sub":"00000000-0000-0000-0000-000000000010","email":"tomoko@example.com"}', 'email', now(), now(), now());
 
 -- ── Profiles ──
-INSERT INTO profiles (id, full_name, age, ethnicity) VALUES
-  ('00000000-0000-0000-0000-000000000001', 'Pat Delgado',     34, 'Hispanic'),
-  ('00000000-0000-0000-0000-000000000002', 'Sam Delgado',     32, 'Hispanic'),
-  ('00000000-0000-0000-0000-000000000003', 'Huy Nguyen',      29, 'Vietnamese'),
-  ('00000000-0000-0000-0000-000000000004', 'Linh Nguyen',     28, 'Vietnamese'),
-  ('00000000-0000-0000-0000-000000000005', 'Mike Patel',      36, 'Indian'),
-  ('00000000-0000-0000-0000-000000000006', 'Priya Patel',     33, 'Indian'),
-  ('00000000-0000-0000-0000-000000000007', 'Marcus Johnson',  52, 'African American'),
-  ('00000000-0000-0000-0000-000000000008', 'Janelle Johnson', 50, 'African American'),
-  ('00000000-0000-0000-0000-000000000009', 'Sara Kim',        31, 'Korean'),
-  ('00000000-0000-0000-0000-000000000010', 'Tomoko Sato',     30, 'Japanese');
+INSERT INTO profiles (id, full_name, age) VALUES
+  ('00000000-0000-0000-0000-000000000001', 'Pat Delgado',     34),
+  ('00000000-0000-0000-0000-000000000002', 'Sam Delgado',     32),
+  ('00000000-0000-0000-0000-000000000003', 'Huy Nguyen',      29),
+  ('00000000-0000-0000-0000-000000000004', 'Linh Nguyen',     28),
+  ('00000000-0000-0000-0000-000000000005', 'Mike Patel',      36),
+  ('00000000-0000-0000-0000-000000000006', 'Priya Patel',     33),
+  ('00000000-0000-0000-0000-000000000007', 'Marcus Johnson',  52),
+  ('00000000-0000-0000-0000-000000000008', 'Janelle Johnson', 50),
+  ('00000000-0000-0000-0000-000000000009', 'Sara Kim',        31),
+  ('00000000-0000-0000-0000-000000000010', 'Tomoko Sato',     30);
 
 -- ── Couples ──
 -- All zip codes are in the San Diego area near 92129 (Rancho Peñasquitos)
 INSERT INTO couples (id, partner_1_id, partner_2_id, couple_name, bio, zip_code, city, state, country, location, hosting_preference, invite_code) VALUES
   ('c0000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002',
    'The Delgados', 'We love hosting taco nights and trying new recipes together.', '92129', 'San Diego', 'California', 'United States',
-   ST_SetSRID(ST_MakePoint(-117.1054, 32.9596), 4326)::geography, 'host', 'invite-delgados'),
+   extensions.ST_SetSRID(extensions.ST_MakePoint(-117.1054, 32.9596), 4326)::extensions.geography, 'host', 'invite-delgados'),
 
   ('c0000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000004',
    'The Nguyens', 'Huge fans of Sunday brunch — we make killer eggs benedict. Two kids, one golden retriever.', '92128', 'San Diego', 'California', 'United States',
-   ST_SetSRID(ST_MakePoint(-117.0770, 32.9940), 4326)::geography, 'host', 'invite-nguyens'),
+   extensions.ST_SetSRID(extensions.ST_MakePoint(-117.0770, 32.9940), 4326)::extensions.geography, 'host', 'invite-nguyens'),
 
   ('c0000000-0000-0000-0000-000000000011', '00000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000006',
    'Mike & Priya', 'Just moved to the neighborhood! Would love to meet people over homemade curry or pizza.', '92131', 'San Diego', 'California', 'United States',
-   ST_SetSRID(ST_MakePoint(-117.0855, 32.9150), 4326)::geography, 'visit', 'invite-patels'),
+   extensions.ST_SetSRID(extensions.ST_MakePoint(-117.0855, 32.9150), 4326)::extensions.geography, 'visit', 'invite-patels'),
 
   ('c0000000-0000-0000-0000-000000000012', '00000000-0000-0000-0000-000000000007', '00000000-0000-0000-0000-000000000008',
    'The Johnsons', 'Empty nesters with a big backyard grill. We host BBQs every other weekend in the summer.', '92127', 'San Diego', 'California', 'United States',
-   ST_SetSRID(ST_MakePoint(-117.1284, 32.9420), 4326)::geography, 'host', 'invite-johnsons'),
+   extensions.ST_SetSRID(extensions.ST_MakePoint(-117.1284, 32.9420), 4326)::extensions.geography, 'host', 'invite-johnsons'),
 
   ('c0000000-0000-0000-0000-000000000013', '00000000-0000-0000-0000-000000000009', '00000000-0000-0000-0000-000000000010',
    'Sara & Tomoko', 'Foodies who document every meal. Always hunting for the next great dinner conversation.', '92130', 'San Diego', 'California', 'United States',
-   ST_SetSRID(ST_MakePoint(-117.1120, 32.9700), 4326)::geography, 'both', 'invite-kimsat');
+   extensions.ST_SetSRID(extensions.ST_MakePoint(-117.1120, 32.9700), 4326)::extensions.geography, 'both', 'invite-kimsat');
 
 -- ── Availability (The Delgados) ──
 INSERT INTO availability (couple_id, day_of_week, time_slot, recurring) VALUES
