@@ -1,9 +1,14 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.117.1";
 
 const RESEND_API_URL = "https://api.resend.com/emails";
 const APP_URL = "https://www.nextdoorish.com";
 const FROM_EMAIL = "KnowThyNeighbor <noreply@nextdoorish.com>";
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// Only notify for requests created moments ago, so old rows can't be replayed
+const MAX_REQUEST_AGE_MS = 10 * 60 * 1000;
 
+// Called by the requester's browser right after inserting a join request.
+// The email content comes only from the stored row; each request notifies at most once.
 Deno.serve(async (req) => {
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
@@ -26,12 +31,7 @@ Deno.serve(async (req) => {
     return new Response("Missing authorization", { status: 401 });
   }
   const token = authHeader.replace("Bearer ", "");
-  const userClient = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_ANON_KEY")!,
-    { global: { headers: { Authorization: `Bearer ${token}` } } },
-  );
-  const { data: { user }, error: authError } = await userClient.auth.getUser();
+  const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
   if (authError || !user) {
     return new Response("Invalid token", { status: 401 });
   }
@@ -43,49 +43,67 @@ Deno.serve(async (req) => {
     return new Response("Invalid JSON", { status: 400 });
   }
 
-  const record = payload.record;
-  if (!record) {
-    return new Response("Missing record in payload", { status: 400 });
+  const joinRequestId = payload?.join_request_id;
+  if (typeof joinRequestId !== "string" || !UUID_RE.test(joinRequestId)) {
+    return new Response("Invalid request", { status: 400 });
   }
 
-  const { requester_couple_id, host_couple_id, message } = record;
+  const { data: joinRequest } = await supabaseAdmin
+    .from("join_requests")
+    .select("id, requester_couple_id, host_couple_id, message, status, created_at, notified_at")
+    .eq("id", joinRequestId)
+    .maybeSingle();
 
-  // Verify caller belongs to the requester couple
-  const { data: callerCouple } = await supabaseAdmin
-    .from("couples")
+  const { data: callerCouple } = joinRequest
+    ? await supabaseAdmin
+      .from("couples")
+      .select("id")
+      .eq("id", joinRequest.requester_couple_id)
+      .or(`partner_1_id.eq.${user.id},partner_2_id.eq.${user.id}`)
+      .maybeSingle()
+    : { data: null };
+
+  const isFresh = joinRequest &&
+    Date.now() - new Date(joinRequest.created_at).getTime() < MAX_REQUEST_AGE_MS;
+
+  // One generic answer for every rejection, so this endpoint isn't an oracle
+  if (!joinRequest || !callerCouple || joinRequest.status !== "pending" || joinRequest.notified_at || !isFresh) {
+    return new Response("Request not eligible for notification", { status: 403 });
+  }
+
+  // Claim the notification atomically so concurrent calls send at most once
+  const { data: claimed } = await supabaseAdmin
+    .from("join_requests")
+    .update({ notified_at: new Date().toISOString() })
+    .eq("id", joinRequest.id)
+    .is("notified_at", null)
     .select("id")
-    .eq("id", requester_couple_id)
-    .or(`partner_1_id.eq.${user.id},partner_2_id.eq.${user.id}`)
-    .single();
-  if (!callerCouple) {
-    return new Response("Not authorized for this couple", { status: 403 });
+    .maybeSingle();
+  if (!claimed) {
+    return new Response("Request not eligible for notification", { status: 403 });
   }
 
-  // Fetch requester and host couple info in parallel
+  const { message } = joinRequest;
+
   const [requesterResult, hostResult] = await Promise.all([
     supabaseAdmin
       .from("couples")
       .select("couple_name")
-      .eq("id", requester_couple_id)
+      .eq("id", joinRequest.requester_couple_id)
       .single(),
     supabaseAdmin
       .from("couples")
-      .select("couple_name, partner_1_id, partner_2_id")
-      .eq("id", host_couple_id)
+      .select("partner_1_id, partner_2_id")
+      .eq("id", joinRequest.host_couple_id)
       .single(),
   ]);
 
-  if (requesterResult.error) {
-    console.error("Failed to fetch requester couple:", requesterResult.error);
-    return new Response("Requester couple not found", { status: 404 });
+  if (requesterResult.error || hostResult.error) {
+    console.error("Failed to load couples for join request", joinRequest.id);
+    return new Response("Notification failed", { status: 500 });
   }
 
-  if (hostResult.error) {
-    console.error("Failed to fetch host couple:", hostResult.error);
-    return new Response("Host couple not found", { status: 404 });
-  }
-
-  const requesterName = requesterResult.data.couple_name;
+  const requesterName = requesterResult.data.couple_name ?? "A couple nearby";
   const { partner_1_id, partner_2_id } = hostResult.data;
 
   // Collect host partner emails from auth.users
@@ -95,12 +113,12 @@ Deno.serve(async (req) => {
   );
 
   const recipientEmails = emailResults
-    .filter((r) => !r.error && r.data?.user?.email)
-    .map((r) => r.data.user.email!);
+    .map((r) => (r.error ? null : r.data.user?.email))
+    .filter((email): email is string => Boolean(email));
 
   if (recipientEmails.length === 0) {
     console.error("No valid email addresses found for host couple");
-    return new Response("No recipient emails", { status: 404 });
+    return new Response("Notification failed", { status: 500 });
   }
 
   const subject = `${requesterName} wants to connect with you!`;
@@ -182,5 +200,6 @@ function escapeHtml(text: string): string {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
