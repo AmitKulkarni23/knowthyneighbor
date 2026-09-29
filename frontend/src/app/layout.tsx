@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Permanent_Marker, Caveat, Barlow_Condensed, Source_Sans_3 } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import ThemeRegistry from "@/components/ThemeRegistry";
 import AuthErrorHandler from "@/components/AuthErrorHandler";
 import "./globals.css";
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ThemeRegistry>
           <AuthErrorHandler />
           {children}
+          <Analytics />
         </ThemeRegistry>
       </body>
     </html>
