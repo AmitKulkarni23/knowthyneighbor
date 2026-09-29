@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { getConversations } from '@/api/conversations';
-import type { Conversation } from '@/types/database';
+import type { ConversationWithNames } from '@/api/conversations';
 
 export default function useConversations(coupleId: string | null) {
-  const [data, setData] = useState<Conversation[]>([]);
+  const [data, setData] = useState<ConversationWithNames[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

@@ -2,17 +2,32 @@ import { createSupabaseClient } from '@/config/supabase';
 import type { Conversation, Message } from '@/types/database';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
+export type ConversationWithNames = Conversation & {
+  couple_1_name: string | null;
+  couple_2_name: string | null;
+};
+
 export async function getConversations(
   coupleId: string
-): Promise<{ conversations: Conversation[]; error: string | null }> {
+): Promise<{ conversations: ConversationWithNames[]; error: string | null }> {
   const supabase = createSupabaseClient();
   const { data, error } = await supabase
     .from('conversations')
-    .select('*')
+    .select('*, couple_1:couples!couple_1_id(couple_name), couple_2:couples!couple_2_id(couple_name)')
     .or(`couple_1_id.eq.${coupleId},couple_2_id.eq.${coupleId}`)
     .order('last_message_at', { ascending: false });
 
-  return { conversations: data ?? [], error: error?.message ?? null };
+  const conversations: ConversationWithNames[] = (data ?? []).map((row: any) => ({
+    id: row.id,
+    couple_1_id: row.couple_1_id,
+    couple_2_id: row.couple_2_id,
+    created_at: row.created_at,
+    last_message_at: row.last_message_at,
+    couple_1_name: row.couple_1?.couple_name ?? null,
+    couple_2_name: row.couple_2?.couple_name ?? null,
+  }));
+
+  return { conversations, error: error?.message ?? null };
 }
 
 export async function getConversationByCouples(
