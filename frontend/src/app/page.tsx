@@ -36,33 +36,51 @@ export default function Home() {
     <Box sx={{ ...boardBgSx as object, px: 2, py: 5, pb: 10 }}>
       {/* ── Browse link ── */}
       <Box sx={{ maxWidth: 1100, mx: 'auto', display: 'flex', justifyContent: 'flex-end', mb: 2, position: 'relative', zIndex: 2 }}>
-        <Button
+        <Card
           onClick={() => router.push('/browse')}
           sx={{
-            fontFamily: 'var(--font-condensed), sans-serif',
-            fontWeight: 700,
-            fontSize: '0.95rem',
-            color: 'var(--paper)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.04em',
-            textShadow: '1px 1px 3px rgba(60, 40, 20, 0.4)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1,
-            '&:hover': { color: 'var(--index-yellow)', bgcolor: 'transparent' },
-            '&::before': {
-              content: '""',
-              width: 12,
-              height: 12,
-              borderRadius: '50%',
-              background: 'radial-gradient(circle at 35% 35%, #7aa87d, var(--thumbtack-green) 60%, #4a6a4d)',
-              boxShadow: '0 1px 3px rgba(60, 40, 20, 0.35)',
-              flexShrink: 0,
+            bgcolor: 'var(--paper)',
+            borderRadius: 0,
+            boxShadow: 'var(--shadow-card-rest)',
+            p: '10px 20px 10px 16px',
+            cursor: 'pointer',
+            position: 'relative',
+            transform: 'rotate(1.5deg)',
+            transition: 'var(--ease-card)',
+            '&:hover': {
+              boxShadow: 'var(--shadow-card-lift)',
+              transform: 'rotate(1.5deg) translateY(-3px) scale(1.02)',
             },
           }}
         >
-          Browse the Board
-        </Button>
+          <Box
+            sx={{
+              position: 'absolute',
+              top: -6,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 14,
+              height: 14,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 35% 35%, #7aa87d, var(--thumbtack-green) 60%, #4a6a4d)',
+              boxShadow: '0 2px 4px rgba(60, 40, 20, 0.35), inset 0 -2px 3px rgba(0,0,0,0.15), inset 0 2px 3px rgba(255,255,255,0.3)',
+              zIndex: 2,
+            }}
+          />
+          <Typography
+            sx={{
+              fontFamily: 'var(--font-condensed), sans-serif',
+              fontWeight: 700,
+              fontSize: '1rem',
+              color: 'var(--ink-blue)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            Browse the Board &rarr;
+          </Typography>
+        </Card>
       </Box>
 
       {/* ── Hero ── */}
