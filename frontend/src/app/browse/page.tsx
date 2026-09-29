@@ -37,7 +37,7 @@ export default function BrowsePage() {
 
     const geo = await geocodeLocation(trimmed);
     if (!geo) {
-      setSearchError('Could not find that location. Try a zip code or city name.');
+      setSearchError('Could not find that location. Try a postal code or city name.');
       setSearching(false);
       return;
     }
@@ -109,7 +109,7 @@ export default function BrowsePage() {
               mb: 3,
             }}
           >
-            Enter a zip code or city name to see couples nearby looking for dinner friends.
+            Enter a postal code or city name to see couples nearby looking for dinner friends.
           </Typography>
 
           <Box
@@ -120,7 +120,7 @@ export default function BrowsePage() {
             <TextField
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Zip code or city name"
+              placeholder="Postal code or city name"
               error={!!searchError}
               helperText={searchError}
               size="small"
