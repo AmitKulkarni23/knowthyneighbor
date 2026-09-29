@@ -15,10 +15,26 @@ Deno.serve(async (req) => {
     return new Response("Server misconfigured", { status: 500 });
   }
 
-  const supabase = createClient(
+  const supabaseAdmin = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
+
+  // Verify caller's JWT and extract user identity
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response("Missing authorization", { status: 401 });
+  }
+  const token = authHeader.replace("Bearer ", "");
+  const userClient = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: `Bearer ${token}` } } },
+  );
+  const { data: { user }, error: authError } = await userClient.auth.getUser();
+  if (authError || !user) {
+    return new Response("Invalid token", { status: 401 });
+  }
 
   let payload;
   try {
@@ -34,14 +50,25 @@ Deno.serve(async (req) => {
 
   const { requester_couple_id, host_couple_id, meal_type, message } = record;
 
+  // Verify caller belongs to the requester couple
+  const { data: callerCouple } = await supabaseAdmin
+    .from("couples")
+    .select("id")
+    .eq("id", requester_couple_id)
+    .or(`partner_1_id.eq.${user.id},partner_2_id.eq.${user.id}`)
+    .single();
+  if (!callerCouple) {
+    return new Response("Not authorized for this couple", { status: 403 });
+  }
+
   // Fetch requester and host couple info in parallel
   const [requesterResult, hostResult] = await Promise.all([
-    supabase
+    supabaseAdmin
       .from("couples")
       .select("couple_name")
       .eq("id", requester_couple_id)
       .single(),
-    supabase
+    supabaseAdmin
       .from("couples")
       .select("couple_name, partner_1_id, partner_2_id")
       .eq("id", host_couple_id)
@@ -64,7 +91,7 @@ Deno.serve(async (req) => {
   // Collect host partner emails from auth.users
   const partnerIds = [partner_1_id, partner_2_id].filter(Boolean);
   const emailResults = await Promise.all(
-    partnerIds.map((id) => supabase.auth.admin.getUserById(id)),
+    partnerIds.map((id) => supabaseAdmin.auth.admin.getUserById(id)),
   );
 
   const recipientEmails = emailResults
