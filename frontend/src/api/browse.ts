@@ -13,13 +13,15 @@ export type BrowseCouple = {
 export async function browseCouplesPublic(
   city?: string,
   state?: string,
-  country?: string
+  country?: string,
+  zipCode?: string
 ): Promise<{ couples: BrowseCouple[]; error: string | null }> {
   const supabase = createSupabaseClient();
   const { data, error } = await supabase.rpc('browse_couples_public', {
     search_city: city || null,
     search_state: state || null,
     search_country: country || null,
+    search_zip: zipCode || null,
   });
 
   return { couples: data ?? [], error: error?.message ?? null };

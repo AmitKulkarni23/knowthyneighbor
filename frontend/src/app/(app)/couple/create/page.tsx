@@ -178,7 +178,7 @@ export default function CreateCouplePage() {
               sx={{ mb: 2 }}
             />
             <TextField
-              label="Postal code (optional)"
+              label="Zip code (optional)"
               {...register('zipCode')}
               error={!!errors.zipCode}
               helperText={errors.zipCode?.message}

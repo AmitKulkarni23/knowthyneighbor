@@ -19,7 +19,7 @@ const pins = [pinRedSx, pinGreenSx, pinBlueSx];
 
 export default function BrowsePage() {
   const router = useRouter();
-  const [city, setCity] = useState('');
+  const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [couples, setCouples] = useState<BrowseCouple[]>([]);
@@ -27,12 +27,16 @@ export default function BrowsePage() {
   const [signInOpen, setSignInOpen] = useState(false);
 
   const handleSearch = useCallback(async () => {
-    const trimmed = city.trim();
+    const trimmed = query.trim();
     if (!trimmed) return;
     setSearching(true);
     setSearchError(null);
 
-    const result = await browseCouplesPublic(trimmed);
+    const isZip = /^\d+$/.test(trimmed);
+    const result = isZip
+      ? await browseCouplesPublic(undefined, undefined, undefined, trimmed)
+      : await browseCouplesPublic(trimmed);
+
     if (result.error) {
       setSearchError(result.error);
     } else {
@@ -40,7 +44,7 @@ export default function BrowsePage() {
     }
     setSearched(true);
     setSearching(false);
-  }, [city]);
+  }, [query]);
 
   return (
     <Box sx={{ ...boardBgSx as object, px: 2, py: 5, pb: 10 }}>
@@ -97,7 +101,7 @@ export default function BrowsePage() {
               mb: 3,
             }}
           >
-            Enter a city name to see couples looking for dinner friends.
+            Enter a city name or zip code to see couples looking for dinner friends.
           </Typography>
 
           <Box
@@ -106,9 +110,9 @@ export default function BrowsePage() {
             sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}
           >
             <TextField
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              placeholder="e.g. San Diego"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="e.g. San Diego or 92129"
               error={!!searchError}
               helperText={searchError}
               size="small"
@@ -146,7 +150,7 @@ export default function BrowsePage() {
         {/* Results */}
         {searched && couples.length === 0 && (
           <EmptyStateCard
-            message={`No couples found in "${city.trim()}". Try another city — or sign up and be the first!`}
+            message={`No couples found for "${query.trim()}". Try another city or zip code — or sign up and be the first!`}
             pin="blue"
             rotation={0.6}
             sx={{ mb: 3 }}
@@ -165,7 +169,7 @@ export default function BrowsePage() {
                 textShadow: '1px 1px 3px rgba(60, 40, 20, 0.4)',
               }}
             >
-              {couples.length} couple{couples.length === 1 ? '' : 's'} in {city.trim()}
+              {couples.length} couple{couples.length === 1 ? '' : 's'} matching &ldquo;{query.trim()}&rdquo;
             </Typography>
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
