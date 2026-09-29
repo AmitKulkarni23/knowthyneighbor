@@ -3,7 +3,6 @@ import type {
   DiscoveryCouple,
   JoinRequest,
   Conversation,
-  Meal,
   Availability,
 } from '@/types/database';
 
@@ -172,41 +171,6 @@ export const mockConversations: Conversation[] = [
   },
 ];
 
-export const mockMeals: Meal[] = [
-  {
-    id: 'f0000000-0000-0000-0000-000000000001',
-    conversation_id: 'e0000000-0000-0000-0000-000000000001',
-    host_couple_id: MOCK_COUPLE_ID,
-    guest_couple_id: 'c0000000-0000-0000-0000-000000000010',
-    meal_type: 'dinner',
-    scheduled_at: '2026-10-04T18:30:00Z',
-    status: 'confirmed',
-    created_at: '2026-09-25T19:30:00Z',
-    updated_at: '2026-09-25T20:00:00Z',
-  },
-  {
-    id: 'f0000000-0000-0000-0000-000000000002',
-    conversation_id: 'e0000000-0000-0000-0000-000000000002',
-    host_couple_id: 'c0000000-0000-0000-0000-000000000012',
-    guest_couple_id: MOCK_COUPLE_ID,
-    meal_type: 'dinner',
-    scheduled_at: '2026-10-11T17:00:00Z',
-    status: 'proposed',
-    created_at: '2026-09-23T14:15:00Z',
-    updated_at: '2026-09-23T14:15:00Z',
-  },
-  {
-    id: 'f0000000-0000-0000-0000-000000000003',
-    conversation_id: 'e0000000-0000-0000-0000-000000000001',
-    host_couple_id: 'c0000000-0000-0000-0000-000000000010',
-    guest_couple_id: MOCK_COUPLE_ID,
-    meal_type: 'brunch',
-    scheduled_at: '2026-09-14T10:00:00Z',
-    status: 'completed',
-    created_at: '2026-09-10T12:00:00Z',
-    updated_at: '2026-09-14T14:00:00Z',
-  },
-];
 
 export const mockAvailability: Availability[] = [
   { id: 'a0000000-0000-0000-0000-000000000001', couple_id: MOCK_COUPLE_ID, day_of_week: 5, specific_date: null, time_slot: 'dinner', recurring: true, created_at: '2026-06-01T00:00:00Z' },

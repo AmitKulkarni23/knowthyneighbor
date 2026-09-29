@@ -44,7 +44,7 @@ knowthyneighbor/
 
 ## Data Model
 
-Core tables: `profiles`, `couples`, `pending_partners`, `availability`, `join_requests`, `conversations`, `messages`, `meals`. Profiles hold individual info. Couples link two profiles. Pending partners hold partner 2's info until they join. Join requests gate access to chat. Messages power real-time chat via Supabase Realtime. Meals track planned/completed meetups.
+Core tables: `profiles`, `couples`, `pending_partners`, `availability`, `join_requests`, `conversations`, `messages`. Profiles hold individual info. Couples link two profiles. Pending partners hold partner 2's info until they join. Join requests gate access to chat. Messages power real-time chat via Supabase Realtime.
 
 ## Key Behaviors
 
@@ -54,7 +54,6 @@ Core tables: `profiles`, `couples`, `pending_partners`, `availability`, `join_re
 - Discovery shows all couples sorted by distance (no radius cap for MVP)
 - Join request required before chat opens (email notification to host via Resend)
 - Real-time chat via Supabase Realtime
-- Messages retained 30 days after meal completion, then purged via pg_cron
 
 ## Commands
 

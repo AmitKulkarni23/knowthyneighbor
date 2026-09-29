@@ -6,7 +6,6 @@ import {
   mockReceivedRequests,
   mockSentRequests,
   mockConversations,
-  mockMeals,
   mockAvailability,
 } from './data';
 
@@ -84,18 +83,6 @@ export const handlers = [
       return HttpResponse.json(mockConversations);
     }
     return HttpResponse.json([]);
-  }),
-
-  // Meals
-  http.get(rest('meals'), ({ request }) => {
-    const url = new URL(request.url);
-    const convFilter = url.searchParams.get('conversation_id');
-    if (convFilter) {
-      const convId = convFilter.replace(/^eq\./, '');
-      const filtered = mockMeals.filter((m) => m.conversation_id === convId);
-      return HttpResponse.json(filtered);
-    }
-    return HttpResponse.json(mockMeals);
   }),
 
   // Availability

@@ -1,7 +1,7 @@
 export type HostingPreference = 'host' | 'visit' | 'both';
 export type MealSlot = 'brunch' | 'lunch' | 'dinner';
 export type RequestStatus = 'pending' | 'accepted' | 'declined';
-export type MealStatus = 'proposed' | 'confirmed' | 'completed' | 'cancelled';
+
 
 export type Profile = {
   id: string;
@@ -76,18 +76,6 @@ export type Message = {
   sender_profile_id: string;
   body: string;
   created_at: string;
-};
-
-export type Meal = {
-  id: string;
-  conversation_id: string;
-  host_couple_id: string;
-  guest_couple_id: string;
-  meal_type: MealSlot;
-  scheduled_at: string;
-  status: MealStatus;
-  created_at: string;
-  updated_at: string;
 };
 
 export type DiscoveryCouple = {
