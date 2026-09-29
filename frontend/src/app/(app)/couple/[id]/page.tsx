@@ -188,7 +188,9 @@ export default function CoupleProfilePage() {
 
         <Box sx={{ pt: couple.bio ? 0 : 2, borderTop: couple.bio ? 'none' : '1px dashed var(--cork-dark)' }}>
           <Typography sx={labelSx}>Neighborhood</Typography>
-          <Typography sx={valueSx}>{couple.zip_code}</Typography>
+          <Typography sx={valueSx}>
+            {[couple.city, couple.state].filter(Boolean).join(', ') || couple.zip_code}
+          </Typography>
         </Box>
       </Card>
 

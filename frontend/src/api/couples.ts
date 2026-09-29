@@ -1,4 +1,5 @@
 import { createSupabaseClient } from '@/config/supabase';
+import { geocodeZip } from '@/lib/geocode';
 import type { Couple, HostingPreference } from '@/types/database';
 
 type CreateCoupleData = {
@@ -19,8 +20,10 @@ export async function createCouple(
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) return { couple: null, error: 'Not authenticated' };
 
-  // Dummy coordinates until geocoding API is wired up
-  const dummyPoint = `POINT(-73.935242 40.730610)`;
+  const geo = await geocodeZip(data.zip_code);
+  if (!geo) return { couple: null, error: 'Could not geocode that zip code. Please check and try again.' };
+
+  const point = `POINT(${geo.lng} ${geo.lat})`;
 
   const { data: couple, error } = await supabase
     .from('couples')
@@ -29,8 +32,10 @@ export async function createCouple(
       couple_name: data.couple_name,
       bio: data.bio,
       zip_code: data.zip_code,
-      location: dummyPoint,
+      location: point,
       hosting_preference: data.hosting_preference,
+      city: geo.city,
+      state: geo.state,
     })
     .select()
     .single();

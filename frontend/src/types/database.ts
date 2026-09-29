@@ -20,6 +20,8 @@ export type Couple = {
   couple_name: string | null;
   bio: string | null;
   zip_code: string;
+  city: string | null;
+  state: string | null;
   location: unknown;
   hosting_preference: HostingPreference;
   invite_code: string;

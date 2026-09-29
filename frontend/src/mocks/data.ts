@@ -26,6 +26,8 @@ export const mockCouple: Couple = {
   couple_name: 'The Delgados',
   bio: 'We love hosting taco nights and trying new recipes together.',
   zip_code: '11201',
+  city: 'Brooklyn',
+  state: 'New York',
   location: 'POINT(-73.9857 40.6892)',
   hosting_preference: 'host',
   invite_code: 'abc123',
