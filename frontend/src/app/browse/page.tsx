@@ -10,7 +10,7 @@ import TextField from '@mui/material/TextField';
 import Alert from '@mui/material/Alert';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
-import { geocodeZip } from '@/lib/geocode';
+import { geocodeLocation } from '@/lib/geocode';
 import { browseCouplesPublic, type BrowseCouple } from '@/api/browse';
 import { boardBgSx, paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
 import SignInDialog from '@/components/SignInDialog';
@@ -21,7 +21,7 @@ const pins = [pinRedSx, pinGreenSx, pinBlueSx];
 
 export default function BrowsePage() {
   const router = useRouter();
-  const [zip, setZip] = useState('');
+  const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [searchLabel, setSearchLabel] = useState<string | null>(null);
@@ -30,32 +30,29 @@ export default function BrowsePage() {
   const [signInOpen, setSignInOpen] = useState(false);
 
   const handleSearch = useCallback(async () => {
-    const trimmed = zip.trim();
+    const trimmed = query.trim();
     if (!trimmed) return;
-    if (!/^\d{5}$/.test(trimmed)) {
-      setSearchError('Enter a 5-digit zip code');
-      return;
-    }
     setSearching(true);
     setSearchError(null);
 
-    const coords = await geocodeZip(trimmed);
-    if (!coords) {
-      setSearchError('Could not find that zip code');
+    const geo = await geocodeLocation(trimmed);
+    if (!geo) {
+      setSearchError('Could not find that location. Try a zip code or city name.');
       setSearching(false);
       return;
     }
 
-    const result = await browseCouplesPublic(coords.lat, coords.lng);
+    const result = await browseCouplesPublic(geo.lat, geo.lng);
     if (result.error) {
       setSearchError(result.error);
     } else {
       setCouples(result.couples);
     }
-    setSearchLabel(trimmed);
+    const label = [geo.city, geo.state].filter(Boolean).join(', ') || trimmed;
+    setSearchLabel(label);
     setSearched(true);
     setSearching(false);
-  }, [zip]);
+  }, [query]);
 
   return (
     <Box sx={{ ...boardBgSx as object, px: 2, py: 5, pb: 10 }}>
@@ -112,7 +109,7 @@ export default function BrowsePage() {
               mb: 3,
             }}
           >
-            Enter your zip code to see couples nearby looking for dinner friends.
+            Enter a zip code or city name to see couples nearby looking for dinner friends.
           </Typography>
 
           <Box
@@ -121,9 +118,9 @@ export default function BrowsePage() {
             sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}
           >
             <TextField
-              value={zip}
-              onChange={(e) => setZip(e.target.value)}
-              placeholder="Your zip code"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Zip code or city name"
               error={!!searchError}
               helperText={searchError}
               size="small"
