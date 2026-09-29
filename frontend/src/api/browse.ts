@@ -6,18 +6,20 @@ export type BrowseCouple = {
   bio: string | null;
   city: string | null;
   state: string | null;
-  distance_miles: number;
-  has_availability: boolean;
+  country: string | null;
+  zip_code: string | null;
 };
 
 export async function browseCouplesPublic(
-  lat: number,
-  lng: number
+  city?: string,
+  state?: string,
+  country?: string
 ): Promise<{ couples: BrowseCouple[]; error: string | null }> {
   const supabase = createSupabaseClient();
   const { data, error } = await supabase.rpc('browse_couples_public', {
-    ref_lat: lat,
-    ref_lng: lng,
+    search_city: city || null,
+    search_state: state || null,
+    search_country: country || null,
   });
 
   return { couples: data ?? [], error: error?.message ?? null };

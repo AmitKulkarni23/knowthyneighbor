@@ -7,10 +7,8 @@ import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import Alert from '@mui/material/Alert';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
-import { geocodeLocation } from '@/lib/geocode';
 import { browseCouplesPublic, type BrowseCouple } from '@/api/browse';
 import { boardBgSx, paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
 import SignInDialog from '@/components/SignInDialog';
@@ -21,38 +19,28 @@ const pins = [pinRedSx, pinGreenSx, pinBlueSx];
 
 export default function BrowsePage() {
   const router = useRouter();
-  const [query, setQuery] = useState('');
+  const [city, setCity] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
-  const [searchLabel, setSearchLabel] = useState<string | null>(null);
   const [couples, setCouples] = useState<BrowseCouple[]>([]);
   const [searched, setSearched] = useState(false);
   const [signInOpen, setSignInOpen] = useState(false);
 
   const handleSearch = useCallback(async () => {
-    const trimmed = query.trim();
+    const trimmed = city.trim();
     if (!trimmed) return;
     setSearching(true);
     setSearchError(null);
 
-    const geo = await geocodeLocation(trimmed);
-    if (!geo) {
-      setSearchError('Could not find that location. Try a postal code or city name.');
-      setSearching(false);
-      return;
-    }
-
-    const result = await browseCouplesPublic(geo.lat, geo.lng);
+    const result = await browseCouplesPublic(trimmed);
     if (result.error) {
       setSearchError(result.error);
     } else {
       setCouples(result.couples);
     }
-    const label = [geo.city, geo.state].filter(Boolean).join(', ') || trimmed;
-    setSearchLabel(label);
     setSearched(true);
     setSearching(false);
-  }, [query]);
+  }, [city]);
 
   return (
     <Box sx={{ ...boardBgSx as object, px: 2, py: 5, pb: 10 }}>
@@ -109,7 +97,7 @@ export default function BrowsePage() {
               mb: 3,
             }}
           >
-            Enter a postal code or city name to see couples nearby looking for dinner friends.
+            Enter a city name to see couples looking for dinner friends.
           </Typography>
 
           <Box
@@ -118,9 +106,9 @@ export default function BrowsePage() {
             sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start' }}
           >
             <TextField
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Postal code or city name"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder="e.g. San Diego"
               error={!!searchError}
               helperText={searchError}
               size="small"
@@ -158,7 +146,7 @@ export default function BrowsePage() {
         {/* Results */}
         {searched && couples.length === 0 && (
           <EmptyStateCard
-            message={`No couples found within 10 miles of ${searchLabel}. Be the first — sign up and put your card on the board!`}
+            message={`No couples found in "${city.trim()}". Try another city — or sign up and be the first!`}
             pin="blue"
             rotation={0.6}
             sx={{ mb: 3 }}
@@ -177,14 +165,14 @@ export default function BrowsePage() {
                 textShadow: '1px 1px 3px rgba(60, 40, 20, 0.4)',
               }}
             >
-              {couples.length} couple{couples.length === 1 ? '' : 's'} near {searchLabel}
+              {couples.length} couple{couples.length === 1 ? '' : 's'} in {city.trim()}
             </Typography>
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
               {couples.map((c, i) => {
                 const deg = rotations[i % rotations.length];
                 const pin = pins[i % pins.length];
-                const location = [c.city, c.state].filter(Boolean).join(', ');
+                const location = [c.city, c.state, c.country].filter(Boolean).join(', ');
 
                 return (
                   <Card
@@ -228,16 +216,18 @@ export default function BrowsePage() {
                         {c.bio}
                       </Typography>
                     )}
-                    <Typography
-                      sx={{
-                        fontFamily: 'var(--font-handwriting), cursive',
-                        fontSize: '1.15rem',
-                        color: 'var(--ink-blue-light)',
-                        mb: 2,
-                      }}
-                    >
-                      {c.distance_miles.toFixed(1)} miles away{location ? ` · ${location}` : ''}
-                    </Typography>
+                    {location && (
+                      <Typography
+                        sx={{
+                          fontFamily: 'var(--font-handwriting), cursive',
+                          fontSize: '1.15rem',
+                          color: 'var(--ink-blue-light)',
+                          mb: 2,
+                        }}
+                      >
+                        {location}
+                      </Typography>
+                    )}
                     <Button
                       onClick={() => setSignInOpen(true)}
                       sx={{

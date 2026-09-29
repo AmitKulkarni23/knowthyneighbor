@@ -28,6 +28,7 @@ export const mockCouple: Couple = {
   zip_code: '11201',
   city: 'Brooklyn',
   state: 'New York',
+  country: 'United States',
   location: 'POINT(-73.9857 40.6892)',
   hosting_preference: 'host',
   invite_code: 'abc123',

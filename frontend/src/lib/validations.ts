@@ -26,10 +26,10 @@ export type ProfileFormData = z.infer<typeof profileSchema>;
 export const coupleSchema = z.object({
   coupleName: z.string().max(100, 'Name is too long').optional().or(z.literal('')),
   bio: z.string().max(500, 'Bio must be under 500 characters').optional().or(z.literal('')),
-  zipCode: z
-    .string()
-    .min(1, 'Zip code is required')
-    .regex(/^\d{5}(-\d{4})?$/, 'Enter a valid US zip code (e.g. 90210)'),
+  city: z.string().min(1, 'City is required').max(100, 'City name is too long'),
+  state: z.string().min(1, 'State / province is required').max(100, 'State name is too long'),
+  country: z.string().min(1, 'Country is required'),
+  zipCode: z.string().max(20, 'Postal code is too long').optional().or(z.literal('')),
   hostingPreference: z.enum(['host', 'visit', 'both']),
   partnerName: z
     .string()

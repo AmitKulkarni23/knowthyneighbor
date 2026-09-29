@@ -36,6 +36,9 @@ export default function CreateCouplePage() {
     defaultValues: {
       coupleName: '',
       bio: '',
+      city: '',
+      state: '',
+      country: '',
       zipCode: '',
       hostingPreference: 'both',
       partnerName: '',
@@ -51,7 +54,10 @@ export default function CreateCouplePage() {
     const result = await createCouple({
       couple_name: data.coupleName || null,
       bio: data.bio || null,
-      zip_code: data.zipCode,
+      city: data.city,
+      state: data.state,
+      country: data.country,
+      zip_code: data.zipCode || '',
       hosting_preference: data.hostingPreference,
       partner_name: data.partnerName,
       partner_age: data.partnerAge,
@@ -145,12 +151,39 @@ export default function CreateCouplePage() {
               sx={{ mb: 2 }}
             />
             <TextField
-              label="Zip code"
+              label="City"
+              {...register('city')}
+              error={!!errors.city}
+              helperText={errors.city?.message}
+              fullWidth
+              placeholder="e.g. San Diego"
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="State / Province"
+              {...register('state')}
+              error={!!errors.state}
+              helperText={errors.state?.message}
+              fullWidth
+              placeholder="e.g. California"
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Country"
+              {...register('country')}
+              error={!!errors.country}
+              helperText={errors.country?.message}
+              fullWidth
+              placeholder="e.g. United States"
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Postal code (optional)"
               {...register('zipCode')}
               error={!!errors.zipCode}
               helperText={errors.zipCode?.message}
               fullWidth
-              slotProps={{ htmlInput: { maxLength: 10 } }}
+              slotProps={{ htmlInput: { maxLength: 20 } }}
               sx={{ mb: 2 }}
             />
             <Controller

@@ -5,6 +5,9 @@ import type { Couple, HostingPreference } from '@/types/database';
 type CreateCoupleData = {
   couple_name: string | null;
   bio: string | null;
+  city: string;
+  state: string;
+  country: string;
   zip_code: string;
   hosting_preference: HostingPreference;
   partner_name: string;
@@ -20,10 +23,10 @@ export async function createCouple(
   const { data: user } = await supabase.auth.getUser();
   if (!user.user) return { couple: null, error: 'Not authenticated' };
 
-  const geo = await geocodeZip(data.zip_code);
-  if (!geo) return { couple: null, error: 'Could not geocode that zip code. Please check and try again.' };
-
-  const point = `POINT(${geo.lng} ${geo.lat})`;
+  const geo = data.zip_code ? await geocodeZip(data.zip_code) : null;
+  const point = geo
+    ? `POINT(${geo.lng} ${geo.lat})`
+    : `POINT(0 0)`;
 
   const { data: couple, error } = await supabase
     .from('couples')
@@ -32,10 +35,11 @@ export async function createCouple(
       couple_name: data.couple_name,
       bio: data.bio,
       zip_code: data.zip_code,
+      city: data.city,
+      state: data.state,
+      country: data.country,
       location: point,
       hosting_preference: data.hosting_preference,
-      city: geo.city,
-      state: geo.state,
     })
     .select()
     .single();
