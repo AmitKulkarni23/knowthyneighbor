@@ -5,8 +5,7 @@ import { createSupabaseClient } from '@/config/supabase';
 import { getCoupleByMember } from '@/api/couples';
 import type { User } from '@supabase/supabase-js';
 import type { Couple } from '@/types/database';
-
-const SKIP_AUTH = process.env.NEXT_PUBLIC_SKIP_AUTH === 'true';
+import { SKIP_AUTH } from '@/config/env';
 
 const FAKE_USER = {
   id: '00000000-0000-0000-0000-000000000001',

@@ -4,6 +4,7 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from "@sentry/nextjs";
+import { scrubInviteCodes } from "./src/lib/sentryScrub";
 
 Sentry.init({
   dsn: "https://be3ab48482931058986e388a3b6b707d@o4512167603208192.ingest.us.sentry.io/4512167608451072",
@@ -24,4 +25,8 @@ Sentry.init({
     cookies: { deny: ["forwarded", "-ip", "remote-", "via", "-user"] },
     urlQueryParams: { deny: ["forwarded", "-ip", "remote-", "via", "-user"] },
   },
+
+  beforeSend: scrubInviteCodes,
+  beforeSendTransaction: scrubInviteCodes,
+  beforeBreadcrumb: scrubInviteCodes,
 });

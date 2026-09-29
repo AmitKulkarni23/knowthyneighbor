@@ -26,8 +26,18 @@ export async function sendJoinRequest(
     .select()
     .single();
 
-  if (error) logger.error('sendJoinRequest failed', { hostCoupleId: data.host_couple_id, code: error.code, message: error.message });
-  return { request, error: error?.message ?? null };
+  if (error) {
+    logger.error('sendJoinRequest failed', { hostCoupleId: data.host_couple_id, code: error.code, message: error.message });
+    return { request: null, error: error.message };
+  }
+
+  // Email the host; the function only accepts a fresh request this user just created
+  const { error: notifyError } = await supabase.functions.invoke('notify-new-request', {
+    body: { join_request_id: request.id },
+  });
+  if (notifyError) logger.warn('notify-new-request failed', { requestId: request.id, message: notifyError.message });
+
+  return { request, error: null };
 }
 
 export async function getJoinRequests(
@@ -66,7 +76,7 @@ export async function respondToJoinRequest(
   const supabase = createSupabaseClient();
   const { error } = await supabase
     .from('join_requests')
-    .update({ status, responded_at: new Date().toISOString() })
+    .update({ status })
     .eq('id', id);
 
   if (error) logger.error('respondToJoinRequest failed', { requestId: id, status, code: error.code, message: error.message });

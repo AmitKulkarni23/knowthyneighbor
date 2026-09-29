@@ -1,6 +1,6 @@
 import { createSupabaseClient } from '@/config/supabase';
 import { logger } from '@/lib/logger';
-import type { Availability, MealSlot } from '@/types/database';
+import type { Availability, AvailableSlot, MealSlot } from '@/types/database';
 
 type AvailabilitySlot = {
   day_of_week: number | null;
@@ -69,19 +69,14 @@ export async function setAvailability(
   return { error: insertError?.message ?? null };
 }
 
-export async function getFutureAvailability(
+// Another couple's upcoming open slots (their availability table rows are private)
+export async function getCoupleAvailability(
   coupleId: string
-): Promise<{ slots: Availability[]; error: string | null }> {
+): Promise<{ slots: AvailableSlot[]; error: string | null }> {
   const supabase = createSupabaseClient();
-  const today = new Date().toISOString().split('T')[0];
-  const { data, error } = await supabase
-    .from('availability')
-    .select('*')
-    .eq('couple_id', coupleId)
-    .gte('specific_date', today)
-    .order('specific_date', { ascending: true });
+  const { data, error } = await supabase.rpc('get_couple_availability', { p_couple_id: coupleId });
 
-  if (error) logger.error('getFutureAvailability failed', { coupleId, code: error.code, message: error.message });
+  if (error) logger.error('getCoupleAvailability failed', { coupleId, code: error.code, message: error.message });
   return { slots: data ?? [], error: error?.message ?? null };
 }
 

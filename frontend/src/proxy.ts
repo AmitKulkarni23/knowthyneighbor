@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import { SKIP_AUTH, MSW_ENABLED } from '@/config/env';
 
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -27,9 +28,9 @@ export async function proxy(request: NextRequest) {
   );
 
   // Skip all auth checks when auth is disabled or MSW is enabled
-  if (process.env.NEXT_PUBLIC_SKIP_AUTH === 'true' || process.env.NEXT_PUBLIC_MSW === 'true') {
+  if (SKIP_AUTH || MSW_ENABLED) {
     // Redirect /login straight to /discover when auth is skipped
-    if (process.env.NEXT_PUBLIC_SKIP_AUTH === 'true' && request.nextUrl.pathname === '/login') {
+    if (SKIP_AUTH && request.nextUrl.pathname === '/login') {
       return NextResponse.redirect(new URL('/discover', request.url));
     }
     return supabaseResponse;

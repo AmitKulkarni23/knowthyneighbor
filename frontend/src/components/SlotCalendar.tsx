@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import Chip from '@mui/material/Chip';
-import type { Availability, MealSlot } from '@/types/database';
+import type { AvailableSlot, MealSlot } from '@/types/database';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -23,7 +23,7 @@ function toDateStr(d: Date): string {
 }
 
 type Props = {
-  slots: Availability[];
+  slots: AvailableSlot[];
   value: string;
   onChange: (value: string) => void;
 };

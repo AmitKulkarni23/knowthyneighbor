@@ -9,8 +9,7 @@ import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
 import { boardBgSx, paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
 import SignInDialog from '@/components/SignInDialog';
-
-const SKIP_AUTH = process.env.NEXT_PUBLIC_SKIP_AUTH === 'true';
+import { SKIP_AUTH } from '@/config/env';
 
 const rotatedCard = (deg: number) => ({
   ...paperCardSx as object,

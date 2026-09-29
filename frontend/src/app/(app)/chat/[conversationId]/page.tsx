@@ -9,7 +9,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import { useAppContext } from '@/components/AppProvider';
 import useMessages from '@/hooks/useMessages';
-import { sendMessage } from '@/api/conversations';
+import { sendMessage, getConversation } from '@/api/conversations';
+import { blockCouple } from '@/api/blocks';
 
 type ChatPageProps = {
   params: Promise<{ conversationId: string }>;
@@ -17,12 +18,35 @@ type ChatPageProps = {
 
 export default function ChatPage({ params }: ChatPageProps) {
   const { conversationId } = use(params);
-  const { user } = useAppContext();
+  const { user, couple } = useAppContext();
   const { data: messages, loading, error, addOptimistic } = useMessages(conversationId);
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [otherCoupleId, setOtherCoupleId] = useState<string | null>(null);
+  const [blocked, setBlocked] = useState(false);
+  const [blockError, setBlockError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!couple) return;
+    getConversation(conversationId).then(({ conversation }) => {
+      if (!conversation) return;
+      setOtherCoupleId(conversation.couple_1_id === couple.id ? conversation.couple_2_id : conversation.couple_1_id);
+    });
+  }, [conversationId, couple]);
+
+  const handleBlock = async () => {
+    if (!couple || !otherCoupleId) return;
+    if (!window.confirm('Block this couple? They will no longer be able to message you or send you requests.')) return;
+    setBlockError(null);
+    const result = await blockCouple(couple.id, otherCoupleId);
+    if (result.error) {
+      setBlockError(result.error);
+      return;
+    }
+    setBlocked(true);
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -68,9 +92,20 @@ export default function ChatPage({ params }: ChatPageProps) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 128px)' }}>
       {/* Header */}
-      <Box sx={{ pb: 2, borderBottom: 1, borderColor: 'divider' }}>
+      <Box sx={{ pb: 2, borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Typography variant="h2">Chat</Typography>
+        {otherCoupleId && !blocked && (
+          <Button variant="outlined" size="small" onClick={handleBlock}>
+            Block
+          </Button>
+        )}
       </Box>
+      {blockError && (
+        <Alert severity="error" sx={{ mt: 1 }}>{blockError}</Alert>
+      )}
+      {blocked && (
+        <Alert severity="info" sx={{ mt: 1 }}>You blocked this couple. They can no longer message you.</Alert>
+      )}
 
       {/* Messages */}
       <Box sx={{ flexGrow: 1, overflowY: 'auto', py: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -137,7 +172,7 @@ export default function ChatPage({ params }: ChatPageProps) {
         <Button
           variant="contained"
           onClick={handleSend}
-          disabled={sending || !newMessage.trim()}
+          disabled={sending || blocked || !newMessage.trim()}
           sx={{ minWidth: 80 }}
         >
           Send

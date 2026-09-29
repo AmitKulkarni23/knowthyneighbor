@@ -7,8 +7,7 @@ export type Profile = {
   id: string;
   full_name: string;
   age: number;
-  ethnicity: string | null;
-  avatar_url: string | null;
+  avatar_url: string | null; // storage path in the avatars bucket, e.g. `<uid>/avatar.png`
   created_at: string;
   updated_at: string;
 };
@@ -50,6 +49,8 @@ export type Availability = {
   created_at: string;
 };
 
+export type AvailableSlot = Pick<Availability, 'specific_date' | 'time_slot'>;
+
 export type JoinRequest = {
   id: string;
   requester_couple_id: string;
@@ -60,6 +61,7 @@ export type JoinRequest = {
   status: RequestStatus;
   created_at: string;
   responded_at: string | null;
+  notified_at: string | null;
 };
 
 export type Conversation = {
@@ -73,7 +75,7 @@ export type Conversation = {
 export type Message = {
   id: string;
   conversation_id: string;
-  sender_profile_id: string;
+  sender_profile_id: string | null;
   body: string;
   created_at: string;
 };
@@ -88,4 +90,18 @@ export type DiscoveryCouple = {
   distance_miles: number;
   has_availability: boolean;
   has_pending_request: boolean;
+};
+
+export type CoupleProfile = {
+  couple_id: string;
+  couple_name: string | null;
+  bio: string | null;
+  city: string | null;
+  state: string | null;
+  hosting_preference: HostingPreference;
+  partner_1_first_name: string;
+  partner_1_age: number;
+  partner_1_avatar: string | null;
+  partner_2_first_name: string | null;
+  partner_2_age: number | null;
 };

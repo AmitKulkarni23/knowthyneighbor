@@ -180,7 +180,7 @@ export default function BrowsePage() {
 
                 return (
                   <Card
-                    key={c.couple_id}
+                    key={i}
                     sx={{
                       ...paperCardSx as object,
                       transform: `rotate(${deg}deg)`,
@@ -205,7 +205,7 @@ export default function BrowsePage() {
                         mt: 0.5,
                       }}
                     >
-                      {c.couple_name ?? 'A couple nearby'}
+                      A couple nearby
                     </Typography>
                     {c.bio && (
                       <Typography
