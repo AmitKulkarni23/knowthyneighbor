@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Alert from '@mui/material/Alert';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
@@ -49,18 +50,27 @@ export default function CoupleProfilePage() {
   const [couple, setCouple] = useState<CoupleProfile | null>(null);
   const [slots, setSlots] = useState<AvailableSlot[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([getCoupleProfile(coupleId), getCoupleAvailability(coupleId)]).then(
-      ([{ profile }, { slots: avail }]) => {
+      ([{ profile, error: profileError }, { slots: avail, error: slotsError }]) => {
         setCouple(profile);
         setSlots(avail);
+        setLoadError(profileError ?? slotsError);
         setLoading(false);
       }
     );
   }, [coupleId]);
 
   if (loading) return null;
+  if (loadError && !couple) {
+    return (
+      <Alert severity="error" sx={{ maxWidth: 520, mx: 'auto', mt: 4 }}>
+        Couldn&apos;t load this couple. {loadError}
+      </Alert>
+    );
+  }
   if (!couple) {
     return (
       <Box sx={{ maxWidth: 520, mx: 'auto', mt: 4, textAlign: 'center' }}>
@@ -200,7 +210,9 @@ export default function CoupleProfilePage() {
         <Box sx={pinGreenSx} />
         <Typography sx={{ ...labelSx, mt: 0.5 }}>Available dates</Typography>
 
-        {slots.length === 0 ? (
+        {loadError ? (
+          <Alert severity="error" sx={{ mt: 1 }}>Couldn&apos;t load their availability. {loadError}</Alert>
+        ) : slots.length === 0 ? (
           <Typography sx={{ ...valueSx, fontSize: '1.15rem', color: 'var(--ink-blue-light)' }}>
             No upcoming availability yet.
           </Typography>

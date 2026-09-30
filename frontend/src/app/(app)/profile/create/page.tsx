@@ -15,6 +15,7 @@ import { createProfile } from '@/api/profiles';
 import { uploadAvatar } from '@/api/storage';
 import { updateProfile } from '@/api/profiles';
 import { useAppContext } from '@/components/AppProvider';
+import { useToast } from '@/components/ToastProvider';
 import { profileSchema, type ProfileFormData } from '@/lib/validations';
 
 export default function CreateProfilePage() {
@@ -22,6 +23,7 @@ export default function CreateProfilePage() {
   const { user } = useAppContext();
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
+  const { showWarning } = useToast();
 
   const {
     register,
@@ -51,10 +53,11 @@ export default function CreateProfilePage() {
     }
 
     if (avatarFile && result.profile) {
+      // The profile is saved either way; don't block onboarding on the photo
       const uploadResult = await uploadAvatar(user.id, avatarFile);
-      if (uploadResult.path) {
-        await updateProfile(user.id, { avatar_url: uploadResult.path });
-      }
+      const photoError = uploadResult.error
+        ?? (uploadResult.path ? (await updateProfile(user.id, { avatar_url: uploadResult.path })).error : null);
+      if (photoError) showWarning(`Profile saved, but your photo didn't upload: ${photoError} You can add it later from your profile.`);
     }
 
     router.push('/couple/create');

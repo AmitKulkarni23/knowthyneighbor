@@ -1,5 +1,6 @@
 import { createSupabaseClient } from '@/config/supabase';
 import { logger } from '@/lib/logger';
+import { toUserMessage } from '@/lib/errors';
 import type { JoinRequest, MealSlot, RequestStatus } from '@/types/database';
 
 type SendJoinRequestData = {
@@ -28,14 +29,15 @@ export async function sendJoinRequest(
 
   if (error) {
     logger.error('sendJoinRequest failed', { hostCoupleId: data.host_couple_id, code: error.code, message: error.message });
-    return { request: null, error: error.message };
+    return { request: null, error: toUserMessage(error) };
   }
 
   // Email the host; the function only accepts a fresh request this user just created
   const { error: notifyError } = await supabase.functions.invoke('notify-new-request', {
     body: { join_request_id: request.id },
   });
-  if (notifyError) logger.warn('notify-new-request failed', { requestId: request.id, message: notifyError.message });
+  // The request itself is saved and visible in-app; a failed email is an ops issue, not a user one
+  if (notifyError) logger.error('notify-new-request failed', { requestId: request.id, error: notifyError });
 
   return { request, error: null };
 }
@@ -69,7 +71,7 @@ export async function getJoinRequests(): Promise<{
   return {
     received: all.filter((r) => r.direction === 'received'),
     sent: all.filter((r) => r.direction === 'sent'),
-    error: rpcError?.message ?? null,
+    error: toUserMessage(rpcError),
   };
 }
 
@@ -84,5 +86,5 @@ export async function respondToJoinRequest(
     .eq('id', id);
 
   if (error) logger.error('respondToJoinRequest failed', { requestId: id, status, code: error.code, message: error.message });
-  return { error: error?.message ?? null };
+  return { error: toUserMessage(error) };
 }

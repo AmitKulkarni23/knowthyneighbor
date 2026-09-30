@@ -11,6 +11,7 @@ import { useAppContext } from '@/components/AppProvider';
 import useMessages from '@/hooks/useMessages';
 import { sendMessage, getConversation } from '@/api/conversations';
 import { blockCouple } from '@/api/blocks';
+import { useToast } from '@/components/ToastProvider';
 
 type ChatPageProps = {
   params: Promise<{ conversationId: string }>;
@@ -19,7 +20,9 @@ type ChatPageProps = {
 export default function ChatPage({ params }: ChatPageProps) {
   const { conversationId } = use(params);
   const { user, couple } = useAppContext();
-  const { data: messages, loading, error, addOptimistic } = useMessages(conversationId);
+  const { data: messages, loading, error, liveConnected, addOptimistic } = useMessages(conversationId);
+  const { showError } = useToast();
+  const [conversationMissing, setConversationMissing] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
@@ -30,11 +33,19 @@ export default function ChatPage({ params }: ChatPageProps) {
 
   useEffect(() => {
     if (!couple) return;
-    getConversation(conversationId).then(({ conversation }) => {
-      if (!conversation) return;
+    getConversation(conversationId).then(({ conversation, error: convError }) => {
+      if (convError) {
+        showError(`Couldn't load this conversation. ${convError}`);
+        return;
+      }
+      // RLS hides conversations you're not part of, so "missing" covers both cases
+      if (!conversation) {
+        setConversationMissing(true);
+        return;
+      }
       setOtherCoupleId(conversation.couple_1_id === couple.id ? conversation.couple_2_id : conversation.couple_1_id);
     });
-  }, [conversationId, couple]);
+  }, [conversationId, couple, showError]);
 
   const handleBlock = async () => {
     if (!couple || !otherCoupleId) return;
@@ -89,6 +100,10 @@ export default function ChatPage({ params }: ChatPageProps) {
     return <Alert severity="error">{error}</Alert>;
   }
 
+  if (conversationMissing) {
+    return <Alert severity="warning">This conversation doesn&apos;t exist or you don&apos;t have access to it.</Alert>;
+  }
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 128px)' }}>
       {/* Header */}
@@ -102,6 +117,11 @@ export default function ChatPage({ params }: ChatPageProps) {
       </Box>
       {blockError && (
         <Alert severity="error" sx={{ mt: 1 }}>{blockError}</Alert>
+      )}
+      {!liveConnected && (
+        <Alert severity="warning" sx={{ mt: 1 }}>
+          Live updates are disconnected. New messages may not appear until you refresh the page.
+        </Alert>
       )}
       {blocked && (
         <Alert severity="info" sx={{ mt: 1 }}>You blocked this couple. They can no longer message you.</Alert>

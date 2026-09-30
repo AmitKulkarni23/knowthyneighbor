@@ -1,5 +1,6 @@
 import { createSupabaseClient } from '@/config/supabase';
 import { logger } from '@/lib/logger';
+import { toUserMessage } from '@/lib/errors';
 import type { Profile } from '@/types/database';
 
 type CreateProfileData = {
@@ -21,7 +22,7 @@ export async function createProfile(data: CreateProfileData): Promise<{ profile:
     .single();
 
   if (error) logger.error('createProfile failed', { code: error.code, message: error.message });
-  return { profile, error: error?.message ?? null };
+  return { profile, error: toUserMessage(error) };
 }
 
 export async function getProfile(id: string): Promise<{ profile: Profile | null; error: string | null }> {
@@ -33,7 +34,7 @@ export async function getProfile(id: string): Promise<{ profile: Profile | null;
     .maybeSingle();
 
   if (error) logger.error('getProfile failed', { profileId: id, code: error.code, message: error.message });
-  return { profile, error: error?.message ?? null };
+  return { profile, error: toUserMessage(error) };
 }
 
 export async function updateProfile(
@@ -49,5 +50,5 @@ export async function updateProfile(
     .maybeSingle();
 
   if (error) logger.error('updateProfile failed', { profileId: id, code: error.code, message: error.message });
-  return { profile, error: error?.message ?? null };
+  return { profile, error: toUserMessage(error) };
 }

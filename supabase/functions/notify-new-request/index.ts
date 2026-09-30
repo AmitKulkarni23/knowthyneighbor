@@ -6,10 +6,42 @@ const FROM_EMAIL = "KnowThyNeighbor <noreply@nextdoorish.com>";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // Only notify for requests created moments ago, so old rows can't be replayed
 const MAX_REQUEST_AGE_MS = 10 * 60 * 1000;
+// Browsers call this cross-origin via supabase.functions.invoke, which needs a CORS preflight
+const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ??
+  `${APP_URL},https://nextdoorish.com,http://localhost:3000,http://127.0.0.1:3000`)
+  .split(",").map((o) => o.trim()).filter(Boolean);
+
+function corsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get("Origin") ?? "";
+  return {
+    "Access-Control-Allow-Origin": ALLOWED_ORIGINS.includes(origin) ? origin : APP_URL,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Vary": "Origin",
+  };
+}
 
 // Called by the requester's browser right after inserting a join request.
 // The email content comes only from the stored row; each request notifies at most once.
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders(req) });
+  }
+  let response: Response;
+  try {
+    response = await handle(req);
+  } catch (err) {
+    // Unexpected failure: log the full stack so it shows up in the function logs
+    console.error("notify-new-request crashed", err instanceof Error ? err.stack : err);
+    response = new Response("Notification failed", { status: 500 });
+  }
+  for (const [key, value] of Object.entries(corsHeaders(req))) {
+    response.headers.set(key, value);
+  }
+  return response;
+});
+
+async function handle(req: Request): Promise<Response> {
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
   }
@@ -48,11 +80,15 @@ Deno.serve(async (req) => {
     return new Response("Invalid request", { status: 400 });
   }
 
-  const { data: joinRequest } = await supabaseAdmin
+  const { data: joinRequest, error: loadError } = await supabaseAdmin
     .from("join_requests")
     .select("id, requester_couple_id, host_couple_id, message, status, created_at, notified_at")
     .eq("id", joinRequestId)
     .maybeSingle();
+  if (loadError) {
+    console.error("Failed to load join request", joinRequestId, loadError);
+    return new Response("Notification failed", { status: 500 });
+  }
 
   const { data: callerCouple } = joinRequest
     ? await supabaseAdmin
@@ -99,7 +135,7 @@ Deno.serve(async (req) => {
   ]);
 
   if (requesterResult.error || hostResult.error) {
-    console.error("Failed to load couples for join request", joinRequest.id);
+    console.error("Failed to load couples for join request", joinRequest.id, requesterResult.error ?? hostResult.error);
     return new Response("Notification failed", { status: 500 });
   }
 
@@ -146,7 +182,7 @@ Deno.serve(async (req) => {
   const failures = sendResults.filter((r) => !r.ok);
   if (failures.length > 0) {
     const errorBodies = await Promise.all(failures.map((r) => r.text()));
-    console.error("Resend API errors:", errorBodies);
+    console.error("Resend API errors for join request", joinRequest.id, failures.map((r) => r.status), errorBodies);
     return new Response("Some emails failed to send", { status: 502 });
   }
 
@@ -154,7 +190,7 @@ Deno.serve(async (req) => {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
-});
+}
 
 function buildEmailHtml(
   requesterName: string,

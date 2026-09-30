@@ -1,5 +1,6 @@
 import { createSupabaseClient } from '@/config/supabase';
 import { logger } from '@/lib/logger';
+import { toUserMessage } from '@/lib/errors';
 
 // Must match the avatars bucket's allowed_mime_types and storage policy
 const AVATAR_EXTENSIONS: Record<string, string> = {
@@ -25,7 +26,7 @@ export async function uploadAvatar(
 
   if (error) {
     logger.error('uploadAvatar failed', { userId, filePath, message: error.message });
-    return { path: null, error: error.message };
+    return { path: null, error: toUserMessage(error) };
   }
 
   return { path: filePath, error: null };

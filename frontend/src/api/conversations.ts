@@ -1,5 +1,6 @@
 import { createSupabaseClient } from '@/config/supabase';
 import { logger } from '@/lib/logger';
+import { toUserMessage } from '@/lib/errors';
 import { isUuid } from '@/lib/uuid';
 import type { Conversation, Message } from '@/types/database';
 import type { RealtimeChannel } from '@supabase/supabase-js';
@@ -27,7 +28,7 @@ export async function getConversations(): Promise<{ conversations: ConversationW
     last_message_at: row.last_message_at,
   }));
 
-  return { conversations, error: error?.message ?? null };
+  return { conversations, error: toUserMessage(error) };
 }
 
 export async function getConversationByCouples(
@@ -46,7 +47,7 @@ export async function getConversationByCouples(
     .maybeSingle();
 
   if (error) logger.error('getConversationByCouples failed', { coupleId1, coupleId2, code: error.code, message: error.message });
-  return { conversation: data ?? null, error: error?.message ?? null };
+  return { conversation: data ?? null, error: toUserMessage(error) };
 }
 
 export async function getConversation(
@@ -60,7 +61,7 @@ export async function getConversation(
     .maybeSingle();
 
   if (error) logger.error('getConversation failed', { conversationId: id, code: error.code, message: error.message });
-  return { conversation: data ?? null, error: error?.message ?? null };
+  return { conversation: data ?? null, error: toUserMessage(error) };
 }
 
 export async function getMessages(
@@ -74,7 +75,7 @@ export async function getMessages(
     .order('created_at', { ascending: true });
 
   if (error) logger.error('getMessages failed', { conversationId, code: error.code, message: error.message });
-  return { messages: data ?? [], error: error?.message ?? null };
+  return { messages: data ?? [], error: toUserMessage(error) };
 }
 
 export async function sendMessage(
@@ -96,12 +97,13 @@ export async function sendMessage(
     .single();
 
   if (error) logger.error('sendMessage failed', { conversationId, code: error.code, message: error.message });
-  return { message, error: error?.message ?? null };
+  return { message, error: toUserMessage(error) };
 }
 
 export function subscribeToMessages(
   conversationId: string,
-  callback: (message: Message) => void
+  callback: (message: Message) => void,
+  onConnectionChange?: (connected: boolean) => void
 ): RealtimeChannel {
   const supabase = createSupabaseClient();
   const channel = supabase
@@ -119,7 +121,11 @@ export function subscribeToMessages(
       }
     )
     .subscribe((status, err) => {
-      if (err) logger.error('Realtime subscription error', { conversationId, status, error: err.message });
+      if (status === 'SUBSCRIBED') onConnectionChange?.(true);
+      if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+        logger.error('Realtime subscription error', { conversationId, status, error: err });
+        onConnectionChange?.(false);
+      }
     });
 
   return channel;

@@ -51,7 +51,8 @@ export default function DiscoverPage() {
   useEffect(() => {
     if (!selectedCouple) return;
     setSlotsLoading(true);
-    getCoupleAvailability(selectedCouple.couple_id).then(({ slots }) => {
+    getCoupleAvailability(selectedCouple.couple_id).then(({ slots, error: slotsError }) => {
+      if (slotsError) setSendError(`Couldn't load their open dates. ${slotsError}`);
       setHostSlots(slots);
       setSlotsLoading(false);
     });

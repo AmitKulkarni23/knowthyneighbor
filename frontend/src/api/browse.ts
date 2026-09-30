@@ -1,5 +1,6 @@
 import { createSupabaseClient } from '@/config/supabase';
 import { logger } from '@/lib/logger';
+import { toUserMessage } from '@/lib/errors';
 
 // Anonymous browse results carry no ids or names
 export type BrowseCouple = {
@@ -24,5 +25,5 @@ export async function browseCouplesPublic(
   });
 
   if (error) logger.error('browseCouplesPublic failed', { city, state, country, zipCode, code: error.code, message: error.message });
-  return { couples: data ?? [], error: error?.message ?? null };
+  return { couples: data ?? [], error: toUserMessage(error) };
 }

@@ -6,6 +6,9 @@ import { getCoupleByMember } from '@/api/couples';
 import type { User } from '@supabase/supabase-js';
 import type { Couple } from '@/types/database';
 import { SKIP_AUTH } from '@/config/env';
+import { logger } from '@/lib/logger';
+import { toUserMessage } from '@/lib/errors';
+import { useToast } from '@/components/ToastProvider';
 
 const FAKE_USER = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -22,7 +25,7 @@ type AppContextValue = {
   couple: Couple | null;
   authLoading: boolean;
   coupleLoading: boolean;
-  signOut: () => Promise<void>;
+  signOut: () => Promise<{ error: string | null }>;
   refreshCouple: () => Promise<void>;
 };
 
@@ -33,6 +36,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [couple, setCouple] = useState<Couple | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [coupleLoading, setCoupleLoading] = useState(true);
+  const { showError } = useToast();
 
   useEffect(() => {
     if (SKIP_AUTH) {
@@ -43,7 +47,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     const supabase = createSupabaseClient();
 
-    supabase.auth.getUser().then(({ data }) => {
+    supabase.auth.getUser().then(({ data, error }) => {
+      // AuthSessionMissingError just means signed out; anything else is a real failure
+      if (error && error.name !== 'AuthSessionMissingError') {
+        logger.error('AppProvider: getUser failed', { status: error.status, code: error.code, error });
+        showError(toUserMessage(error) ?? 'Could not check your sign-in.');
+      }
       setUser(data.user);
       setAuthLoading(false);
     });
@@ -55,7 +64,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     );
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [showError]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -68,21 +77,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     setCoupleLoading(true);
     getCoupleByMember(user.id).then((result) => {
+      if (result.error) showError(`Couldn't load your couple profile. ${result.error}`);
       setCouple(result.couple);
       setCoupleLoading(false);
     });
-  }, [user, authLoading]);
+  }, [user, authLoading, showError]);
 
   const signOut = useCallback(async () => {
     const supabase = createSupabaseClient();
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) logger.error('signOut failed', { status: error.status, code: error.code, error });
+    return { error: toUserMessage(error) };
   }, []);
 
   const refreshCouple = useCallback(async () => {
     if (!user) return;
     const result = await getCoupleByMember(user.id);
+    if (result.error) {
+      showError(`Couldn't refresh your couple profile. ${result.error}`);
+      return;
+    }
     setCouple(result.couple);
-  }, [user]);
+  }, [user, showError]);
 
   return (
     <AppContext.Provider value={{ user, couple, authLoading, coupleLoading, signOut, refreshCouple }}>

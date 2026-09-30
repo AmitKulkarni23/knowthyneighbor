@@ -3,6 +3,7 @@ import { Permanent_Marker, Caveat, Barlow_Condensed, Source_Sans_3 } from "next/
 import { Analytics } from "@vercel/analytics/next";
 import ThemeRegistry from "@/components/ThemeRegistry";
 import AuthErrorHandler from "@/components/AuthErrorHandler";
+import { ToastProvider } from "@/components/ToastProvider";
 import "./globals.css";
 
 const permanentMarker = Permanent_Marker({
@@ -46,9 +47,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body>
         <ThemeRegistry>
-          <AuthErrorHandler />
-          {children}
-          <Analytics />
+          <ToastProvider>
+            <AuthErrorHandler />
+            {children}
+            <Analytics />
+          </ToastProvider>
         </ThemeRegistry>
       </body>
     </html>
