@@ -4,32 +4,27 @@ import { isUuid } from '@/lib/uuid';
 import type { Conversation, Message } from '@/types/database';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
-export type ConversationWithNames = Conversation & {
-  couple_1_name: string | null;
-  couple_2_name: string | null;
+export type ConversationWithNames = {
+  id: string;
+  other_couple_id: string;
+  other_couple_name: string | null;
+  created_at: string;
+  last_message_at: string | null;
 };
 
-export async function getConversations(
-  coupleId: string
-): Promise<{ conversations: ConversationWithNames[]; error: string | null }> {
-  if (!isUuid(coupleId)) return { conversations: [], error: 'Invalid couple id' };
+export async function getConversations(): Promise<{ conversations: ConversationWithNames[]; error: string | null }> {
   const supabase = createSupabaseClient();
   const { data, error } = await supabase
-    .from('conversations')
-    .select('*, couple_1:couples!couple_1_id(couple_name), couple_2:couples!couple_2_id(couple_name)')
-    .or(`couple_1_id.eq.${coupleId},couple_2_id.eq.${coupleId}`)
-    .order('last_message_at', { ascending: false });
+    .rpc('get_conversations_for_user');
 
-  if (error) logger.error('getConversations failed', { coupleId, code: error.code, message: error.message });
+  if (error) logger.error('getConversations failed', { code: error.code, message: error.message });
 
   const conversations: ConversationWithNames[] = (data ?? []).map((row: any) => ({
-    id: row.id,
-    couple_1_id: row.couple_1_id,
-    couple_2_id: row.couple_2_id,
+    id: row.conversation_id,
+    other_couple_id: row.other_couple_id,
+    other_couple_name: row.other_couple_name,
     created_at: row.created_at,
     last_message_at: row.last_message_at,
-    couple_1_name: row.couple_1?.couple_name ?? null,
-    couple_2_name: row.couple_2?.couple_name ?? null,
   }));
 
   return { conversations, error: error?.message ?? null };

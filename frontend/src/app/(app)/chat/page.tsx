@@ -47,9 +47,7 @@ export default function ChatListPage() {
           {conversations.map((conv, i) => {
             const deg = rotations[i % rotations.length];
             const pin = pins[i % pins.length];
-            const otherName = conv.couple_1_id === couple?.id
-              ? (conv.couple_2_name ?? 'A couple nearby')
-              : (conv.couple_1_name ?? 'A couple nearby');
+            const otherName = conv.other_couple_name ?? 'A couple nearby';
             return (
               <Card
                 key={conv.id}

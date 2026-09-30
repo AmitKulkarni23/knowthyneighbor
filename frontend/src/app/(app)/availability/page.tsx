@@ -4,11 +4,10 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useAppContext } from '@/components/AppProvider';
 import AvailabilityCard from '@/components/AvailabilityCard';
+import EmptyStateCard from '@/components/EmptyStateCard';
 
 export default function AvailabilityPage() {
   const { couple } = useAppContext();
-
-  if (!couple) return null;
 
   return (
     <Box sx={{ maxWidth: 640, mx: 'auto' }}>
@@ -34,7 +33,9 @@ export default function AvailabilityPage() {
         Let neighbors know when you&apos;re free for a meal.
       </Typography>
 
-      <AvailabilityCard coupleId={couple.id} />
+      {couple ? <AvailabilityCard coupleId={couple.id} /> : (
+        <EmptyStateCard message="Set up your couple profile first — then you can pin the days and meals that work for you." pin="green" />
+      )}
     </Box>
   );
 }

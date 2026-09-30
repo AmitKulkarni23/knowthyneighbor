@@ -17,7 +17,7 @@ import { getProfile, updateProfile } from '@/api/profiles';
 import { updateCouple } from '@/api/couples';
 import { uploadAvatar, getAvatarPublicUrl } from '@/api/storage';
 import type { Profile } from '@/types/database';
-import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
+import { paperCardSx, pinRedSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
 
 const editSchema = z.object({
   coupleName: z.string().max(100, 'Name is too long').optional().or(z.literal('')),
@@ -45,7 +45,7 @@ const valueSx = {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, couple, signOut, refreshCouple } = useAppContext();
+  const { user, couple, refreshCouple } = useAppContext();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [partnerProfile, setPartnerProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -93,8 +93,6 @@ export default function ProfilePage() {
   }, [couple, editing, reset]);
 
   if (loading || !profile) return null;
-
-  const handleSignOut = async () => { await signOut(); router.push('/'); };
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -252,6 +250,21 @@ export default function ProfilePage() {
       >
         <Box sx={pinRedSx} />
 
+        {/* ── No couple yet ── */}
+        {!couple && (
+          <Box sx={{ textAlign: 'center', py: 2 }}>
+            <Typography sx={{ ...valueSx, mb: 2 }}>
+              You&apos;re all set personally — now set up your couple profile so other couples can find you.
+            </Typography>
+            <Button
+              onClick={() => router.push('/couple/create')}
+              sx={{ ...ctaButtonSx as object, py: '10px', px: '28px', fontSize: '0.95rem' }}
+            >
+              Create couple profile
+            </Button>
+          </Box>
+        )}
+
         {/* ── View mode ── */}
         {couple && !editing && (
           <>
@@ -262,7 +275,7 @@ export default function ProfilePage() {
                 {profile.full_name}, {profile.age}
               </Typography>
               {partnerProfile ? (
-                <Typography sx={valueSx}>
+                <Typography sx={{ ...valueSx, fontSize: '1.5rem', fontFamily: 'var(--font-marker), cursive', mb: 0.25 }}>
                   &amp; {partnerProfile.full_name}, {partnerProfile.age}
                 </Typography>
               ) : (
@@ -380,42 +393,6 @@ export default function ProfilePage() {
             </Box>
           </Box>
         )}
-      </Card>
-
-      {/* ── Sign out ── */}
-      <Card
-        sx={{
-          ...paperCardSx as object,
-          transform: 'rotate(0.5deg)',
-          p: '16px 24px',
-          position: 'relative',
-          '&:hover': {
-            ...(paperCardSx as any)['&:hover'],
-            transform: 'rotate(0.5deg) translateY(-4px) scale(1.01)',
-          },
-        }}
-      >
-        <Box sx={{ ...pinGreenSx as object }} />
-        <Button
-          fullWidth
-          onClick={handleSignOut}
-          sx={{
-            ...ctaButtonSx as object,
-            bgcolor: 'transparent',
-            color: 'var(--ink-blue)',
-            border: '2px solid var(--ink-blue)',
-            width: '100%',
-            mt: 1,
-            '&:hover': {
-              bgcolor: 'rgba(43, 69, 112, 0.06)',
-              color: 'var(--pushpin-red)',
-              borderColor: 'var(--pushpin-red)',
-              transform: 'scale(1.03)',
-            },
-          }}
-        >
-          Sign out
-        </Button>
       </Card>
     </Box>
   );

@@ -29,7 +29,10 @@ export const coupleSchema = z.object({
   city: z.string().min(1, 'City is required').max(100, 'City name is too long'),
   state: z.string().min(1, 'State / province is required').max(100, 'State name is too long'),
   country: z.string().min(1, 'Country is required'),
-  zipCode: z.string().max(20, 'Zip code is too long').optional().or(z.literal('')),
+  zipCode: z
+    .string()
+    .min(1, 'Zip code is required')
+    .max(20, 'Zip code is too long'),
   hostingPreference: z.enum(['host', 'visit', 'both']),
   partnerName: z
     .string()

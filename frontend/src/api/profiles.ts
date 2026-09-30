@@ -30,7 +30,7 @@ export async function getProfile(id: string): Promise<{ profile: Profile | null;
     .from('profiles')
     .select('*')
     .eq('id', id)
-    .single();
+    .maybeSingle();
 
   if (error) logger.error('getProfile failed', { profileId: id, code: error.code, message: error.message });
   return { profile, error: error?.message ?? null };
@@ -46,7 +46,7 @@ export async function updateProfile(
     .update(data)
     .eq('id', id)
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) logger.error('updateProfile failed', { profileId: id, code: error.code, message: error.message });
   return { profile, error: error?.message ?? null };

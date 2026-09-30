@@ -4,11 +4,18 @@ import AppNavBar from '@/components/AppNavBar';
 import { AppProvider, useAppContext } from '@/components/AppProvider';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 function AppShell({ children }: { children: React.ReactNode }) {
-  const { authLoading, coupleLoading } = useAppContext();
+  const { authLoading, coupleLoading, user } = useAppContext();
+  const router = useRouter();
 
-  if (authLoading || coupleLoading) {
+  useEffect(() => {
+    if (!authLoading && !user) router.replace('/');
+  }, [authLoading, user, router]);
+
+  if (authLoading || coupleLoading || !user) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
         <CircularProgress sx={{ color: 'var(--pushpin-red)' }} />

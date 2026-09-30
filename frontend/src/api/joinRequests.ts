@@ -40,32 +40,36 @@ export async function sendJoinRequest(
   return { request, error: null };
 }
 
-export async function getJoinRequests(
-  coupleId: string
-): Promise<{ received: JoinRequest[]; sent: JoinRequest[]; error: string | null }> {
+export type JoinRequestWithCouple = {
+  request_id: string;
+  direction: 'sent' | 'received';
+  other_couple_id: string;
+  other_couple_name: string | null;
+  meal_type: MealSlot;
+  proposed_date: string;
+  message: string | null;
+  status: RequestStatus;
+  created_at: string;
+};
+
+// Requests + the other couple's name via RPC — couples_select RLS blocks the
+// client from reading another couple's row directly.
+export async function getJoinRequests(): Promise<{
+  received: JoinRequestWithCouple[];
+  sent: JoinRequestWithCouple[];
+  error: string | null;
+}> {
   const supabase = createSupabaseClient();
+  const { data, error: rpcError } = await supabase
+    .rpc('get_join_requests_for_user');
 
-  const [receivedResult, sentResult] = await Promise.all([
-    supabase
-      .from('join_requests')
-      .select('*')
-      .eq('host_couple_id', coupleId)
-      .order('created_at', { ascending: false }),
-    supabase
-      .from('join_requests')
-      .select('*')
-      .eq('requester_couple_id', coupleId)
-      .order('created_at', { ascending: false }),
-  ]);
+  if (rpcError) logger.error('getJoinRequests failed', { code: rpcError.code, message: rpcError.message });
 
-  if (receivedResult.error) logger.error('getJoinRequests (received) failed', { coupleId, code: receivedResult.error.code, message: receivedResult.error.message });
-  if (sentResult.error) logger.error('getJoinRequests (sent) failed', { coupleId, code: sentResult.error.code, message: sentResult.error.message });
-
-  const error = receivedResult.error?.message ?? sentResult.error?.message ?? null;
+  const all = (data ?? []) as JoinRequestWithCouple[];
   return {
-    received: receivedResult.data ?? [],
-    sent: sentResult.data ?? [],
-    error,
+    received: all.filter((r) => r.direction === 'received'),
+    sent: all.filter((r) => r.direction === 'sent'),
+    error: rpcError?.message ?? null,
   };
 }
 

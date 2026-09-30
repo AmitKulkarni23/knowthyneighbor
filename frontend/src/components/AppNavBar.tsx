@@ -25,6 +25,9 @@ export default function AppNavBar() {
   const { signOut } = useAppContext();
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 
+  // During onboarding (no profile yet), the wordmark is the escape hatch — no menu.
+  const onboarding = pathname.startsWith('/profile/create');
+
   const handleSignOut = async () => {
     setMenuAnchor(null);
     await signOut();
@@ -51,13 +54,13 @@ export default function AppNavBar() {
             mr: 4,
             '&:hover': { color: 'var(--pushpin-red)' },
           }}
-          onClick={() => router.push('/discover')}
+          onClick={() => router.push(onboarding ? '/' : '/discover')}
         >
           KnowThyNeighbor
         </Typography>
 
         <Box sx={{ display: 'flex', gap: 0.5, flexGrow: 1 }}>
-          {navItems.map((item) => {
+          {!onboarding && navItems.map((item) => {
             const active = pathname.startsWith(item.href);
             return (
               <Button
@@ -86,64 +89,68 @@ export default function AppNavBar() {
           })}
         </Box>
 
-        <IconButton
-          onClick={(e) => setMenuAnchor(e.currentTarget)}
-          sx={{
-            width: 36,
-            height: 36,
-            bgcolor: 'var(--pushpin-red)',
-            color: 'var(--paper)',
-            fontFamily: 'var(--font-condensed), sans-serif',
-            fontSize: 14,
-            fontWeight: 700,
-            '&:hover': { bgcolor: 'var(--pushpin-red-hover)' },
-          }}
-        >
-          P
-        </IconButton>
-        <Menu
-          anchorEl={menuAnchor}
-          open={Boolean(menuAnchor)}
-          onClose={() => setMenuAnchor(null)}
-          slotProps={{
-            paper: {
-              sx: {
-                bgcolor: 'var(--paper)',
-                boxShadow: 'var(--shadow-card-lift)',
-                borderRadius: 0,
-              },
-            },
-          }}
-        >
-          <MenuItem
-            onClick={() => { setMenuAnchor(null); router.push('/profile'); }}
-            sx={{
-              fontFamily: 'var(--font-condensed), sans-serif',
-              fontWeight: 700,
-              fontSize: '1.1rem',
-              letterSpacing: '0.04em',
-              textTransform: 'uppercase',
-              color: 'var(--ink-blue)',
-              '&:hover': { color: 'var(--pushpin-red)', bgcolor: 'rgba(204, 68, 51, 0.04)' },
-            }}
-          >
-            Profile
-          </MenuItem>
-          <MenuItem
-            onClick={handleSignOut}
-            sx={{
-              fontFamily: 'var(--font-condensed), sans-serif',
-              fontWeight: 700,
-              fontSize: '1.1rem',
-              letterSpacing: '0.04em',
-              textTransform: 'uppercase',
-              color: 'var(--ink-blue)',
-              '&:hover': { color: 'var(--pushpin-red)', bgcolor: 'rgba(204, 68, 51, 0.04)' },
-            }}
-          >
-            Sign out
-          </MenuItem>
-        </Menu>
+        {!onboarding && (
+          <>
+            <IconButton
+              onClick={(e) => setMenuAnchor(e.currentTarget)}
+              sx={{
+                width: 36,
+                height: 36,
+                bgcolor: 'var(--pushpin-red)',
+                color: 'var(--paper)',
+                fontFamily: 'var(--font-condensed), sans-serif',
+                fontSize: 14,
+                fontWeight: 700,
+                '&:hover': { bgcolor: 'var(--pushpin-red-hover)' },
+              }}
+            >
+              P
+            </IconButton>
+            <Menu
+              anchorEl={menuAnchor}
+              open={Boolean(menuAnchor)}
+              onClose={() => setMenuAnchor(null)}
+              slotProps={{
+                paper: {
+                  sx: {
+                    bgcolor: 'var(--paper)',
+                    boxShadow: 'var(--shadow-card-lift)',
+                    borderRadius: 0,
+                  },
+                },
+              }}
+            >
+              <MenuItem
+                onClick={() => { setMenuAnchor(null); router.push('/profile'); }}
+                sx={{
+                  fontFamily: 'var(--font-condensed), sans-serif',
+                  fontWeight: 700,
+                  fontSize: '1.1rem',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                  color: 'var(--ink-blue)',
+                  '&:hover': { color: 'var(--pushpin-red)', bgcolor: 'rgba(204, 68, 51, 0.04)' },
+                }}
+              >
+                Profile
+              </MenuItem>
+              <MenuItem
+                onClick={handleSignOut}
+                sx={{
+                  fontFamily: 'var(--font-condensed), sans-serif',
+                  fontWeight: 700,
+                  fontSize: '1.1rem',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                  color: 'var(--ink-blue)',
+                  '&:hover': { color: 'var(--pushpin-red)', bgcolor: 'rgba(204, 68, 51, 0.04)' },
+                }}
+              >
+                Sign out
+              </MenuItem>
+            </Menu>
+          </>
+        )}
       </Toolbar>
     </AppBar>
   );

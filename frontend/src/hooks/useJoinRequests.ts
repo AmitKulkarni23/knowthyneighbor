@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getJoinRequests } from '@/api/joinRequests';
-import type { JoinRequest } from '@/types/database';
+import { getJoinRequests, type JoinRequestWithCouple } from '@/api/joinRequests';
 
 export default function useJoinRequests(coupleId: string | null) {
-  const [received, setReceived] = useState<JoinRequest[]>([]);
-  const [sent, setSent] = useState<JoinRequest[]>([]);
+  const [received, setReceived] = useState<JoinRequestWithCouple[]>([]);
+  const [sent, setSent] = useState<JoinRequestWithCouple[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,7 +16,7 @@ export default function useJoinRequests(coupleId: string | null) {
     }
 
     setLoading(true);
-    getJoinRequests(coupleId).then((result) => {
+    getJoinRequests().then((result) => {
       setReceived(result.received);
       setSent(result.sent);
       setError(result.error);
@@ -28,7 +27,7 @@ export default function useJoinRequests(coupleId: string | null) {
   const refetch = () => {
     if (!coupleId) return;
     setLoading(true);
-    getJoinRequests(coupleId).then((result) => {
+    getJoinRequests().then((result) => {
       setReceived(result.received);
       setSent(result.sent);
       setError(result.error);

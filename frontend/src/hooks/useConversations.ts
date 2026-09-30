@@ -16,7 +16,7 @@ export default function useConversations(coupleId: string | null) {
     }
 
     setLoading(true);
-    getConversations(coupleId).then((result) => {
+    getConversations().then((result) => {
       setData(result.conversations);
       setError(result.error);
       setLoading(false);

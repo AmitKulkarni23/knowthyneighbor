@@ -14,7 +14,7 @@ import { useAppContext } from '@/components/AppProvider';
 import useJoinRequests from '@/hooks/useJoinRequests';
 import { respondToJoinRequest } from '@/api/joinRequests';
 import { getConversationByCouples } from '@/api/conversations';
-import type { JoinRequest } from '@/types/database';
+import type { JoinRequestWithCouple } from '@/api/joinRequests';
 import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
 import EmptyStateCard from '@/components/EmptyStateCard';
 
@@ -35,9 +35,8 @@ export default function RequestsPage() {
     const map: Record<string, string> = {};
     await Promise.all(
       accepted.map(async (r) => {
-        const otherCoupleId = r.requester_couple_id === couple.id ? r.host_couple_id : r.requester_couple_id;
-        const { conversation } = await getConversationByCouples(couple.id, otherCoupleId);
-        if (conversation) map[r.id] = conversation.id;
+        const { conversation } = await getConversationByCouples(couple.id, r.other_couple_id);
+        if (conversation) map[r.request_id] = conversation.id;
       })
     );
     setConversationMap(map);
@@ -71,13 +70,13 @@ export default function RequestsPage() {
     }
   };
 
-  const renderRequest = (request: JoinRequest, type: 'received' | 'sent', index: number) => {
+  const renderRequest = (request: JoinRequestWithCouple, type: 'received' | 'sent', index: number) => {
     const deg = rotations[index % rotations.length];
     const pin = index % 3 === 0 ? pinRedSx : index % 3 === 1 ? pinGreenSx : pinBlueSx;
 
     return (
       <Card
-        key={request.id}
+        key={request.request_id}
         sx={{
           ...paperCardSx as object,
           transform: `rotate(${deg}deg)`,
@@ -102,7 +101,20 @@ export default function RequestsPage() {
               letterSpacing: '0.02em',
             }}
           >
-            {request.meal_type.charAt(0).toUpperCase() + request.meal_type.slice(1)} request
+            {request.meal_type.charAt(0).toUpperCase() + request.meal_type.slice(1)} request{' '}
+            {type === 'received' ? 'from' : 'to'}{' '}
+            <Box
+              component="a"
+              href={`/couple/${request.other_couple_id}`}
+              sx={{
+                color: 'var(--pushpin-red)',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+              }}
+              onClick={(e) => { e.preventDefault(); router.push(`/couple/${request.other_couple_id}`); }}
+            >
+              {request.other_couple_name ?? 'A couple nearby'}
+            </Box>
           </Typography>
           <Chip
             label={request.status.toUpperCase()}
@@ -135,10 +147,10 @@ export default function RequestsPage() {
           {new Date(request.created_at).toLocaleDateString()}
         </Typography>
 
-        {request.status === 'accepted' && conversationMap[request.id] && (
+        {request.status === 'accepted' && conversationMap[request.request_id] && (
           <Box sx={{ display: 'flex', gap: 1.5 }}>
             <Button
-              onClick={() => router.push(`/chat/${conversationMap[request.id]}`)}
+              onClick={() => router.push(`/chat/${conversationMap[request.request_id]}`)}
               sx={{
                 ...ctaButtonSx as object,
                 py: '10px',
@@ -154,8 +166,8 @@ export default function RequestsPage() {
         {type === 'received' && request.status === 'pending' && (
           <Box sx={{ display: 'flex', gap: 1.5 }}>
             <Button
-              onClick={() => handleRespond(request.id, 'accepted')}
-              disabled={responding === request.id}
+              onClick={() => handleRespond(request.request_id, 'accepted')}
+              disabled={responding === request.request_id}
               sx={{
                 ...ctaButtonSx as object,
                 py: '10px',
@@ -166,8 +178,8 @@ export default function RequestsPage() {
               Accept
             </Button>
             <Button
-              onClick={() => handleRespond(request.id, 'declined')}
-              disabled={responding === request.id}
+              onClick={() => handleRespond(request.request_id, 'declined')}
+              disabled={responding === request.request_id}
               sx={{
                 ...ctaButtonSx as object,
                 py: '10px',
