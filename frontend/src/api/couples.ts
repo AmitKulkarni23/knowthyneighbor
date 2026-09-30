@@ -2,6 +2,7 @@ import { createSupabaseClient } from '@/config/supabase';
 import { geocodeLocation, geocodeZip } from '@/lib/geocode';
 import { isUuid } from '@/lib/uuid';
 import { logger } from '@/lib/logger';
+import { toUserMessage } from '@/lib/errors';
 import type { Couple, CoupleProfile, HostingPreference } from '@/types/database';
 
 type CreateCoupleData = {
@@ -52,7 +53,7 @@ export async function createCouple(
 
   if (error || !couple) {
     logger.error('createCouple failed', { code: error?.code, message: error?.message, hint: error?.details });
-    return { couple: null, error: error?.message ?? 'Failed to create couple' };
+    return { couple: null, error: toUserMessage(error) ?? 'Failed to create couple' };
   }
 
   // Create pending partner row
@@ -66,7 +67,7 @@ export async function createCouple(
 
   if (partnerError) {
     logger.error('createCouple: pending partner insert failed', { coupleId: couple.id, code: partnerError.code, message: partnerError.message });
-    return { couple, error: partnerError.message };
+    return { couple, error: toUserMessage(partnerError) };
   }
 
   return { couple, error: null };
@@ -82,7 +83,7 @@ export async function getCoupleProfile(
     .maybeSingle<CoupleProfile>();
 
   if (error) logger.error('getCoupleProfile failed', { coupleId: id, code: error.code, message: error.message });
-  return { profile: data ?? null, error: error?.message ?? null };
+  return { profile: data ?? null, error: toUserMessage(error) };
 }
 
 export async function updateCouple(
@@ -98,7 +99,7 @@ export async function updateCouple(
     .single();
 
   if (error) logger.error('updateCouple failed', { coupleId: id, code: error.code, message: error.message });
-  return { couple, error: error?.message ?? null };
+  return { couple, error: toUserMessage(error) };
 }
 
 export async function getCoupleByMember(
@@ -110,10 +111,11 @@ export async function getCoupleByMember(
     .from('couples')
     .select('*')
     .or(`partner_1_id.eq.${userId},partner_2_id.eq.${userId}`)
-    .single();
+    .maybeSingle();
 
-  if (error && error.code !== 'PGRST116') logger.error('getCoupleByMember failed', { userId, code: error.code, message: error.message });
-  return { couple, error: error?.message ?? null };
+  // No couple yet is not an error (data is null); anything else is a real failure
+  if (error) logger.error('getCoupleByMember failed', { userId, code: error.code, message: error.message });
+  return { couple, error: toUserMessage(error) };
 }
 
 export async function claimPartnerInvite(
@@ -127,5 +129,5 @@ export async function claimPartnerInvite(
   });
 
   if (error) logger.error('claimPartnerInvite failed', { coupleId, code: error.code, message: error.message });
-  return { success: !error, error: error?.message ?? null };
+  return { success: !error, error: toUserMessage(error) };
 }

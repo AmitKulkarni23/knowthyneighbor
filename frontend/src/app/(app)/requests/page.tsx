@@ -17,6 +17,7 @@ import { getConversationByCouples } from '@/api/conversations';
 import type { JoinRequestWithCouple } from '@/api/joinRequests';
 import { paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
 import EmptyStateCard from '@/components/EmptyStateCard';
+import { useToast } from '@/components/ToastProvider';
 
 const rotations = [1.2, -0.8, 1.5, -1.1, 0.6, -1.8, 0.9, -0.5];
 
@@ -28,19 +29,23 @@ export default function RequestsPage() {
   const [responding, setResponding] = useState<string | null>(null);
   const [respondError, setRespondError] = useState<string | null>(null);
   const [conversationMap, setConversationMap] = useState<Record<string, string>>({});
+  const { showError } = useToast();
 
   const loadConversations = useCallback(async () => {
     if (!couple) return;
     const accepted = [...received, ...sent].filter(r => r.status === 'accepted');
     const map: Record<string, string> = {};
+    let failed = false;
     await Promise.all(
       accepted.map(async (r) => {
-        const { conversation } = await getConversationByCouples(couple.id, r.other_couple_id);
+        const { conversation, error: convError } = await getConversationByCouples(couple.id, r.other_couple_id);
+        if (convError) failed = true;
         if (conversation) map[r.request_id] = conversation.id;
       })
     );
+    if (failed) showError("Couldn't load some of your chats. Refresh to try again.");
     setConversationMap(map);
-  }, [couple, received, sent]);
+  }, [couple, received, sent, showError]);
 
   useEffect(() => { loadConversations(); }, [loadConversations]);
 

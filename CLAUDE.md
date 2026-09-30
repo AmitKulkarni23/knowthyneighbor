@@ -156,6 +156,12 @@ When building new screens, import shared sx objects from `board.ts` for cork bac
 - Extensions live in the `extensions` schema, never `public` (PostGIS in `public` exposes `spatial_ref_sys` without RLS).
 - After changing migrations, run `supabase db reset` and `psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -f supabase/scripts/security_regression.sql`.
 
+## Error Handling
+
+- Log failures with `logger` (`frontend/src/lib/logger.ts`): `logger.error` reports to Sentry with a stack trace (pass a thrown error as `context.error` to keep its original stack). Expected rule rejections (`P0001`, `23505`, `23514`) are kept as breadcrumbs.
+- Never show raw Supabase/Postgres errors in the UI; API functions return `toUserMessage(error)` from `frontend/src/lib/errors.ts`.
+- Show failures inline with MUI `Alert` where the user acted, or with `useToast()` (`components/ToastProvider.tsx`) for background loads. Render crashes are caught by `app/error.tsx` and `app/(app)/error.tsx`.
+
 ## Infrastructure as Code
 
 All infrastructure is managed as code via the Supabase CLI — no Terraform, no ClickOps.

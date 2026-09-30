@@ -8,6 +8,7 @@ export default function useMessages(conversationId: string | null) {
   const [data, setData] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [liveConnected, setLiveConnected] = useState(true);
 
   useEffect(() => {
     if (!conversationId) {
@@ -28,7 +29,7 @@ export default function useMessages(conversationId: string | null) {
         if (prev.some((m) => m.id === newMessage.id)) return prev;
         return [...prev, newMessage];
       });
-    });
+    }, setLiveConnected);
 
     return () => {
       channel.unsubscribe();
@@ -39,5 +40,5 @@ export default function useMessages(conversationId: string | null) {
     setData((prev) => [...prev, message]);
   }, []);
 
-  return { data, loading, error, addOptimistic };
+  return { data, loading, error, liveConnected, addOptimistic };
 }

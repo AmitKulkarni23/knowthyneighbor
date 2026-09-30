@@ -12,6 +12,7 @@ import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import TextField from '@mui/material/TextField';
 import Alert from '@mui/material/Alert';
+import { useToast } from '@/components/ToastProvider';
 import { useAppContext } from '@/components/AppProvider';
 import { getProfile, updateProfile } from '@/api/profiles';
 import { updateCouple } from '@/api/couples';
@@ -54,6 +55,8 @@ export default function ProfilePage() {
   const [photoError, setPhotoError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const { showError } = useToast();
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   const {
@@ -71,7 +74,9 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!user) return;
-    getProfile(user.id).then(({ profile: p }) => {
+    getProfile(user.id).then(({ profile: p, error }) => {
+      // Only a confirmed-missing profile means onboarding; a failed load must not send users there
+      if (error) { setLoadError(error); setLoading(false); return; }
       if (!p) { router.replace('/profile/create'); return; }
       setProfile(p);
       setLoading(false);
@@ -80,8 +85,11 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!couple?.partner_2_id) return;
-    getProfile(couple.partner_2_id).then(({ profile: p }) => setPartnerProfile(p));
-  }, [couple]);
+    getProfile(couple.partner_2_id).then(({ profile: p, error }) => {
+      if (error) showError(`Couldn't load your partner's profile. ${error}`);
+      setPartnerProfile(p);
+    });
+  }, [couple, showError]);
 
   useEffect(() => {
     if (couple && editing) {
@@ -92,6 +100,7 @@ export default function ProfilePage() {
     }
   }, [couple, editing, reset]);
 
+  if (loadError) return <Alert severity="error">Couldn&apos;t load your profile. {loadError}</Alert>;
   if (loading || !profile) return null;
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,7 +111,8 @@ export default function ProfilePage() {
     const uploadResult = await uploadAvatar(user.id, file);
     if (uploadResult.error) { setPhotoError(uploadResult.error); setPhotoUploading(false); return; }
     if (uploadResult.path) {
-      const { profile: updated } = await updateProfile(user.id, { avatar_url: uploadResult.path });
+      const { profile: updated, error } = await updateProfile(user.id, { avatar_url: uploadResult.path });
+      if (error) setPhotoError(error);
       if (updated) setProfile(updated);
     }
     setPhotoUploading(false);

@@ -1,5 +1,6 @@
 import { createSupabaseClient } from '@/config/supabase';
 import { logger } from '@/lib/logger';
+import { toUserMessage } from '@/lib/errors';
 import type { Availability, AvailableSlot, MealSlot } from '@/types/database';
 
 type AvailabilitySlot = {
@@ -20,7 +21,7 @@ export async function getAvailability(
     .order('specific_date', { ascending: true });
 
   if (error) logger.error('getAvailability failed', { coupleId, code: error.code, message: error.message });
-  return { slots: data ?? [], error: error?.message ?? null };
+  return { slots: data ?? [], error: toUserMessage(error) };
 }
 
 export async function getAvailabilityForWeek(
@@ -38,7 +39,7 @@ export async function getAvailabilityForWeek(
     .order('specific_date', { ascending: true });
 
   if (error) logger.error('getAvailabilityForWeek failed', { coupleId, startDate, endDate, code: error.code, message: error.message });
-  return { slots: data ?? [], error: error?.message ?? null };
+  return { slots: data ?? [], error: toUserMessage(error) };
 }
 
 export async function setAvailability(
@@ -55,7 +56,7 @@ export async function setAvailability(
 
   if (deleteError) {
     logger.error('setAvailability: delete failed', { coupleId, code: deleteError.code, message: deleteError.message });
-    return { error: deleteError.message };
+    return { error: toUserMessage(deleteError) };
   }
 
   if (slots.length === 0) return { error: null };
@@ -66,7 +67,7 @@ export async function setAvailability(
     .insert(rows);
 
   if (insertError) logger.error('setAvailability: insert failed', { coupleId, code: insertError.code, message: insertError.message });
-  return { error: insertError?.message ?? null };
+  return { error: toUserMessage(insertError) };
 }
 
 // Another couple's upcoming open slots (their availability table rows are private)
@@ -77,7 +78,7 @@ export async function getCoupleAvailability(
   const { data, error } = await supabase.rpc('get_couple_availability', { p_couple_id: coupleId });
 
   if (error) logger.error('getCoupleAvailability failed', { coupleId, code: error.code, message: error.message });
-  return { slots: data ?? [], error: error?.message ?? null };
+  return { slots: data ?? [], error: toUserMessage(error) };
 }
 
 export async function setAvailabilityForWeek(
@@ -97,7 +98,7 @@ export async function setAvailabilityForWeek(
 
   if (deleteError) {
     logger.error('setAvailabilityForWeek: delete failed', { coupleId, startDate, endDate, code: deleteError.code, message: deleteError.message });
-    return { error: deleteError.message };
+    return { error: toUserMessage(deleteError) };
   }
 
   if (slots.length === 0) return { error: null };
@@ -108,5 +109,5 @@ export async function setAvailabilityForWeek(
     .insert(rows);
 
   if (insertError) logger.error('setAvailabilityForWeek: insert failed', { coupleId, code: insertError.code, message: insertError.message });
-  return { error: insertError?.message ?? null };
+  return { error: toUserMessage(insertError) };
 }

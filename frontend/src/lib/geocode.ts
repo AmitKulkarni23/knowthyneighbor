@@ -22,7 +22,7 @@ export async function geocodeZip(zip: string): Promise<GeoResult> {
     const results = await resp.json();
     return parseGeoResult(results?.[0]);
   } catch (err) {
-    logger.error('geocodeZip: network error', { zip, error: (err as Error).message });
+    logger.error('geocodeZip: network error', { zip, error: err });
     return null;
   }
 }
@@ -41,7 +41,7 @@ export async function geocodeLocation(input: string): Promise<GeoResult> {
     const results = await resp.json();
     return parseGeoResult(results?.[0]);
   } catch (err) {
-    logger.error('geocodeLocation: network error', { input: trimmed, error: (err as Error).message });
+    logger.error('geocodeLocation: network error', { input: trimmed, error: err });
     return null;
   }
 }

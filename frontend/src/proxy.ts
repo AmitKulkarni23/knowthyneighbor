@@ -70,8 +70,9 @@ export async function proxy(request: NextRequest) {
   return supabaseResponse;
 }
 
+// `monitoring` is the Sentry tunnel route (next.config.ts); running auth on it would slow or break error reporting
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.png$|.*\\.jpg$|.*\\.svg$|.*\\.css$).*)',
+    '/((?!_next/static|_next/image|monitoring|favicon.ico|sitemap.xml|robots.txt|.*\\.png$|.*\\.jpg$|.*\\.svg$|.*\\.css$).*)',
   ],
 };

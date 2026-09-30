@@ -10,6 +10,7 @@ import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { useState } from 'react';
+import { useToast } from '@/components/ToastProvider';
 import { useAppContext } from '@/components/AppProvider';
 
 const navItems = [
@@ -23,6 +24,7 @@ export default function AppNavBar() {
   const pathname = usePathname();
   const router = useRouter();
   const { signOut } = useAppContext();
+  const { showError } = useToast();
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 
   // During onboarding (no profile yet), the wordmark is the escape hatch — no menu.
@@ -30,7 +32,11 @@ export default function AppNavBar() {
 
   const handleSignOut = async () => {
     setMenuAnchor(null);
-    await signOut();
+    const { error } = await signOut();
+    if (error) {
+      showError(`Couldn't sign you out. ${error}`);
+      return;
+    }
     router.push('/');
   };
 
