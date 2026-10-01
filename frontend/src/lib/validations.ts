@@ -13,7 +13,8 @@ export const profileSchema = z.object({
   fullName: z
     .string()
     .min(1, 'Full name is required')
-    .max(100, 'Name is too long'),
+    .max(100, 'Name is too long')
+    .regex(/^[^\p{Cc}<>]+$/u, 'Name contains invalid characters'),
   age: z
     .number({ error: 'Age is required' })
     .int({ error: 'Age must be a whole number' })
@@ -23,21 +24,29 @@ export const profileSchema = z.object({
 
 export type ProfileFormData = z.infer<typeof profileSchema>;
 
+const noControlOrHtml = /^[^\p{Cc}<>]+$/u;
+
 export const coupleSchema = z.object({
-  coupleName: z.string().min(1, 'Couple name is required').max(100, 'Name is too long'),
-  bio: z.string().max(500, 'Bio must be under 500 characters').optional().or(z.literal('')),
-  city: z.string().min(1, 'City is required').max(100, 'City name is too long'),
-  state: z.string().min(1, 'State / province is required').max(100, 'State name is too long'),
-  country: z.string().min(1, 'Country is required'),
+  coupleName: z.string().min(1, 'Couple name is required').max(100, 'Name is too long')
+    .regex(noControlOrHtml, 'Name contains invalid characters'),
+  bio: z.string().max(300, 'Bio must be under 300 characters').optional().or(z.literal('')),
+  city: z.string().min(1, 'City is required').max(100, 'City name is too long')
+    .regex(noControlOrHtml, 'City contains invalid characters'),
+  state: z.string().min(1, 'State / province is required').max(100, 'State name is too long')
+    .regex(noControlOrHtml, 'State contains invalid characters'),
+  country: z.string().min(1, 'Country is required').max(100, 'Country name is too long')
+    .regex(noControlOrHtml, 'Country contains invalid characters'),
   zipCode: z
     .string()
     .min(1, 'Zip code is required')
-    .max(20, 'Zip code is too long'),
+    .max(10, 'Zip code is too long')
+    .regex(/^[\dA-Za-z\s-]+$/, 'Zip code must contain only letters, numbers, spaces or dashes'),
   hostingPreference: z.enum(['host', 'visit', 'both']),
   partnerName: z
     .string()
     .min(1, "Partner's name is required")
-    .max(100, 'Name is too long'),
+    .max(100, 'Name is too long')
+    .regex(noControlOrHtml, 'Name contains invalid characters'),
   partnerAge: z
     .number({ error: "Partner's age is required" })
     .int({ error: 'Age must be a whole number' })
@@ -49,7 +58,7 @@ export type CoupleFormData = z.infer<typeof coupleSchema>;
 
 export const joinRequestSchema = z.object({
   slot: z.string().min(1, 'Pick a date and meal'),
-  message: z.string().max(500, 'Message must be under 500 characters').optional().or(z.literal('')),
+  message: z.string().max(300, 'Message must be under 300 characters').optional().or(z.literal('')),
 });
 
 export type JoinRequestFormData = z.infer<typeof joinRequestSchema>;
