@@ -24,7 +24,7 @@ export const profileSchema = z.object({
 export type ProfileFormData = z.infer<typeof profileSchema>;
 
 export const coupleSchema = z.object({
-  coupleName: z.string().max(100, 'Name is too long').optional().or(z.literal('')),
+  coupleName: z.string().min(1, 'Couple name is required').max(100, 'Name is too long'),
   bio: z.string().max(500, 'Bio must be under 500 characters').optional().or(z.literal('')),
   city: z.string().min(1, 'City is required').max(100, 'City name is too long'),
   state: z.string().min(1, 'State / province is required').max(100, 'State name is too long'),

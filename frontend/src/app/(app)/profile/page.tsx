@@ -212,7 +212,7 @@ export default function ProfilePage() {
             }}
           >
             <Typography sx={{ ...valueSx, color: 'var(--ink-blue-light)', fontSize: '1.2rem' }}>
-              No photo yet
+              No couple photo yet
             </Typography>
           </Box>
         )}
@@ -239,7 +239,7 @@ export default function ProfilePage() {
               '&:hover': { color: 'var(--pushpin-red)', bgcolor: 'transparent' },
             }}
           >
-            {photoUploading ? 'Uploading...' : profile.avatar_url ? 'Change photo' : 'Upload photo'}
+            {photoUploading ? 'Uploading...' : profile.avatar_url ? 'Change photo' : 'Upload couple photo'}
           </Button>
           {photoError && (
             <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1rem', color: 'var(--pushpin-red)' }}>
