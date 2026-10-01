@@ -37,10 +37,11 @@ export default function ContactPage() {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      setResult({ type: 'success', text: 'Message sent! We\'ll get back to you soon.' });
+      setResult({ type: 'success', text: 'Message sent! We\'ll get back to you soon. Redirecting...' });
       setName('');
       setEmail('');
       setMessage('');
+      setTimeout(() => router.push('/'), 3000);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to send message. Please try again.';
       setResult({ type: 'error', text: msg });
@@ -52,20 +53,37 @@ export default function ContactPage() {
   return (
     <Box sx={{ ...boardBgSx as object, px: 2, py: 5, pb: 10 }}>
       <Box sx={{ maxWidth: 600, mx: 'auto', position: 'relative', zIndex: 1 }}>
-        <Typography
-          onClick={() => router.push('/')}
-          sx={{
-            fontFamily: 'var(--font-marker), cursive',
-            fontSize: 'clamp(1.6rem, 4vw, 2.2rem)',
-            color: 'var(--paper)',
-            textShadow: '1px 2px 4px rgba(60, 40, 20, 0.4)',
-            mb: 4,
-            cursor: 'pointer',
-            textAlign: 'center',
-          }}
-        >
-          Nextdoorish
-        </Typography>
+        <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Typography
+            onClick={() => router.push('/')}
+            sx={{
+              fontFamily: 'var(--font-marker), cursive',
+              fontSize: 'clamp(1.6rem, 4vw, 2.2rem)',
+              color: 'var(--paper)',
+              textShadow: '1px 2px 4px rgba(60, 40, 20, 0.4)',
+              cursor: 'pointer',
+              mb: 0.5,
+            }}
+          >
+            Nextdoorish
+          </Typography>
+          <Typography
+            onClick={() => router.push('/')}
+            sx={{
+              fontFamily: 'var(--font-condensed), sans-serif',
+              fontWeight: 700,
+              fontSize: '0.9rem',
+              color: 'var(--paper)',
+              opacity: 0.8,
+              cursor: 'pointer',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+              '&:hover': { opacity: 1, textDecoration: 'underline' },
+            }}
+          >
+            &larr; Back to Home
+          </Typography>
+        </Box>
 
         <Card
           sx={{
