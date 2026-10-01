@@ -381,6 +381,7 @@ deno_version = 2
 
 [edge_runtime.secrets]
 RESEND_API_KEY = "env(RESEND_API_KEY)"
+CONTACT_EMAIL = "env(CONTACT_EMAIL)"
 
 [analytics]
 enabled = true
