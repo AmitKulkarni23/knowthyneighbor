@@ -139,7 +139,7 @@ export default function Home() {
             Find couples in your neighborhood for shared meals
           </Typography>
           <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.5rem', lineHeight: 1.5, color: 'var(--ink-blue)', mb: 3, maxWidth: '55ch' }}>
-            Create a simple couple profile with your name, age, and zip code. Browse other couples nearby. Send a request to join them for dinner, lunch, or brunch. Chat to plan the details. Then sit down and share a real meal with real people.
+            Create a couple profile, browse neighbors nearby, and send a dinner request. Chat to plan, then share a real meal with real people.
           </Typography>
           <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.5rem', color: 'var(--thumbtack-green)', p: '12px 16px', bgcolor: 'rgba(91, 127, 94, 0.06)', mb: '20px', lineHeight: 1.5 }}>
             We only ask for your zip code. We never ask for or store your home address. Share it only when you&apos;re ready, directly in chat, after you&apos;ve done your own due diligence.
