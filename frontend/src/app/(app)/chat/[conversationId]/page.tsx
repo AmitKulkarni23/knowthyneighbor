@@ -10,7 +10,6 @@ import Alert from '@mui/material/Alert';
 import { useAppContext } from '@/components/AppProvider';
 import useMessages from '@/hooks/useMessages';
 import { sendMessage, getConversation } from '@/api/conversations';
-import { blockCouple } from '@/api/blocks';
 import { useToast } from '@/components/ToastProvider';
 
 type ChatPageProps = {
@@ -27,10 +26,6 @@ export default function ChatPage({ params }: ChatPageProps) {
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [otherCoupleId, setOtherCoupleId] = useState<string | null>(null);
-  const [blocked, setBlocked] = useState(false);
-  const [blockError, setBlockError] = useState<string | null>(null);
-
   useEffect(() => {
     if (!couple) return;
     getConversation(conversationId).then(({ conversation, error: convError }) => {
@@ -38,26 +33,11 @@ export default function ChatPage({ params }: ChatPageProps) {
         showError(`Couldn't load this conversation. ${convError}`);
         return;
       }
-      // RLS hides conversations you're not part of, so "missing" covers both cases
       if (!conversation) {
         setConversationMissing(true);
-        return;
       }
-      setOtherCoupleId(conversation.couple_1_id === couple.id ? conversation.couple_2_id : conversation.couple_1_id);
     });
   }, [conversationId, couple, showError]);
-
-  const handleBlock = async () => {
-    if (!couple || !otherCoupleId) return;
-    if (!window.confirm('Block this couple? They will no longer be able to message you or send you requests.')) return;
-    setBlockError(null);
-    const result = await blockCouple(couple.id, otherCoupleId);
-    if (result.error) {
-      setBlockError(result.error);
-      return;
-    }
-    setBlocked(true);
-  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -107,24 +87,13 @@ export default function ChatPage({ params }: ChatPageProps) {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 128px)' }}>
       {/* Header */}
-      <Box sx={{ pb: 2, borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <Box sx={{ pb: 2, borderBottom: 1, borderColor: 'divider' }}>
         <Typography variant="h2">Chat</Typography>
-        {otherCoupleId && !blocked && (
-          <Button variant="outlined" size="small" onClick={handleBlock}>
-            Block
-          </Button>
-        )}
       </Box>
-      {blockError && (
-        <Alert severity="error" sx={{ mt: 1 }}>{blockError}</Alert>
-      )}
       {!liveConnected && (
         <Alert severity="warning" sx={{ mt: 1 }}>
           Live updates are disconnected. New messages may not appear until you refresh the page.
         </Alert>
-      )}
-      {blocked && (
-        <Alert severity="info" sx={{ mt: 1 }}>You blocked this couple. They can no longer message you.</Alert>
       )}
 
       {/* Messages */}
@@ -192,7 +161,7 @@ export default function ChatPage({ params }: ChatPageProps) {
         <Button
           variant="contained"
           onClick={handleSend}
-          disabled={sending || blocked || !newMessage.trim()}
+          disabled={sending || !newMessage.trim()}
           sx={{ minWidth: 80 }}
         >
           Send
