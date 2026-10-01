@@ -174,7 +174,9 @@ All infrastructure is managed as code via the Supabase CLI — no Terraform, no 
 
 ## Browser Automation
 
-Use the `/playwright-cli` skill for all browser automation tasks (screenshots, clicking, form filling, testing UI changes). Do **not** use claude-in-chrome MCP tools.
+**Do not run any browser automation (playwright-cli or claude-in-chrome) unless the user explicitly asks for it.** Verify changes with type-check, lint and the SQL regression script instead, and let the user check the UI.
+
+When the user does ask, use the `/playwright-cli` skill (screenshots, clicking, form filling). Never use claude-in-chrome MCP tools.
 
 ## Git Conventions
 
