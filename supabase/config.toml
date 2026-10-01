@@ -242,6 +242,10 @@ otp_expiry = 300
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
+[auth.email.template.confirmation]
+subject = "Welcome to KnowThyNeighbor"
+content_path = "./supabase/templates/confirmation.html"
+
 [auth.email.template.magic_link]
 subject = "Sign in to KnowThyNeighbor"
 content_path = "./supabase/templates/magic_link.html"
