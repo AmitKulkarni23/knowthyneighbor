@@ -208,6 +208,8 @@ SELECT pg_temp.expect_error('cannot open a duplicate pending request',
   $$INSERT INTO join_requests (requester_couple_id, host_couple_id, meal_type) VALUES ('c0000000-0000-0000-0000-000000000012', 'c0000000-0000-0000-0000-000000000013', 'lunch')$$);
 SELECT pg_temp.expect_rows('requester cannot accept their own request',
   $$UPDATE join_requests SET status = 'accepted' WHERE id = 'dddddddd-0000-0000-0000-000000000001'$$, 0);
+SELECT pg_temp.expect_true('discover shows a pending request as pending, not connected',
+  (SELECT request_status = 'pending' FROM discover_couples('c0000000-0000-0000-0000-000000000012', 100) WHERE couple_id = 'c0000000-0000-0000-0000-000000000013'));
 RESET ROLE;
 
 SELECT pg_temp.act_as('00000000-0000-0000-0000-000000000009'); -- Sara / host
@@ -220,6 +222,8 @@ SELECT pg_temp.expect_rows('accept created the conversation',
   $$SELECT 1 FROM conversations WHERE couple_1_id = 'c0000000-0000-0000-0000-000000000012' AND couple_2_id = 'c0000000-0000-0000-0000-000000000013'$$, 1);
 SELECT pg_temp.expect_true('responded_at set server-side',
   (SELECT responded_at IS NOT NULL FROM join_requests WHERE id = 'dddddddd-0000-0000-0000-000000000001'));
+SELECT pg_temp.expect_true('discover shows an accepted request as accepted',
+  (SELECT request_status = 'accepted' FROM discover_couples('c0000000-0000-0000-0000-000000000013', 100) WHERE couple_id = 'c0000000-0000-0000-0000-000000000012'));
 SELECT pg_temp.expect_rows('accepted request cannot be flipped back',
   $$UPDATE join_requests SET status = 'pending' WHERE id = 'dddddddd-0000-0000-0000-000000000001'$$, 0);
 RESET ROLE;

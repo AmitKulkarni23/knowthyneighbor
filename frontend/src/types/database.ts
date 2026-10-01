@@ -87,7 +87,7 @@ export type DiscoveryCouple = {
   hosting_preference: HostingPreference;
   distance_miles: number;
   has_availability: boolean;
-  has_pending_request: boolean;
+  request_status: Exclude<RequestStatus, 'declined'> | null;
 };
 
 export type CoupleProfile = {

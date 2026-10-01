@@ -159,6 +159,7 @@ When building new screens, import shared sx objects from `board.ts` for cork bac
 - Other couples' data is read only through `SECURITY DEFINER` RPCs (`discover_couples`, `get_couple_profile`, `get_couple_availability`, `browse_couples_public`), never by loosening table RLS. The `couples` row holds the secret `invite_code`.
 - Writes are limited by column-level grants as well as RLS: clients may only set the columns granted in the "Security: RLS, column grants" section of `supabase/migrations/20260930000000_initial.sql`. New writable columns need an explicit `GRANT`.
 - Every `SECURITY DEFINER` function sets `search_path = ''` and fully qualifies names; `anon` may execute only `browse_couples_public`.
+- Functions created in later migrations get `anon` EXECUTE from Supabase's default privileges: always `REVOKE EXECUTE ... FROM PUBLIC, anon` after `CREATE FUNCTION`.
 - Extensions live in the `extensions` schema, never `public` (PostGIS in `public` exposes `spatial_ref_sys` without RLS).
 - After changing migrations, run `supabase db reset` and `psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -f supabase/scripts/security_regression.sql`.
 

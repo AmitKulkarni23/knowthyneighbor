@@ -295,9 +295,9 @@ export default function DiscoverPage() {
               </Typography>
               <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
                 {(() => {
-                  const alreadySent = c.has_pending_request || sentTo.has(c.couple_id);
+                  const status = c.request_status ?? (sentTo.has(c.couple_id) ? 'pending' : null);
                   const noAvailability = !c.has_availability;
-                  const disabled = alreadySent || noAvailability;
+                  const disabled = !!status || noAvailability;
                   return (
                     <Button
                       onClick={() => setSelectedCouple(c)}
@@ -313,7 +313,7 @@ export default function DiscoverPage() {
                         },
                       }}
                     >
-                      {alreadySent ? 'Already connected' : noAvailability ? 'No dates available' : 'Send request'}
+                      {status === 'accepted' ? 'Already connected' : status === 'pending' ? 'Request sent' : noAvailability ? 'No dates available' : 'Send request'}
                     </Button>
                   );
                 })()}
