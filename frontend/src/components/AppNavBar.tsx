@@ -62,7 +62,7 @@ export default function AppNavBar() {
           }}
           onClick={() => router.push(onboarding ? '/' : '/discover')}
         >
-          KnowThyNeighbor
+          Nextdoorish
         </Typography>
 
         <Box sx={{ display: 'flex', gap: 0.5, flexGrow: 1 }}>

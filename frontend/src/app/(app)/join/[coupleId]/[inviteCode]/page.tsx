@@ -80,7 +80,7 @@ export default function JoinPage({ params }: JoinPageProps) {
             Join your couple profile
           </Typography>
           <Typography color="text.secondary" sx={{ mb: 3 }}>
-            Your partner created a couple profile on KnowThyNeighbor and invited you to join.
+            Your partner created a couple profile on Nextdoorish and invited you to join.
           </Typography>
 
           {error && (

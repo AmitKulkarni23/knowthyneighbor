@@ -456,7 +456,7 @@ export default function DiscoverPage() {
               )}
 
               <TextField
-                label="Add a note (optional)"
+                label="Add a note"
                 {...register('message')}
                 error={!!errors.message}
                 helperText={errors.message?.message}

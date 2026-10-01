@@ -2,7 +2,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.117.1";
 
 const RESEND_API_URL = "https://api.resend.com/emails";
 const APP_URL = "https://www.nextdoorish.com";
-const FROM_EMAIL = "KnowThyNeighbor <noreply@nextdoorish.com>";
+const FROM_EMAIL = "Nextdoorish <noreply@nextdoorish.com>";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // Only notify for requests created moments ago, so old rows can't be replayed
 const MAX_REQUEST_AGE_MS = 10 * 60 * 1000;
@@ -208,7 +208,7 @@ function buildEmailHtml(
     <tr><td align="center">
       <table width="440" cellpadding="0" cellspacing="0" style="background-color:#FDF8ED;box-shadow:2px 3px 8px rgba(60,40,20,0.18);max-width:100%;">
         <tr><td style="padding:48px 36px 36px;text-align:center;">
-          <h1 style="margin:0 0 8px;font-size:28px;color:#2B4570;font-family:Georgia,serif;font-weight:normal;">KnowThyNeighbor</h1>
+          <h1 style="margin:0 0 8px;font-size:28px;color:#2B4570;font-family:Georgia,serif;font-weight:normal;">Nextdoorish</h1>
           <p style="margin:0 0 24px;font-size:18px;color:#2B4570;line-height:1.6;">
             <strong>${escapeHtml(requesterName)}</strong> wants to connect with you!
           </p>
@@ -223,7 +223,7 @@ function buildEmailHtml(
         </td></tr>
       </table>
       <p style="margin:24px 0 0;font-size:12px;color:#F0E8D5;text-align:center;">
-        &copy; KnowThyNeighbor &mdash; nextdoorish.com
+        &copy; Nextdoorish &mdash; nextdoorish.com
       </p>
     </td></tr>
   </table>

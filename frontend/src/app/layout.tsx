@@ -33,7 +33,7 @@ const sourceSans = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
-  title: "KnowThyNeighbor — Find couples in your neighborhood for shared meals",
+  title: "Nextdoorish — Find couples in your neighborhood for shared meals",
   description:
     "Connect with couples nearby for dinners, lunches, and brunches. Real people, real food, real connection. No algorithms, no AI slop — just neighbors sharing a table.",
 };

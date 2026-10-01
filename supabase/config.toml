@@ -243,11 +243,11 @@ otp_expiry = 300
 # sender_name = "Admin"
 
 [auth.email.template.confirmation]
-subject = "Welcome to KnowThyNeighbor"
+subject = "Welcome to Nextdoorish"
 content_path = "./supabase/templates/confirmation.html"
 
 [auth.email.template.magic_link]
-subject = "Sign in to KnowThyNeighbor"
+subject = "Sign in to Nextdoorish"
 content_path = "./supabase/templates/magic_link.html"
 
 [auth.sms]
@@ -378,8 +378,8 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 2
 
-# [edge_runtime.secrets]
-# secret_key = "env(SECRET_VALUE)"
+[edge_runtime.secrets]
+RESEND_API_KEY = "env(RESEND_API_KEY)"
 
 [analytics]
 enabled = true

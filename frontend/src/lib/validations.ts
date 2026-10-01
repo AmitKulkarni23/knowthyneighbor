@@ -58,7 +58,7 @@ export type CoupleFormData = z.infer<typeof coupleSchema>;
 
 export const joinRequestSchema = z.object({
   slot: z.string().min(1, 'Pick a date and meal'),
-  message: z.string().max(300, 'Message must be under 300 characters').optional().or(z.literal('')),
+  message: z.string().min(1, 'Add a note to introduce yourselves').max(300, 'Message must be under 300 characters'),
 });
 
 export type JoinRequestFormData = z.infer<typeof joinRequestSchema>;
