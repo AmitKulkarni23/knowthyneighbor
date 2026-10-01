@@ -106,7 +106,7 @@ export default function CreateCouplePage() {
         Set up your couple profile
       </Typography>
       <Typography color="text.secondary" sx={{ mb: 3 }}>
-        This is what other couples will see when they browse. Your partner will get an invite link to join.
+        This is what other couples will see when they browse.
       </Typography>
 
       {serverError && (
