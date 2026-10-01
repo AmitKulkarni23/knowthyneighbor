@@ -16,6 +16,17 @@ import EmptyStateCard from '@/components/EmptyStateCard';
 
 const rotations = [-1.2, 1.5, -0.5, 1.8, -1, 0.8, -2, 1.2];
 const pins = [pinRedSx, pinGreenSx, pinBlueSx];
+// Picked by position (like rotations/pins), not Math.random, so cards don't reshuffle on re-render
+const headings = [
+  'Pull up a chair',
+  'Table for four?',
+  'Dinner friends wanted',
+  'Save us a seat',
+  'Come hungry',
+  'Seconds, anyone?',
+  'The kettle is on',
+  'Potluck, anyone?',
+];
 
 export default function BrowsePage() {
   const router = useRouter();
@@ -210,7 +221,7 @@ export default function BrowsePage() {
                         mt: 0.5,
                       }}
                     >
-                      A couple nearby
+                      {headings[i % headings.length]}
                     </Typography>
                     {c.bio && (
                       <Typography
