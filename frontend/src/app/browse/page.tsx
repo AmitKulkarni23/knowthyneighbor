@@ -23,24 +23,28 @@ export default function BrowsePage() {
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [couples, setCouples] = useState<BrowseCouple[]>([]);
+  const [total, setTotal] = useState(0);
   const [searched, setSearched] = useState(false);
   const [signInOpen, setSignInOpen] = useState(false);
 
   const handleSearch = useCallback(async () => {
     const trimmed = query.trim();
     if (!trimmed) return;
+    // Zip search is for signed-in members only; don't even ask the backend
+    if (/\d/.test(trimmed)) {
+      setSearchError('Search by city name, e.g. San Diego');
+      return;
+    }
     setSearching(true);
     setSearchError(null);
 
-    const isZip = /^\d+$/.test(trimmed);
-    const result = isZip
-      ? await browseCouplesPublic(undefined, undefined, undefined, trimmed)
-      : await browseCouplesPublic(trimmed);
+    const result = await browseCouplesPublic(trimmed);
 
     if (result.error) {
       setSearchError(result.error);
     } else {
       setCouples(result.couples);
+      setTotal(result.total);
     }
     setSearched(true);
     setSearching(false);
@@ -101,7 +105,7 @@ export default function BrowsePage() {
               mb: 3,
             }}
           >
-            Enter a city name or zip code to see couples looking for dinner friends.
+            Enter a city name to see couples looking for dinner friends.
           </Typography>
 
           <Box
@@ -112,7 +116,7 @@ export default function BrowsePage() {
             <TextField
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="e.g. San Diego or 92129"
+              placeholder="e.g. San Diego"
               error={!!searchError}
               helperText={searchError}
               size="small"
@@ -150,7 +154,7 @@ export default function BrowsePage() {
         {/* Results */}
         {searched && couples.length === 0 && (
           <EmptyStateCard
-            message={`No couples found for "${query.trim()}". Try another city or zip code — or sign up and be the first!`}
+            message={`No couples found for "${query.trim()}". Try another city — or sign up and be the first!`}
             pin="blue"
             rotation={0.6}
             sx={{ mb: 3 }}
@@ -169,7 +173,8 @@ export default function BrowsePage() {
                 textShadow: '1px 1px 3px rgba(60, 40, 20, 0.4)',
               }}
             >
-              {couples.length} couple{couples.length === 1 ? '' : 's'} matching &ldquo;{query.trim()}&rdquo;
+              {total} couple{total === 1 ? '' : 's'} on the board in &ldquo;{query.trim()}&rdquo;
+              {total > couples.length && ` (showing ${couples.length})`}
             </Typography>
 
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
@@ -226,23 +231,11 @@ export default function BrowsePage() {
                           fontFamily: 'var(--font-handwriting), cursive',
                           fontSize: '1.15rem',
                           color: 'var(--ink-blue-light)',
-                          mb: 2,
                         }}
                       >
                         {location}
                       </Typography>
                     )}
-                    <Button
-                      onClick={() => setSignInOpen(true)}
-                      sx={{
-                        ...ctaButtonSx as object,
-                        py: '10px',
-                        px: '28px',
-                        fontSize: '0.95rem',
-                      }}
-                    >
-                      Sign in to connect
-                    </Button>
                   </Card>
                 );
               })}

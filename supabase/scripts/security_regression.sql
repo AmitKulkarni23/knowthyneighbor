@@ -154,6 +154,9 @@ SELECT pg_temp.expect_error('anon cannot call claim_partner_invite', $$SELECT cl
 SELECT pg_temp.expect_rows('anon browse with no filter returns nothing', 'SELECT * FROM browse_couples_public()', 0);
 SELECT pg_temp.expect_rows('anon browse by city still works', $$SELECT * FROM browse_couples_public('San Diego')$$, 5);
 SELECT pg_temp.expect_error('anon browse exposes no couple ids', $$SELECT couple_id FROM browse_couples_public('San Diego')$$);
+SELECT pg_temp.expect_error('anon browse has no zip search', $$SELECT * FROM browse_couples_public(NULL, NULL, NULL, '92129')$$);
+SELECT pg_temp.expect_true('anon browse reports the total city count',
+  (SELECT bool_and(total_count = 5) FROM browse_couples_public('San Diego')));
 RESET ROLE;
 
 -- ── Couples: membership and column lockdown ──────────────────────────────────
@@ -271,6 +274,14 @@ RESET ROLE;
 SELECT pg_temp.act_as('00000000-0000-0000-0000-000000000008'); -- Janelle / Johnsons (partner 2)
 SELECT pg_temp.expect_error('blocked couple cannot message',
   $$INSERT INTO messages (conversation_id, sender_profile_id, body) VALUES ((SELECT id FROM conv), auth.uid(), 'hello?')$$);
+RESET ROLE;
+SELECT pg_temp.act_as('00000000-0000-0000-0000-000000000009'); -- Sara unblocks Nguyens
+SELECT pg_temp.expect_rows('can unblock a couple',
+  $$DELETE FROM couple_blocks WHERE blocker_couple_id = 'c0000000-0000-0000-0000-000000000013' AND blocked_couple_id = 'c0000000-0000-0000-0000-000000000010'$$, 1);
+RESET ROLE;
+SELECT pg_temp.act_as('00000000-0000-0000-0000-000000000003');
+SELECT pg_temp.expect_error('declined couple cannot re-request within 30 days',
+  $$INSERT INTO join_requests (requester_couple_id, host_couple_id, meal_type) VALUES ('c0000000-0000-0000-0000-000000000010', 'c0000000-0000-0000-0000-000000000013', 'lunch')$$);
 RESET ROLE;
 
 -- ── Discovery, profiles, availability ────────────────────────────────────────

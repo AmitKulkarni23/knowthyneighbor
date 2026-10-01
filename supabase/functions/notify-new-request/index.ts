@@ -22,7 +22,7 @@ function corsHeaders(req: Request): Record<string, string> {
 }
 
 // Called by the requester's browser right after inserting a join request.
-// The email content comes only from the stored row; each request notifies at most once.
+// The email carries no user-supplied text; each request notifies at most once.
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders(req) });
@@ -82,7 +82,7 @@ async function handle(req: Request): Promise<Response> {
 
   const { data: joinRequest, error: loadError } = await supabaseAdmin
     .from("join_requests")
-    .select("id, requester_couple_id, host_couple_id, message, status, created_at, notified_at")
+    .select("id, requester_couple_id, host_couple_id, status, created_at, notified_at")
     .eq("id", joinRequestId)
     .maybeSingle();
   if (loadError) {
@@ -119,27 +119,17 @@ async function handle(req: Request): Promise<Response> {
     return new Response("Request not eligible for notification", { status: 403 });
   }
 
-  const { message } = joinRequest;
+  const hostResult = await supabaseAdmin
+    .from("couples")
+    .select("partner_1_id, partner_2_id")
+    .eq("id", joinRequest.host_couple_id)
+    .single();
 
-  const [requesterResult, hostResult] = await Promise.all([
-    supabaseAdmin
-      .from("couples")
-      .select("couple_name")
-      .eq("id", joinRequest.requester_couple_id)
-      .single(),
-    supabaseAdmin
-      .from("couples")
-      .select("partner_1_id, partner_2_id")
-      .eq("id", joinRequest.host_couple_id)
-      .single(),
-  ]);
-
-  if (requesterResult.error || hostResult.error) {
-    console.error("Failed to load couples for join request", joinRequest.id, requesterResult.error ?? hostResult.error);
+  if (hostResult.error) {
+    console.error("Failed to load host couple for join request", joinRequest.id, hostResult.error);
     return new Response("Notification failed", { status: 500 });
   }
 
-  const requesterName = requesterResult.data.couple_name ?? "A couple nearby";
   const { partner_1_id, partner_2_id } = hostResult.data;
 
   // Collect host partner emails from auth.users
@@ -157,8 +147,10 @@ async function handle(req: Request): Promise<Response> {
     return new Response("Notification failed", { status: 500 });
   }
 
-  const subject = `${requesterName} wants to connect with you!`;
-  const html = buildEmailHtml(requesterName, message);
+  // No user-supplied text (couple name, message) in the email: it goes out under our
+  // domain, so attacker text there is a phishing vector. Hosts read it in the app.
+  const subject = "A couple nearby wants to share a meal with you!";
+  const html = buildEmailHtml();
 
   // Send emails in parallel
   const sendResults = await Promise.all(
@@ -192,14 +184,7 @@ async function handle(req: Request): Promise<Response> {
   });
 }
 
-function buildEmailHtml(
-  requesterName: string,
-  message: string | null,
-): string {
-  const messageBlock = message
-    ? `<p style="margin:16px 0;padding:12px 16px;background:#FDF8ED;border-left:3px solid #CC4433;font-style:italic;">"${escapeHtml(message)}"</p>`
-    : "";
-
+function buildEmailHtml(): string {
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"></head>
@@ -210,9 +195,8 @@ function buildEmailHtml(
         <tr><td style="padding:48px 36px 36px;text-align:center;">
           <h1 style="margin:0 0 8px;font-size:28px;color:#2B4570;font-family:Georgia,serif;font-weight:normal;">Nextdoorish</h1>
           <p style="margin:0 0 24px;font-size:18px;color:#2B4570;line-height:1.6;">
-            <strong>${escapeHtml(requesterName)}</strong> wants to connect with you!
+            A couple nearby wants to share a meal with you!
           </p>
-          ${messageBlock}
           <a href="${APP_URL}/requests"
              style="display:inline-block;margin:24px 0;padding:14px 36px;background-color:#CC4433;color:#FDF8ED;font-size:16px;font-weight:bold;text-decoration:none;text-transform:uppercase;letter-spacing:0.04em;font-family:Arial,Helvetica,sans-serif;">
             View Request
@@ -229,13 +213,4 @@ function buildEmailHtml(
   </table>
 </body>
 </html>`;
-}
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
 }
