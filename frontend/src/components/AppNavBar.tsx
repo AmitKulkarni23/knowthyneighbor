@@ -141,6 +141,20 @@ export default function AppNavBar() {
                 Profile
               </MenuItem>
               <MenuItem
+                onClick={() => { setMenuAnchor(null); router.push('/contact'); }}
+                sx={{
+                  fontFamily: 'var(--font-condensed), sans-serif',
+                  fontWeight: 700,
+                  fontSize: '1.1rem',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                  color: 'var(--ink-blue)',
+                  '&:hover': { color: 'var(--pushpin-red)', bgcolor: 'rgba(204, 68, 51, 0.04)' },
+                }}
+              >
+                Contact Us
+              </MenuItem>
+              <MenuItem
                 onClick={handleSignOut}
                 sx={{
                   fontFamily: 'var(--font-condensed), sans-serif',

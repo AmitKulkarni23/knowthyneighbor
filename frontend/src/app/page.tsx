@@ -33,8 +33,53 @@ export default function Home() {
 
   return (
     <Box sx={{ ...boardBgSx as object, px: 2, py: 5, pb: 10 }}>
-      {/* ── Browse link ── */}
-      <Box sx={{ maxWidth: 1100, mx: 'auto', display: 'flex', justifyContent: 'flex-end', mb: 2, position: 'relative', zIndex: 2 }}>
+      {/* ── Top nav links ── */}
+      <Box sx={{ maxWidth: 1100, mx: 'auto', display: 'flex', justifyContent: 'flex-end', gap: 2, mb: 2, position: 'relative', zIndex: 2 }}>
+        <Card
+          onClick={() => router.push('/contact')}
+          sx={{
+            bgcolor: 'var(--paper)',
+            borderRadius: 0,
+            boxShadow: 'var(--shadow-card-rest)',
+            p: '10px 20px 10px 16px',
+            cursor: 'pointer',
+            position: 'relative',
+            transform: 'rotate(-1deg)',
+            transition: 'var(--ease-card)',
+            '&:hover': {
+              boxShadow: 'var(--shadow-card-lift)',
+              transform: 'rotate(-1deg) translateY(-3px) scale(1.02)',
+            },
+          }}
+        >
+          <Box
+            sx={{
+              position: 'absolute',
+              top: -6,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 14,
+              height: 14,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 35% 35%, #4a6a9a, var(--ink-blue) 60%, #1a3050)',
+              boxShadow: '0 2px 4px rgba(60, 40, 20, 0.35), inset 0 -2px 3px rgba(0,0,0,0.15), inset 0 2px 3px rgba(255,255,255,0.3)',
+              zIndex: 2,
+            }}
+          />
+          <Typography
+            sx={{
+              fontFamily: 'var(--font-condensed), sans-serif',
+              fontWeight: 700,
+              fontSize: '1rem',
+              color: 'var(--ink-blue)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            Contact Us
+          </Typography>
+        </Card>
         <Card
           onClick={() => router.push('/browse')}
           sx={{
@@ -193,27 +238,6 @@ export default function Home() {
           </Typography>
           <Button onClick={handleGetStarted} sx={ctaButtonSx}>Put Your Card on the Board</Button>
         </Card>
-      </Box>
-
-      {/* ── Footer ── */}
-      <Box sx={{ maxWidth: 1100, mx: 'auto', mt: 6, textAlign: 'center', position: 'relative', zIndex: 1 }}>
-        <Typography
-          component="a"
-          href="/contact"
-          sx={{
-            fontFamily: 'var(--font-condensed), sans-serif',
-            fontWeight: 700,
-            fontSize: '1rem',
-            color: 'var(--paper)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.04em',
-            textDecoration: 'none',
-            opacity: 0.85,
-            '&:hover': { opacity: 1, textDecoration: 'underline' },
-          }}
-        >
-          Contact Us
-        </Typography>
       </Box>
 
       <SignInDialog open={signInOpen} onClose={() => setSignInOpen(false)} />
