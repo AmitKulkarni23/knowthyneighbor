@@ -166,8 +166,8 @@ export default function Home() {
         </Typography>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 3 }}>
           {[
-            { n: '1', title: 'Pin Your Card', desc: 'Create a couple profile with your names, ages, and zip code. Your partner joins with a link you share.', deg: -1, pin: 'red' },
-            { n: '2', title: 'Browse the Board', desc: 'See other couples nearby. Filter by availability, meal type, and whether they host or visit.', deg: 0.8, pin: 'green' },
+            { n: '1', title: 'Pin Your Card', desc: 'Create a couple profile with your names, ages, and zip code.', deg: -1, pin: 'red' },
+            { n: '2', title: 'Browse the Board', desc: 'See other couples nearby. Search by city or zip code to find your dinner neighbors.', deg: 0.8, pin: 'green' },
             { n: '3', title: 'Send a Request', desc: 'Found someone interesting? Send a join request with a short note. They get an email and decide.', deg: -0.5, pin: 'blue' },
             { n: '4', title: 'Share a Meal', desc: 'Once accepted, chat to plan the details. Pick a date, a meal type, and sit down together.', deg: 1.2, pin: 'red' },
           ].map((step) => (
