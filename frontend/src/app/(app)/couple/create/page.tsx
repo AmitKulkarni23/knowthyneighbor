@@ -78,15 +78,24 @@ export default function CreateCouplePage() {
           You&apos;re all set!
         </Typography>
         <Typography color="text.secondary" sx={{ mb: 3 }}>
-          Your couple profile is ready. Start discovering neighbors!
+          Your couple profile is ready. Set your availability so other couples can send you dinner requests!
         </Typography>
-        <Button
-          variant="contained"
-          size="large"
-          onClick={() => router.push('/discover')}
-        >
-          Go to discovery
-        </Button>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, alignItems: 'center' }}>
+          <Button
+            variant="contained"
+            size="large"
+            onClick={() => router.push('/availability')}
+          >
+            Set availability
+          </Button>
+          <Button
+            variant="text"
+            size="large"
+            onClick={() => router.push('/discover')}
+          >
+            Skip for now
+          </Button>
+        </Box>
       </Box>
     );
   }
