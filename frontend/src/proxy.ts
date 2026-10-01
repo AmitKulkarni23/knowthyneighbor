@@ -36,8 +36,10 @@ export async function proxy(request: NextRequest) {
     return supabaseResponse;
   }
 
-  // Refresh the session so it stays alive
-  const { data: { user } } = await supabase.auth.getUser();
+  // Refresh the session so it stays alive. getClaims verifies the JWT locally (cached JWKS)
+  // instead of a round trip to Supabase Auth; RLS still checks the token on every query.
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims;
 
   const { pathname, searchParams } = request.nextUrl;
 
