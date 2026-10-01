@@ -313,7 +313,7 @@ export default function DiscoverPage() {
                         },
                       }}
                     >
-                      {alreadySent ? 'Request sent' : noAvailability ? 'No dates available' : 'Send request'}
+                      {alreadySent ? 'Already connected' : noAvailability ? 'No dates available' : 'Send request'}
                     </Button>
                   );
                 })()}
