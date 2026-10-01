@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Alert from '@mui/material/Alert';
@@ -126,12 +127,15 @@ export default function CoupleProfilePage() {
       >
         <Box sx={pinBlueSx} />
         {couple.partner_1_avatar ? (
-          <Box
-            component="img"
-            src={getAvatarPublicUrl(couple.partner_1_avatar)}
-            alt={couple.partner_1_first_name}
-            sx={{ width: '100%', height: 240, objectFit: 'cover', display: 'block' }}
-          />
+          <Box sx={{ position: 'relative', width: '100%', height: 240 }}>
+            <Image
+              src={getAvatarPublicUrl(couple.partner_1_avatar)}
+              alt={couple.partner_1_first_name}
+              fill
+              sizes="(max-width: 600px) 100vw, 500px"
+              style={{ objectFit: 'cover' }}
+            />
+          </Box>
         ) : (
           <Box
             sx={{

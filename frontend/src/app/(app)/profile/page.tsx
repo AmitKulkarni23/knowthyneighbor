@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -194,12 +195,15 @@ export default function ProfilePage() {
       >
         <Box sx={pinBlueSx} />
         {profile.avatar_url ? (
-          <Box
-            component="img"
-            src={getAvatarPublicUrl(profile.avatar_url)}
-            alt={profile.full_name}
-            sx={{ width: '100%', height: 240, objectFit: 'cover', display: 'block' }}
-          />
+          <Box sx={{ position: 'relative', width: '100%', height: 240 }}>
+            <Image
+              src={getAvatarPublicUrl(profile.avatar_url)}
+              alt={profile.full_name}
+              fill
+              sizes="(max-width: 600px) 100vw, 500px"
+              style={{ objectFit: 'cover' }}
+            />
+          </Box>
         ) : (
           <Box
             sx={{
