@@ -161,7 +161,7 @@ export default function SignInDialog({ open, onClose }: SignInDialogProps) {
               mb: 1,
             }}
           >
-            Sign In
+            Sign in or sign up
           </Typography>
           <Typography
             sx={{
@@ -173,7 +173,7 @@ export default function SignInDialog({ open, onClose }: SignInDialogProps) {
               mb: 4,
             }}
           >
-            Enter your email and we&apos;ll send you a magic link. No password needed.
+            Enter your email and we&apos;ll send you a magic link. New here? That&apos;s all it takes to join. No password needed.
           </Typography>
 
           {serverError && (

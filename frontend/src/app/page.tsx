@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
 import Chip from '@mui/material/Chip';
 import { boardBgSx, paperCardSx, pinRedSx, pinGreenSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
@@ -148,6 +149,12 @@ export default function Home() {
           {/* CTA */}
           <Box sx={{ textAlign: 'center', borderTop: '2px dashed var(--cork-dark)', mx: { xs: '-24px', md: '-36px' }, px: { xs: 3, md: '36px' }, pt: 3, pb: '20px', bgcolor: 'var(--paper)' }}>
             <Button onClick={handleGetStarted} sx={ctaButtonSx}>Get Started</Button>
+            <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.3rem', color: 'var(--ink-blue-light)', mt: 1.5 }}>
+              Already a member?{' '}
+              <Link component="button" onClick={handleGetStarted} sx={{ font: 'inherit', color: 'var(--ink-blue)', verticalAlign: 'baseline', textUnderlineOffset: '3px' }}>
+                Sign in
+              </Link>
+            </Typography>
           </Box>
         </Card>
 

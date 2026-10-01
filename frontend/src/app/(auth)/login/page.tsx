@@ -111,10 +111,10 @@ function LoginContent() {
       <Card sx={{ ...paperCardSx as object, transform: 'rotate(0.6deg)', maxWidth: 440, width: '100%', p: { xs: '40px 24px 28px', sm: '48px 36px 32px' }, position: 'relative', zIndex: 1 }}>
         <Box sx={pinRedSx} />
         <Typography sx={{ fontFamily: 'var(--font-marker), cursive', fontSize: 'clamp(1.6rem, 4vw, 2.2rem)', color: 'var(--ink-blue)', textAlign: 'center', mb: 1 }}>
-          Sign In
+          Sign in or sign up
         </Typography>
         <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.1rem', color: 'var(--ink-blue-light)', textAlign: 'center', lineHeight: 1.5, mb: 4 }}>
-          Enter your email and we&apos;ll send you a magic link. No password needed.
+          Enter your email and we&apos;ll send you a magic link. New here? That&apos;s all it takes to join. No password needed.
         </Typography>
 
         {authError && (
