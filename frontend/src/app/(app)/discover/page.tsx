@@ -295,12 +295,12 @@ export default function DiscoverPage() {
               </Typography>
               <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
                 {(() => {
-                  const status = c.request_status ?? (sentTo.has(c.couple_id) ? 'pending' : null);
+                  const status = c.request_status ?? (sentTo.has(c.couple_id) ? 'sent' : null);
                   const noAvailability = !c.has_availability;
-                  const disabled = !!status || noAvailability;
+                  const disabled = status === 'sent' || status === 'connected' || (!status && noAvailability);
                   return (
                     <Button
-                      onClick={() => setSelectedCouple(c)}
+                      onClick={() => (status === 'received' ? router.push('/requests') : setSelectedCouple(c))}
                       disabled={disabled}
                       sx={{
                         ...ctaButtonSx as object,
@@ -313,7 +313,7 @@ export default function DiscoverPage() {
                         },
                       }}
                     >
-                      {status === 'accepted' ? 'Already connected' : status === 'pending' ? 'Request sent' : noAvailability ? 'No dates available' : 'Send request'}
+                      {status === 'connected' ? 'Already connected' : status === 'sent' ? 'Request sent' : status === 'received' ? 'Respond to request' : noAvailability ? 'No dates available' : 'Send request'}
                     </Button>
                   );
                 })()}
