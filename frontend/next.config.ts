@@ -18,6 +18,9 @@ const supabaseUrl = new URL(
 
 const nextConfig: NextConfig = {
   images: {
+    // Next 16 blocks optimizing images from private IPs (SSRF guard). Local Supabase serves
+    // avatars from 127.0.0.1, so allow it only then; prod (*.supabase.co) keeps the guard.
+    dangerouslyAllowLocalIP: ["127.0.0.1", "localhost"].includes(supabaseUrl.hostname),
     remotePatterns: [
       {
         protocol: supabaseUrl.protocol.replace(":", "") as "http" | "https",
