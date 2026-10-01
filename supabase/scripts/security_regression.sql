@@ -353,6 +353,35 @@ SELECT pg_temp.expect_rows('invite can be claimed',
 RESET ROLE;
 SELECT pg_temp.expect_true('invite code rotated after claim',
   (SELECT c.invite_code != i.invite_code FROM couples c, invite i WHERE c.id = 'eeeeeeee-0000-0000-0000-00000000000a'));
+SELECT pg_temp.act_as('99999999-0000-0000-0000-000000000002');
+SELECT pg_temp.expect_error('partner 2 cannot remove partner 1', 'SELECT remove_partner()');
+SELECT pg_temp.expect_error('partner 2 cannot regenerate the invite', 'SELECT regenerate_invite_code()');
+RESET ROLE;
+SELECT pg_temp.act_as('99999999-0000-0000-0000-000000000001'); -- Eve removes Adam, re-invites
+SELECT pg_temp.expect_rows('partner 1 can remove partner 2', 'SELECT remove_partner()', 1);
+SELECT pg_temp.expect_rows('removed partner loses the couple row',
+  $$SELECT 1 FROM couples WHERE id = 'eeeeeeee-0000-0000-0000-00000000000a' AND partner_2_id IS NOT NULL$$, 0);
+SELECT pg_temp.expect_rows('partner 1 can add a new pending partner',
+  $$INSERT INTO pending_partners (couple_id, full_name, age) VALUES ('eeeeeeee-0000-0000-0000-00000000000a', 'Adam', 31)$$, 1);
+RESET ROLE;
+UPDATE couples SET invite_expires_at = now() - interval '1 minute' WHERE id = 'eeeeeeee-0000-0000-0000-00000000000a';
+TRUNCATE invite;
+INSERT INTO invite SELECT invite_code FROM couples WHERE id = 'eeeeeeee-0000-0000-0000-00000000000a';
+SELECT pg_temp.act_as('99999999-0000-0000-0000-000000000002');
+SELECT pg_temp.expect_error('expired invite rejected',
+  $$SELECT claim_partner_invite('eeeeeeee-0000-0000-0000-00000000000a', (SELECT invite_code FROM invite))$$);
+RESET ROLE;
+SELECT pg_temp.act_as('99999999-0000-0000-0000-000000000001');
+SELECT pg_temp.expect_rows('partner 1 can regenerate the invite', 'SELECT regenerate_invite_code()', 1);
+RESET ROLE;
+SELECT pg_temp.expect_true('regenerating rotates the code and resets expiry',
+  (SELECT c.invite_code != i.invite_code AND c.invite_expires_at > now() FROM couples c, invite i WHERE c.id = 'eeeeeeee-0000-0000-0000-00000000000a'));
+TRUNCATE invite;
+INSERT INTO invite SELECT invite_code FROM couples WHERE id = 'eeeeeeee-0000-0000-0000-00000000000a';
+SELECT pg_temp.act_as('99999999-0000-0000-0000-000000000002');
+SELECT pg_temp.expect_rows('user with an existing profile can claim',
+  $$SELECT claim_partner_invite('eeeeeeee-0000-0000-0000-00000000000a', (SELECT invite_code FROM invite))$$, 1);
+RESET ROLE;
 
 -- ── Function privileges ──────────────────────────────────────────────────────
 SELECT pg_temp.expect_true('anon can execute only browse_couples_public',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -8,9 +8,7 @@ import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
-import CircularProgress from '@mui/material/CircularProgress';
 import { claimPartnerInvite } from '@/api/couples';
-import { useAppContext } from '@/components/AppProvider';
 
 type JoinPageProps = {
   params: Promise<{ coupleId: string; inviteCode: string }>;
@@ -19,18 +17,9 @@ type JoinPageProps = {
 export default function JoinPage({ params }: JoinPageProps) {
   const { coupleId, inviteCode } = use(params);
   const router = useRouter();
-  const { user, authLoading } = useAppContext();
   const [claiming, setClaiming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      // Redirect to login, then back here
-      const returnUrl = `/join/${coupleId}/${inviteCode}`;
-      router.push(`/login?next=${encodeURIComponent(returnUrl)}`);
-    }
-  }, [authLoading, user, coupleId, inviteCode, router]);
 
   const handleClaim = async () => {
     setClaiming(true);
@@ -47,14 +36,6 @@ export default function JoinPage({ params }: JoinPageProps) {
     setSuccess(true);
     setClaiming(false);
   };
-
-  if (authLoading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   if (success) {
     return (

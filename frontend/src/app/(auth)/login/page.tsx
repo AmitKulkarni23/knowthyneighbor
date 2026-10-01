@@ -64,7 +64,7 @@ function LoginContent() {
 
   const onSubmit = async (data: LoginFormData) => {
     setServerError(null);
-    const result = await signInWithOtp(data.email);
+    const result = await signInWithOtp(data.email, searchParams.get('next'));
 
     if (result.error) {
       setServerError(result.error);

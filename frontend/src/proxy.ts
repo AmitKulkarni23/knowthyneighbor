@@ -54,7 +54,9 @@ export async function proxy(request: NextRequest) {
       pathname.startsWith('/couple') ||
       pathname.startsWith('/requests') ||
       pathname.startsWith('/chat') ||
-      pathname.startsWith('/availability')) {
+      pathname.startsWith('/availability') ||
+      // Invite links: (app)/layout would bounce a logged-out partner to '/', losing the link
+      pathname.startsWith('/join/')) {
     if (!user) {
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('next', pathname);

@@ -6,6 +6,9 @@ import { logger } from '@/lib/logger';
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
+  // Where to land after sign-in (cookie set by signInWithOtp). Same-origin only, or this is an open redirect.
+  const nextUrl = new URL(request.cookies.get('auth_next')?.value ?? '/discover', request.url);
+  const next = nextUrl.origin === new URL(request.url).origin ? nextUrl : new URL('/discover', request.url);
 
   if (code) {
     const supabase = await createSupabaseServerClient();
@@ -29,12 +32,16 @@ export async function GET(request: NextRequest) {
           .maybeSingle();
 
         if (profileError) logger.error('auth callback: profile lookup failed', { code: profileError.code, message: profileError.message });
-        if (!profile && !profileError) {
+        // An invited partner skips profile creation: claim_partner_invite creates their
+        // profile from the details partner 1 entered.
+        if (!profile && !profileError && !next.pathname.startsWith('/join/')) {
           return NextResponse.redirect(new URL('/profile/create', request.url));
         }
       }
 
-      return NextResponse.redirect(new URL('/discover', request.url));
+      const response = NextResponse.redirect(next);
+      response.cookies.delete('auth_next');
+      return response;
     }
   }
 
