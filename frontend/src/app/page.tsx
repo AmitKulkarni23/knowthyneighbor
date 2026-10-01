@@ -189,7 +189,7 @@ export default function Home() {
             No algorithms. No AI slop. Just neighbors.
           </Typography>
           <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.5rem', color: 'var(--ink-blue-light)', lineHeight: 1.6, mb: 3, maxWidth: '50ch', mx: 'auto' }}>
-            We built this because people are tired of screens pretending to be connection. KnowThyNeighbor gets you off the app and around a table. The only thing we optimize for is a real meal with real people.
+            I built this because people are tired of screens pretending to be connection. Nextdoorish gets you off the app and around a table. The only thing we optimize for is a real meal with real people.
           </Typography>
           <Button onClick={handleGetStarted} sx={ctaButtonSx}>Put Your Card on the Board</Button>
         </Card>
