@@ -38,9 +38,9 @@ export const coupleSchema = z.object({
     .regex(noControlOrHtml, 'Country contains invalid characters'),
   zipCode: z
     .string()
-    .min(1, 'Zip code is required')
+    .min(5, 'Zip code must be at least 5 digits')
     .max(10, 'Zip code is too long')
-    .regex(/^[\dA-Za-z\s-]+$/, 'Zip code must contain only letters, numbers, spaces or dashes'),
+    .regex(/^\d{5}(-\d{4})?$/, 'Enter a valid US zip code (e.g. 92129 or 92129-1234)'),
   hostingPreference: z.enum(['host', 'visit', 'both']),
   partnerName: z
     .string()
