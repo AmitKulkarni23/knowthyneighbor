@@ -13,10 +13,12 @@ import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import Divider from '@mui/material/Divider';
 import { createCouple } from '@/api/couples';
+import { useAppContext } from '@/components/AppProvider';
 import { coupleSchema, type CoupleFormData } from '@/lib/validations';
 
 export default function CreateCouplePage() {
   const router = useRouter();
+  const { refreshCouple } = useAppContext();
   const [serverError, setServerError] = useState<string | null>(null);
   const [inviteLink, setInviteLink] = useState<string | null>(null);
 
@@ -63,6 +65,7 @@ export default function CreateCouplePage() {
     }
 
     if (result.couple) {
+      await refreshCouple();
       const link = `${window.location.origin}/join/${result.couple.id}/${result.couple.invite_code}`;
       setInviteLink(link);
     }
