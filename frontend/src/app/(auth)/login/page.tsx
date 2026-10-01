@@ -16,6 +16,7 @@ import { boardBgSx, paperCardSx, pinRedSx, ctaButtonSx } from '@/styles/board';
 
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
   link_expired: 'Your magic link has expired. Enter your email below to get a new one.',
+  different_browser: 'Open the sign-in link in the same browser you requested it from, or enter your email below to get a new one.',
   auth_error: 'Something went wrong with your sign-in link. Please try again.',
 };
 
