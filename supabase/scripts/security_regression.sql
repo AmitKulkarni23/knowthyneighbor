@@ -1,16 +1,96 @@
 -- Security regression checks against a freshly reset local database (migrations + seed.sql).
--- Replays each known attack as the anon/authenticated roles and asserts it is blocked,
--- plus the legitimate flows that must keep working. Everything is rolled back.
+-- Self-contained: creates all test data inside a transaction, then rolls back.
 --
 --   supabase db reset
 --   psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -f supabase/scripts/security_regression.sql
 --
--- Seed actors: Pat (…01) & Sam (…02) = Delgados (c…01); Huy (…03) = Nguyens (c…10);
--- Marcus (…07) = Johnsons (c…12); Sara (…09) = Sara & Tomoko (c…13).
+-- Test actors (created below):
+--   Pat (…01) & Sam (…02) = Delgados (c…01)
+--   Huy (…03) & Linh (…04) = Nguyens (c…10)
+--   Mike (…05) & Priya (…06) = Patels (c…11)
+--   Marcus (…07) & Janelle (…08) = Johnsons (c…12)
+--   Sara (…09) & Tomoko (…10) = Sara & Tomoko (c…13)
 
 \set QUIET on
 \o /dev/null
 BEGIN;
+
+-- ── Test data ───────────────────────────────────────────────────────────────
+
+INSERT INTO auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token)
+VALUES
+  ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'pat@example.com',    crypt('password123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'sam@example.com',    crypt('password123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'huy@example.com',    crypt('password123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'linh@example.com',   crypt('password123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'mike@example.com',   crypt('password123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000006', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'priya@example.com',  crypt('password123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000007', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'marcus@example.com', crypt('password123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000008', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'janelle@example.com',crypt('password123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000009', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'sara@example.com',   crypt('password123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'tomoko@example.com', crypt('password123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', '');
+
+INSERT INTO profiles (id, full_name, age) VALUES
+  ('00000000-0000-0000-0000-000000000001', 'Pat Delgado',     34),
+  ('00000000-0000-0000-0000-000000000002', 'Sam Delgado',     32),
+  ('00000000-0000-0000-0000-000000000003', 'Huy Nguyen',      29),
+  ('00000000-0000-0000-0000-000000000004', 'Linh Nguyen',     28),
+  ('00000000-0000-0000-0000-000000000005', 'Mike Patel',      36),
+  ('00000000-0000-0000-0000-000000000006', 'Priya Patel',     33),
+  ('00000000-0000-0000-0000-000000000007', 'Marcus Johnson',  52),
+  ('00000000-0000-0000-0000-000000000008', 'Janelle Johnson', 50),
+  ('00000000-0000-0000-0000-000000000009', 'Sara Kim',        31),
+  ('00000000-0000-0000-0000-000000000010', 'Tomoko Sato',     30);
+
+INSERT INTO couples (id, partner_1_id, partner_2_id, couple_name, bio, zip_code, city, state, country, location, hosting_preference, invite_code) VALUES
+  ('c0000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002',
+   'The Delgados', 'We love hosting taco nights.', '92129', 'San Diego', 'California', 'United States',
+   extensions.ST_SetSRID(extensions.ST_MakePoint(-117.1054, 32.9596), 4326)::extensions.geography, 'host', 'invite-delgados'),
+  ('c0000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-000000000004',
+   'The Nguyens', 'Huge fans of Sunday brunch.', '92128', 'San Diego', 'California', 'United States',
+   extensions.ST_SetSRID(extensions.ST_MakePoint(-117.0770, 32.9940), 4326)::extensions.geography, 'host', 'invite-nguyens'),
+  ('c0000000-0000-0000-0000-000000000011', '00000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-000000000006',
+   'Mike & Priya', 'Just moved to the neighborhood!', '92131', 'San Diego', 'California', 'United States',
+   extensions.ST_SetSRID(extensions.ST_MakePoint(-117.0855, 32.9150), 4326)::extensions.geography, 'visit', 'invite-patels'),
+  ('c0000000-0000-0000-0000-000000000012', '00000000-0000-0000-0000-000000000007', '00000000-0000-0000-0000-000000000008',
+   'The Johnsons', 'Empty nesters with a big backyard grill.', '92127', 'San Diego', 'California', 'United States',
+   extensions.ST_SetSRID(extensions.ST_MakePoint(-117.1284, 32.9420), 4326)::extensions.geography, 'host', 'invite-johnsons'),
+  ('c0000000-0000-0000-0000-000000000013', '00000000-0000-0000-0000-000000000009', '00000000-0000-0000-0000-000000000010',
+   'Sara & Tomoko', 'Foodies who document every meal.', '92130', 'San Diego', 'California', 'United States',
+   extensions.ST_SetSRID(extensions.ST_MakePoint(-117.1120, 32.9700), 4326)::extensions.geography, 'both', 'invite-kimsat');
+
+INSERT INTO availability (couple_id, specific_date, time_slot, recurring) VALUES
+  ('c0000000-0000-0000-0000-000000000013', CURRENT_DATE + 3, 'dinner', false),
+  ('c0000000-0000-0000-0000-000000000013', CURRENT_DATE + 4, 'brunch', false),
+  ('c0000000-0000-0000-0000-000000000012', CURRENT_DATE + 3, 'dinner', false),
+  ('c0000000-0000-0000-0000-000000000012', CURRENT_DATE + 4, 'lunch',  false);
+
+INSERT INTO join_requests (id, requester_couple_id, host_couple_id, meal_type, message, status, created_at, responded_at) VALUES
+  ('a0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000011', 'c0000000-0000-0000-0000-000000000001', 'dinner',
+   'Hey! We''d love to come over.', 'pending', now() - interval '2 days', NULL),
+  ('a0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000010', 'c0000000-0000-0000-0000-000000000001', 'dinner',
+   NULL, 'accepted', now() - interval '14 days', now() - interval '13 days');
+
+INSERT INTO conversations (id, couple_1_id, couple_2_id, created_at, last_message_at) VALUES
+  ('e0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000010',
+   now() - interval '13 days', now() - interval '4 days');
+
+INSERT INTO messages (conversation_id, sender_profile_id, body, created_at) VALUES
+  ('e0000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Hey! So excited to plan dinner.', now() - interval '13 days'),
+  ('e0000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000003', 'How about Saturday?', now() - interval '12 days');
+
+-- Accepted request from Delgados to Johnsons + conversation
+INSERT INTO join_requests (requester_couple_id, host_couple_id, meal_type, message, status, created_at, responded_at) VALUES
+  ('c0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000012', 'dinner',
+   'We heard you throw great BBQs!', 'accepted', now() - interval '9 days', now() - interval '8 days');
+INSERT INTO conversations (id, couple_1_id, couple_2_id, created_at, last_message_at) VALUES
+  ('e0000000-0000-0000-0000-000000000002', 'c0000000-0000-0000-0000-000000000001', 'c0000000-0000-0000-0000-000000000012',
+   now() - interval '8 days', now() - interval '6 days');
+INSERT INTO messages (conversation_id, sender_profile_id, body, created_at) VALUES
+  ('e0000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000007', 'Welcome! Oct 11 good?', now() - interval '8 days'),
+  ('e0000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001', 'Oct 11 is great!', now() - interval '6 days');
+
+-- ── Helper functions ────────────────────────────────────────────────────────
 
 CREATE FUNCTION pg_temp.act_as(p_user uuid) RETURNS void LANGUAGE plpgsql AS $$
 BEGIN
