@@ -404,6 +404,11 @@ SELECT pg_temp.expect_error('contact rate limit (21st per day overall)', $$INSER
 SELECT pg_temp.expect_true('anon can execute only browse_couples_public',
   (SELECT array_agg(proname::text ORDER BY proname) = ARRAY['browse_couples_public']
    FROM pg_proc WHERE pronamespace = 'public'::regnamespace AND has_function_privilege('anon', oid, 'EXECUTE')));
+SELECT pg_temp.expect_true('RLS helpers are not exposed as RPCs',
+  NOT EXISTS (SELECT 1 FROM pg_proc WHERE pronamespace = 'public'::regnamespace
+              AND proname IN ('user_couple_ids', 'is_blocked_with')));
+SELECT pg_temp.expect_true('anon cannot use the private schema',
+  NOT has_schema_privilege('anon', 'private', 'USAGE'));
 
 \echo 'All security regression checks passed'
 ROLLBACK;
