@@ -10,9 +10,11 @@ import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import { boardBgSx, paperCardSx, pinRedSx, ctaButtonSx } from '@/styles/board';
 import { createSupabaseClient } from '@/config/supabase';
+import useAuth from '@/hooks/useAuth';
 
 export default function ContactPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -54,7 +56,7 @@ export default function ContactPage() {
       <Box sx={{ maxWidth: 600, mx: 'auto', position: 'relative', zIndex: 1 }}>
         <Box sx={{ textAlign: 'center', mb: 4 }}>
           <Typography
-            onClick={() => router.push('/')}
+            onClick={() => router.push(user ? '/discover' : '/')}
             sx={{
               fontFamily: 'var(--font-marker), cursive',
               fontSize: 'clamp(1.6rem, 4vw, 2.2rem)',
@@ -67,7 +69,7 @@ export default function ContactPage() {
             Nextdoorish
           </Typography>
           <Typography
-            onClick={() => router.push('/')}
+            onClick={() => router.push(user ? '/discover' : '/')}
             sx={{
               fontFamily: 'var(--font-condensed), sans-serif',
               fontWeight: 700,
