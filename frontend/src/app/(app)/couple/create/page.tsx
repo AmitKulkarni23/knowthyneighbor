@@ -78,36 +78,18 @@ export default function CreateCouplePage() {
     return (
       <Box sx={{ maxWidth: 500, mx: 'auto', textAlign: 'center' }}>
         <Typography variant="h1" sx={{ mb: 1 }}>
-          You're all set!
+          You&apos;re all set!
         </Typography>
         <Typography color="text.secondary" sx={{ mb: 3 }}>
-          Share this link with {partnerName} so they can join your couple profile.
+          Your couple profile is ready. Start discovering neighbors!
         </Typography>
-        <Card>
-          <CardContent sx={{ p: 3 }}>
-            <TextField
-              value={inviteLink}
-              fullWidth
-              slotProps={{ input: { readOnly: true } }}
-              sx={{ mb: 2 }}
-            />
-            <Button
-              variant="contained"
-              fullWidth
-              onClick={() => navigator.clipboard.writeText(inviteLink)}
-              sx={{ mb: 2 }}
-            >
-              Copy invite link
-            </Button>
-            <Button
-              variant="text"
-              fullWidth
-              onClick={() => router.push('/discover')}
-            >
-              Go to discovery
-            </Button>
-          </CardContent>
-        </Card>
+        <Button
+          variant="contained"
+          size="large"
+          onClick={() => router.push('/discover')}
+        >
+          Go to discovery
+        </Button>
       </Box>
     );
   }

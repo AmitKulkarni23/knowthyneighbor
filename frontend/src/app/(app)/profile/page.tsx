@@ -9,13 +9,13 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
 import TextField from '@mui/material/TextField';
 import Alert from '@mui/material/Alert';
 import { useToast } from '@/components/ToastProvider';
 import { useAppContext } from '@/components/AppProvider';
 import { getProfile, updateProfile } from '@/api/profiles';
 import { updateCouple } from '@/api/couples';
+import { getPendingPartner } from '@/api/couples';
 import { uploadAvatar, getAvatarPublicUrl } from '@/api/storage';
 import type { Profile } from '@/types/database';
 import { paperCardSx, pinRedSx, pinBlueSx, ctaButtonSx } from '@/styles/board';
@@ -49,6 +49,7 @@ export default function ProfilePage() {
   const { user, couple, refreshCouple } = useAppContext();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [partnerProfile, setPartnerProfile] = useState<Profile | null>(null);
+  const [pendingPartner, setPendingPartner] = useState<{ name: string; age: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [photoUploading, setPhotoUploading] = useState(false);
@@ -84,11 +85,15 @@ export default function ProfilePage() {
   }, [user, router]);
 
   useEffect(() => {
-    if (!couple?.partner_2_id) return;
-    getProfile(couple.partner_2_id).then(({ profile: p, error }) => {
-      if (error) showError(`Couldn't load your partner's profile. ${error}`);
-      setPartnerProfile(p);
-    });
+    if (!couple) return;
+    if (couple.partner_2_id) {
+      getProfile(couple.partner_2_id).then(({ profile: p, error }) => {
+        if (error) showError(`Couldn't load your partner's profile. ${error}`);
+        setPartnerProfile(p);
+      });
+    } else {
+      getPendingPartner(couple.id).then(setPendingPartner);
+    }
   }, [couple, showError]);
 
   useEffect(() => {
@@ -288,13 +293,11 @@ export default function ProfilePage() {
                 <Typography sx={{ ...valueSx, fontSize: '1.5rem', fontFamily: 'var(--font-marker), cursive', mb: 0.25 }}>
                   &amp; {partnerProfile.full_name}, {partnerProfile.age}
                 </Typography>
-              ) : (
-                <Chip
-                  label="Partner hasn't joined yet"
-                  size="small"
-                  sx={{ bgcolor: 'var(--index-yellow)', color: 'var(--ink-blue)', fontFamily: 'var(--font-condensed), sans-serif', fontWeight: 600, mt: 0.5 }}
-                />
-              )}
+              ) : pendingPartner ? (
+                <Typography sx={{ ...valueSx, fontSize: '1.5rem', fontFamily: 'var(--font-marker), cursive', mb: 0.25 }}>
+                  &amp; {pendingPartner.name}, {pendingPartner.age}
+                </Typography>
+              ) : null}
             </Box>
 
             {/* Bio */}

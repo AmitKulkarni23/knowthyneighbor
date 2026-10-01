@@ -118,6 +118,19 @@ export async function getCoupleByMember(
   return { couple, error: toUserMessage(error) };
 }
 
+export async function getPendingPartner(
+  coupleId: string
+): Promise<{ name: string; age: number } | null> {
+  const supabase = createSupabaseClient();
+  const { data } = await supabase
+    .from('pending_partners')
+    .select('full_name, age')
+    .eq('couple_id', coupleId)
+    .is('claimed_by', null)
+    .maybeSingle();
+  return data ? { name: data.full_name, age: data.age } : null;
+}
+
 export async function claimPartnerInvite(
   coupleId: string,
   inviteCode: string
