@@ -153,11 +153,11 @@ export default function Home() {
 
         {/* Side cards */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: { xs: 0, md: '20px' } }}>
-          {/* Couple card - The Patels */}
+          {/* Couple card - The Johnsons */}
           <Card sx={{ ...rotatedCard(1.5), p: '24px 20px' }}>
             <Box sx={pinGreenSx} />
             <Typography sx={{ fontFamily: 'var(--font-condensed), sans-serif', fontWeight: 700, fontSize: '1.75rem', color: 'var(--ink-blue)', mb: 0.75 }}>
-              The Patels
+              The Johnsons
             </Typography>
             <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.55rem', color: 'var(--ink-blue-light)', mb: 1.25 }}>
               2.3 miles away &middot; Love Thai food
