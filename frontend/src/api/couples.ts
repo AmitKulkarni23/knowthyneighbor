@@ -17,6 +17,11 @@ type CreateCoupleData = {
   partner_age: number;
 };
 
+// What the app reads about its own couple. Never `*`: that would ship invite_code
+// (a secret) and the raw location to the browser for no reason.
+const COUPLE_COLUMNS =
+  'id, partner_1_id, partner_2_id, couple_name, bio, zip_code, city, state, country, hosting_preference, created_at, updated_at';
+
 // Location fields and membership are fixed after creation (enforced by column grants)
 type UpdateCoupleData = Partial<Pick<Couple, 'couple_name' | 'bio' | 'hosting_preference'>>;
 
@@ -28,7 +33,7 @@ export async function createCouple(
   if (!user.user) return { couple: null, error: 'Not authenticated' };
 
   const geo =
-    (data.zip_code ? await geocodeZip(data.zip_code) : null) ??
+    (data.zip_code ? await geocodeZip(data.zip_code, data.country) : null) ??
     (await geocodeLocation([data.city, data.state, data.country].filter(Boolean).join(', ')));
   if (!geo) {
     return { couple: null, error: "We couldn't find that location. Check the city and zip code." };
@@ -48,7 +53,7 @@ export async function createCouple(
       location: point,
       hosting_preference: data.hosting_preference,
     })
-    .select()
+    .select(COUPLE_COLUMNS)
     .single();
 
   if (error || !couple) {
@@ -95,7 +100,7 @@ export async function updateCouple(
     .from('couples')
     .update(data)
     .eq('id', id)
-    .select()
+    .select(COUPLE_COLUMNS)
     .single();
 
   if (error) logger.error('updateCouple failed', { coupleId: id, code: error.code, message: error.message });
@@ -109,7 +114,7 @@ export async function getCoupleByMember(
   const supabase = createSupabaseClient();
   const { data: couple, error } = await supabase
     .from('couples')
-    .select('*')
+    .select(COUPLE_COLUMNS)
     .or(`partner_1_id.eq.${userId},partner_2_id.eq.${userId}`)
     .maybeSingle();
 

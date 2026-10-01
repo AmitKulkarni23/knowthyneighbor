@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { COUNTRIES } from '@/lib/countries';
 
 export const loginSchema = z.object({
   email: z
@@ -42,8 +43,7 @@ export const coupleSchema = z.object({
     .regex(noControlOrHtml, 'City contains invalid characters'),
   state: z.string().min(1, 'State / province is required').max(100, 'State name is too long')
     .regex(noControlOrHtml, 'State contains invalid characters'),
-  country: z.string().min(1, 'Country is required').max(100, 'Country name is too long')
-    .regex(noControlOrHtml, 'Country contains invalid characters'),
+  country: z.enum(COUNTRIES, { error: 'Pick your country' }),
   zipCode: z
     .string()
     .min(5, 'Zip code must be at least 5 digits')

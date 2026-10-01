@@ -22,9 +22,7 @@ export type Couple = {
   city: string | null;
   state: string | null;
   country: string | null;
-  location: unknown;
   hosting_preference: HostingPreference;
-  invite_code: string;
   created_at: string;
   updated_at: string;
 };

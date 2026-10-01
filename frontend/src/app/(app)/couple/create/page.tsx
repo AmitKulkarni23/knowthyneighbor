@@ -12,15 +12,17 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import Divider from '@mui/material/Divider';
+import MenuItem from '@mui/material/MenuItem';
 import { createCouple } from '@/api/couples';
 import { useAppContext } from '@/components/AppProvider';
 import { coupleSchema, type CoupleFormData } from '@/lib/validations';
+import { COUNTRIES } from '@/lib/countries';
 
 export default function CreateCouplePage() {
   const router = useRouter();
   const { refreshCouple } = useAppContext();
   const [serverError, setServerError] = useState<string | null>(null);
-  const [inviteLink, setInviteLink] = useState<string | null>(null);
+  const [created, setCreated] = useState(false);
 
   const {
     register,
@@ -34,7 +36,7 @@ export default function CreateCouplePage() {
       bio: '',
       city: '',
       state: '',
-      country: '',
+      country: '' as CoupleFormData['country'],
       zipCode: '',
       hostingPreference: 'both' as const,
       partnerName: '',
@@ -66,12 +68,11 @@ export default function CreateCouplePage() {
 
     if (result.couple) {
       await refreshCouple();
-      const link = `${window.location.origin}/join/${result.couple.id}/${result.couple.invite_code}`;
-      setInviteLink(link);
+      setCreated(true);
     }
   };
 
-  if (inviteLink) {
+  if (created) {
     return (
       <Box sx={{ maxWidth: 500, mx: 'auto', textAlign: 'center' }}>
         <Typography variant="h1" sx={{ mb: 1 }}>
@@ -157,14 +158,19 @@ export default function CreateCouplePage() {
               sx={{ mb: 2 }}
             />
             <TextField
+              select
               label="Country"
+              defaultValue=""
               {...register('country')}
               error={!!errors.country}
               helperText={errors.country?.message}
               fullWidth
-              placeholder="e.g. United States"
               sx={{ mb: 2 }}
-            />
+            >
+              {COUNTRIES.map((c) => (
+                <MenuItem key={c} value={c}>{c}</MenuItem>
+              ))}
+            </TextField>
             <TextField
               label="Zip code"
               {...register('zipCode')}
