@@ -45,6 +45,8 @@ CREATE TABLE couples (
   location extensions.geography(point, 4326) NOT NULL,
   hosting_preference hosting_preference NOT NULL DEFAULT 'both',
   invite_code text NOT NULL DEFAULT encode(extensions.gen_random_bytes(16), 'hex'),
+  -- A leaked, unclaimed invite link stops working after 7 days. Not client-writable.
+  invite_expires_at timestamptz NOT NULL DEFAULT now() + interval '7 days',
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT unique_invite_code UNIQUE (invite_code),
@@ -293,12 +295,24 @@ RETURNS TRIGGER
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
 AS $$
 BEGIN
-  IF auth.uid() IS NOT NULL AND (
+  IF auth.uid() IS NULL THEN
+    RETURN NEW;
+  END IF;
+  IF (
     SELECT count(*) FROM public.join_requests
     WHERE requester_couple_id = NEW.requester_couple_id
       AND created_at > now() - interval '1 day'
   ) >= 20 THEN
     RAISE EXCEPTION 'Too many requests today. Please try again tomorrow.';
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM public.join_requests
+    WHERE requester_couple_id = NEW.requester_couple_id
+      AND host_couple_id = NEW.host_couple_id
+      AND status = 'declined'
+      AND responded_at > now() - interval '30 days'
+  ) THEN
+    RAISE EXCEPTION 'This couple declined your last request. You can ask again 30 days after that.';
   END IF;
   RETURN NEW;
 END;
@@ -357,6 +371,7 @@ CREATE TRIGGER trg_limit_availability_rows
 
 -- ─── RPCs ───────────────────────────────────────────────────────────────────
 
+-- The frontend doesn't show invite links (as of 2026-10-01); these stay safe for when it does.
 CREATE FUNCTION claim_partner_invite(p_couple_id uuid, p_invite_code text)
 RETURNS void
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
@@ -374,7 +389,8 @@ BEGIN
   WHERE id = p_couple_id AND invite_code = p_invite_code
   FOR UPDATE;
 
-  IF NOT FOUND OR v_couple.partner_2_id IS NOT NULL THEN
+  -- Same message for wrong, used and expired codes, so the RPC isn't an oracle
+  IF NOT FOUND OR v_couple.partner_2_id IS NOT NULL OR v_couple.invite_expires_at <= now() THEN
     RAISE EXCEPTION 'This invite link is invalid or has already been used';
   END IF;
 
@@ -387,8 +403,11 @@ BEGIN
     RAISE EXCEPTION 'This invite link is invalid or has already been used';
   END IF;
 
+  -- The partner may already have a profile (e.g. signed up before opening the link).
+  -- Keep it; enforce_single_couple_membership still blocks anyone already in a couple.
   INSERT INTO public.profiles (id, full_name, age)
-  VALUES (auth.uid(), v_pending.full_name, v_pending.age);
+  VALUES (auth.uid(), v_pending.full_name, v_pending.age)
+  ON CONFLICT (id) DO NOTHING;
 
   UPDATE public.couples
   SET partner_2_id = auth.uid(),
@@ -399,6 +418,47 @@ BEGIN
   UPDATE public.pending_partners
   SET claimed_by = auth.uid(), claimed_at = now()
   WHERE id = v_pending.id;
+END;
+$$;
+
+-- Partner 1 kills a leaked/old link and gets a fresh one valid for 7 more days.
+CREATE FUNCTION regenerate_invite_code()
+RETURNS text
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
+AS $$
+DECLARE
+  v_code text := encode(extensions.gen_random_bytes(16), 'hex');
+BEGIN
+  UPDATE public.couples
+  SET invite_code = v_code,
+      invite_expires_at = now() + interval '7 days',
+      updated_at = now()
+  WHERE partner_1_id = auth.uid();
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Only the partner who created the couple profile can do this';
+  END IF;
+  RETURN v_code;
+END;
+$$;
+
+-- Partner 1 removes whoever claimed the invite (e.g. a stranger with a leaked link).
+-- They immediately lose access to the couple's requests, conversations and messages.
+-- To re-invite: insert a new pending_partners row, then regenerate_invite_code().
+CREATE FUNCTION remove_partner()
+RETURNS void
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
+AS $$
+BEGIN
+  UPDATE public.couples
+  SET partner_2_id = NULL,
+      invite_code = encode(extensions.gen_random_bytes(16), 'hex'),
+      updated_at = now()
+  WHERE partner_1_id = auth.uid() AND partner_2_id IS NOT NULL;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'There is no partner to remove';
+  END IF;
 END;
 $$;
 
@@ -477,39 +537,27 @@ BEGIN
 END;
 $$;
 
-CREATE FUNCTION browse_couples_public(
-  search_city text DEFAULT NULL,
-  search_state text DEFAULT NULL,
-  search_country text DEFAULT NULL,
-  search_zip text DEFAULT NULL
-)
+-- City only: exact zip search let anonymous scrapers map every bio to a zip code
+CREATE FUNCTION browse_couples_public(search_city text DEFAULT NULL)
 RETURNS TABLE (
   bio text,
   city text,
   state text,
-  country text
+  country text,
+  total_count int
 )
 LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = ''
 AS $$
 BEGIN
-  IF COALESCE(char_length(trim(search_city)), 0) < 2
-     AND COALESCE(char_length(trim(search_state)), 0) < 2
-     AND COALESCE(char_length(trim(search_country)), 0) < 2
-     AND COALESCE(char_length(trim(search_zip)), 0) < 3 THEN
+  IF COALESCE(char_length(trim(search_city)), 0) < 2 THEN
     RETURN;
   END IF;
 
   RETURN QUERY
-  SELECT c.bio, c.city, c.state, c.country
+  SELECT c.bio, c.city, c.state, c.country, (count(*) OVER ())::int
   FROM public.couples c
-  WHERE
-    (search_city IS NULL OR extensions.similarity(lower(c.city), lower(search_city)) > 0.3)
-    AND (search_state IS NULL OR extensions.similarity(lower(c.state), lower(search_state)) > 0.3)
-    AND (search_country IS NULL OR extensions.similarity(lower(c.country), lower(search_country)) > 0.3)
-    AND (search_zip IS NULL OR c.zip_code = search_zip)
-  ORDER BY
-    CASE WHEN search_city IS NOT NULL THEN extensions.similarity(lower(c.city), lower(search_city)) ELSE 1 END DESC,
-    c.created_at DESC
+  WHERE extensions.similarity(lower(c.city), lower(search_city)) > 0.3
+  ORDER BY extensions.similarity(lower(c.city), lower(search_city)) DESC, c.created_at DESC
   LIMIT 30;
 END;
 $$;
@@ -814,10 +862,12 @@ CREATE POLICY couple_blocks_delete ON couple_blocks
 REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA public FROM PUBLIC, anon, authenticated;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC, anon;
 
-GRANT EXECUTE ON FUNCTION browse_couples_public(text, text, text, text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION browse_couples_public(text) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION user_couple_ids() TO authenticated;
 GRANT EXECUTE ON FUNCTION is_blocked_with(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION claim_partner_invite(uuid, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION regenerate_invite_code() TO authenticated;
+GRANT EXECUTE ON FUNCTION remove_partner() TO authenticated;
 GRANT EXECUTE ON FUNCTION discover_couples(uuid, float, text, text) TO authenticated;
 GRANT EXECUTE ON FUNCTION get_couple_profile(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION get_couple_availability(uuid) TO authenticated;
