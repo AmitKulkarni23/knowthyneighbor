@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -10,13 +10,8 @@ import CardContent from '@mui/material/CardContent';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
 import Alert from '@mui/material/Alert';
 import Divider from '@mui/material/Divider';
-import FormHelperText from '@mui/material/FormHelperText';
 import { createCouple } from '@/api/couples';
 import { coupleSchema, type CoupleFormData } from '@/lib/validations';
 
@@ -28,7 +23,6 @@ export default function CreateCouplePage() {
   const {
     register,
     handleSubmit,
-    control,
     watch,
     formState: { errors, isSubmitting },
   } = useForm<CoupleFormData>({
@@ -40,7 +34,7 @@ export default function CreateCouplePage() {
       state: '',
       country: '',
       zipCode: '',
-      hostingPreference: 'both',
+      hostingPreference: 'both' as const,
       partnerName: '',
       partnerAge: undefined as unknown as number,
     },
@@ -168,28 +162,6 @@ export default function CreateCouplePage() {
               slotProps={{ htmlInput: { maxLength: 20 } }}
               sx={{ mb: 2 }}
             />
-            <Controller
-              name="hostingPreference"
-              control={control}
-              render={({ field }) => (
-                <FormControl fullWidth sx={{ mb: 3 }} error={!!errors.hostingPreference}>
-                  <InputLabel>Hosting preference</InputLabel>
-                  <Select
-                    value={field.value}
-                    onChange={field.onChange}
-                    label="Hosting preference"
-                  >
-                    <MenuItem value="host">We like to host</MenuItem>
-                    <MenuItem value="visit">We prefer to visit</MenuItem>
-                    <MenuItem value="both">Either works for us</MenuItem>
-                  </Select>
-                  {errors.hostingPreference && (
-                    <FormHelperText>{errors.hostingPreference.message}</FormHelperText>
-                  )}
-                </FormControl>
-              )}
-            />
-
             <Divider sx={{ mb: 2 }} />
             <Typography variant="h3" sx={{ mb: 2 }}>
               Your partner's info
