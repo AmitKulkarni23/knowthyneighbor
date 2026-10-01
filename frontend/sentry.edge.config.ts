@@ -9,8 +9,7 @@ import { scrubInviteCodes } from "./src/lib/sentryScrub";
 Sentry.init({
   dsn: "https://be3ab48482931058986e388a3b6b707d@o4512167603208192.ingest.us.sentry.io/4512167608451072",
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
+  // No tracesSampleRate: tracing is off, so only errors are sent.
 
   // Turns off collection of data that could identify users. Adjust per category:
   // https://docs.sentry.io/platforms/javascript/configuration/options/#dataCollection
@@ -27,6 +26,5 @@ Sentry.init({
   },
 
   beforeSend: scrubInviteCodes,
-  beforeSendTransaction: scrubInviteCodes,
   beforeBreadcrumb: scrubInviteCodes,
 });
