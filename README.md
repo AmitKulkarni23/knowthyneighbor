@@ -70,6 +70,9 @@ Test users are seeded automatically (e.g. `pat@example.com` / `password123`). Se
 ```bash
 # Apply migrations to remote
 supabase db push
+
+# Apply supabase/config.toml (auth URLs, email templates) to remote — db push does not include it
+supabase config push
 ```
 
 ## Project Structure

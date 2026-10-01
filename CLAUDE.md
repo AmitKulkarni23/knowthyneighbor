@@ -104,6 +104,12 @@ supabase link --project-ref <your-project-ref>
 # NOT automatic — must run manually after each migration or `supabase db reset`
 supabase db push
 
+# Push supabase/config.toml (auth URLs, email templates, etc.) to remote
+# NOT automatic — db push does not include config. Must run manually after changing config.toml.
+# [remotes.production] in config.toml overrides site_url/redirect URLs for the hosted project.
+# Shows a diff and asks for confirmation before applying.
+supabase config push
+
 # Deploy edge functions to remote Supabase
 # NOT automatic — must run manually after changing functions in supabase/functions/
 supabase functions deploy <function-name>
@@ -167,7 +173,7 @@ When building new screens, import shared sx objects from `board.ts` for cork bac
 All infrastructure is managed as code via the Supabase CLI — no Terraform, no ClickOps.
 
 - **Database schema**: SQL migration files in `supabase/migrations/`. Create with `supabase migration new <name>`, deploy with `supabase db push`.
-- **Project config**: `supabase/config.toml` controls auth settings, storage buckets, API config, and email templates.
+- **Project config**: `supabase/config.toml` controls auth settings, storage buckets, API config, and email templates. Deploy with `supabase config push`; production-only values (site_url, redirect URLs) live under `[remotes.production]`.
 - **Edge Functions**: TypeScript files in `supabase/functions/`, deployed with `supabase functions deploy`.
 - **Environments**: Local dev via `supabase start`, remote via `supabase link --project-ref <ref>`.
 - **Never** configure database schema, RLS policies, triggers, or functions through the Supabase dashboard. All changes go through migration files so they are version-controlled and reproducible.
