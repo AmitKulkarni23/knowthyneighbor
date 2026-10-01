@@ -195,6 +195,27 @@ export default function Home() {
         </Card>
       </Box>
 
+      {/* ── Footer ── */}
+      <Box sx={{ maxWidth: 1100, mx: 'auto', mt: 6, textAlign: 'center', position: 'relative', zIndex: 1 }}>
+        <Typography
+          component="a"
+          href="/contact"
+          sx={{
+            fontFamily: 'var(--font-condensed), sans-serif',
+            fontWeight: 700,
+            fontSize: '1rem',
+            color: 'var(--paper)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.04em',
+            textDecoration: 'none',
+            opacity: 0.85,
+            '&:hover': { opacity: 1, textDecoration: 'underline' },
+          }}
+        >
+          Contact Us
+        </Typography>
+      </Box>
+
       <SignInDialog open={signInOpen} onClose={() => setSignInOpen(false)} />
     </Box>
   );
