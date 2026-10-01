@@ -88,7 +88,7 @@ export default function Home() {
         <Card sx={{ ...rotatedCard(-1.2), p: { xs: '36px 24px 16px', md: '48px 36px 20px' }, maxWidth: 520, borderBottom: 'none' }}>
           <Box sx={pinRedSx} />
           <Typography sx={{ fontFamily: 'var(--font-marker), cursive', fontSize: 'clamp(1.8rem, 4.5vw, 2.8rem)', color: 'var(--ink-blue)', lineHeight: 1.1, letterSpacing: '-0.02em', mb: 2, whiteSpace: 'nowrap' }}>
-            Know Thy Neighbor
+            Nextdoorish
           </Typography>
           <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: 'clamp(1.35rem, 2.8vw, 1.75rem)', color: 'var(--ink-blue-light)', lineHeight: 1.4, mb: 4 }}>
             Find couples in your neighborhood for shared meals
