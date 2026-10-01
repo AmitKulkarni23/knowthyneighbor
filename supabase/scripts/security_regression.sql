@@ -383,6 +383,15 @@ SELECT pg_temp.expect_rows('user with an existing profile can claim',
   $$SELECT claim_partner_invite('eeeeeeee-0000-0000-0000-00000000000a', (SELECT invite_code FROM invite))$$, 1);
 RESET ROLE;
 
+-- ── Contact form rate limit ──────────────────────────────────────────────────
+SELECT pg_temp.act_as(NULL);
+SELECT pg_temp.expect_error('anon cannot write contact_messages', $$INSERT INTO contact_messages (email) VALUES ('x@example.com')$$);
+RESET ROLE;
+INSERT INTO contact_messages (ip, email) SELECT '203.0.113.1', 'spam@example.com' FROM generate_series(1, 3);
+SELECT pg_temp.expect_error('contact rate limit (4th per IP in an hour)', $$INSERT INTO contact_messages (ip, email) VALUES ('203.0.113.1', 'spam@example.com')$$);
+INSERT INTO contact_messages (ip, email) SELECT '203.0.113.' || g, 'spam@example.com' FROM generate_series(2, 18) g;
+SELECT pg_temp.expect_error('contact rate limit (21st per day overall)', $$INSERT INTO contact_messages (ip, email) VALUES ('198.51.100.1', 'spam@example.com')$$);
+
 -- ── Function privileges ──────────────────────────────────────────────────────
 SELECT pg_temp.expect_true('anon can execute only browse_couples_public',
   (SELECT array_agg(proname::text ORDER BY proname) = ARRAY['browse_couples_public']

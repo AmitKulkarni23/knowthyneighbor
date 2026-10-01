@@ -1,3 +1,5 @@
+import { createClient } from "npm:@supabase/supabase-js@2.117.1";
+
 const RESEND_API_URL = "https://api.resend.com/emails";
 const APP_URL = "https://www.nextdoorish.com";
 const FROM_EMAIL = "Nextdoorish <noreply@nextdoorish.com>";
@@ -83,6 +85,22 @@ async function handle(req: Request): Promise<Response> {
   if (!message || message.length > MAX_MESSAGE_LEN) {
     return new Response(JSON.stringify({ error: "Message is required (max 2000 characters)" }), {
       status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Rate limit (trigger on contact_messages) before spending Resend quota
+  const supabaseAdmin = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || null;
+  const { error: limitError } = await supabaseAdmin.from("contact_messages").insert({ ip, email });
+  if (limitError) {
+    const limited = limitError.code === "P0001";
+    if (!limited) console.error("contact_messages insert failed", limitError.code, limitError.message);
+    return new Response(JSON.stringify({ error: limited ? limitError.message : "Failed to send message" }), {
+      status: limited ? 429 : 500,
       headers: { "Content-Type": "application/json" },
     });
   }

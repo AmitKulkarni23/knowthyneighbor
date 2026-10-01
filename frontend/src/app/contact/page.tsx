@@ -36,6 +36,11 @@ export default function ContactPage() {
     const supabase = createSupabaseClient();
     const { error } = await supabase.functions.invoke('contact-us', { body: data });
 
+    if (error?.context?.status === 429) {
+      logger.warn('contact-us rate limited');
+      setResult({ type: 'error', text: 'Too many messages. Please try again later.' });
+      return;
+    }
     if (error) {
       logger.error('contact-us failed', { error });
       setResult({ type: 'error', text: 'Failed to send message. Please try again.' });
