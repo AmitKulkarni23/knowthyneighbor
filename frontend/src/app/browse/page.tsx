@@ -233,7 +233,7 @@ export default function BrowsePage() {
                           mb: 1,
                         }}
                       >
-                        {c.bio}
+                        &ldquo;{c.bio}&rdquo;
                       </Typography>
                     )}
                     {location && (
