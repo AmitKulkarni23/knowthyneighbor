@@ -47,3 +47,6 @@ next-env.d.ts
 
 # Testing
 coverage/
+
+# Local backups (seed.sql.bak holds auth.users rows with password hashes)
+*.bak
