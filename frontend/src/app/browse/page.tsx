@@ -291,7 +291,7 @@ export default function BrowsePage() {
         )}
       </Box>
 
-      <SignInDialog open={signInOpen} onClose={() => setSignInOpen(false)} />
+      <SignInDialog open={signInOpen} mode="signup" onClose={() => setSignInOpen(false)} />
     </Box>
   );
 }

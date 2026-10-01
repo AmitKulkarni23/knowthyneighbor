@@ -23,11 +23,13 @@ const rotatedCard = (deg: number) => ({
 
 export default function Home() {
   const [signInOpen, setSignInOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'signup' | 'signin'>('signup');
   const router = useRouter();
-  const handleGetStarted = () => {
+  const handleGetStarted = (mode: 'signup' | 'signin' = 'signup') => {
     if (SKIP_AUTH) {
       router.push('/discover');
     } else {
+      setAuthMode(mode);
       setSignInOpen(true);
     }
   };
@@ -148,10 +150,10 @@ export default function Home() {
 
           {/* CTA */}
           <Box sx={{ textAlign: 'center', borderTop: '2px dashed var(--cork-dark)', mx: { xs: '-24px', md: '-36px' }, px: { xs: 3, md: '36px' }, pt: 3, pb: '20px', bgcolor: 'var(--paper)' }}>
-            <Button onClick={handleGetStarted} sx={ctaButtonSx}>Get Started</Button>
+            <Button onClick={() => handleGetStarted()} sx={ctaButtonSx}>Get Started</Button>
             <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.3rem', color: 'var(--ink-blue-light)', mt: 1.5 }}>
               Already a member?{' '}
-              <Link component="button" onClick={handleGetStarted} sx={{ font: 'inherit', color: 'var(--ink-blue)', verticalAlign: 'baseline', textUnderlineOffset: '3px' }}>
+              <Link component="button" onClick={() => handleGetStarted('signin')} sx={{ font: 'inherit', color: 'var(--ink-blue)', verticalAlign: 'baseline', textUnderlineOffset: '3px' }}>
                 Sign in
               </Link>
             </Typography>
@@ -243,11 +245,11 @@ export default function Home() {
           <Typography sx={{ fontFamily: 'var(--font-handwriting), cursive', fontSize: '1.5rem', color: 'var(--ink-blue-light)', lineHeight: 1.6, mb: 3, maxWidth: '50ch', mx: 'auto' }}>
             I built this because people are tired of screens pretending to be connection. Nextdoorish gets you off the app and around a table. The only thing we optimize for is a real meal with real people.
           </Typography>
-          <Button onClick={handleGetStarted} sx={ctaButtonSx}>Put Your Card on the Board</Button>
+          <Button onClick={() => handleGetStarted()} sx={ctaButtonSx}>Put Your Card on the Board</Button>
         </Card>
       </Box>
 
-      <SignInDialog open={signInOpen} onClose={() => setSignInOpen(false)} />
+      <SignInDialog open={signInOpen} mode={authMode} onClose={() => setSignInOpen(false)} />
     </Box>
   );
 }

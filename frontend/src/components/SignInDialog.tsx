@@ -18,9 +18,10 @@ import { paperCardSx, pinRedSx, ctaButtonSx } from '@/styles/board';
 type SignInDialogProps = {
   open: boolean;
   onClose: () => void;
+  mode: 'signup' | 'signin';
 };
 
-export default function SignInDialog({ open, onClose }: SignInDialogProps) {
+export default function SignInDialog({ open, onClose, mode }: SignInDialogProps) {
   const [submitted, setSubmitted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -161,7 +162,7 @@ export default function SignInDialog({ open, onClose }: SignInDialogProps) {
               mb: 1,
             }}
           >
-            Sign in or sign up
+            {mode === 'signup' ? 'Sign up' : 'Sign in'}
           </Typography>
           <Typography
             sx={{
@@ -173,7 +174,9 @@ export default function SignInDialog({ open, onClose }: SignInDialogProps) {
               mb: 4,
             }}
           >
-            Enter your email and we&apos;ll send you a magic link. New here? That&apos;s all it takes to join. No password needed.
+            {mode === 'signup'
+              ? 'Enter your email and we\'ll send you a magic link to create your account. No password needed.'
+              : 'Enter your email and we\'ll send you a magic link. No password needed.'}
           </Typography>
 
           {serverError && (
