@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
@@ -11,44 +13,36 @@ import Alert from '@mui/material/Alert';
 import { boardBgSx, paperCardSx, pinRedSx, ctaButtonSx } from '@/styles/board';
 import { createSupabaseClient } from '@/config/supabase';
 import useAuth from '@/hooks/useAuth';
+import { logger } from '@/lib/logger';
+import { contactSchema, type ContactFormData } from '@/lib/validations';
 
 export default function ContactPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
-  const [sending, setSending] = useState(false);
   const [result, setResult] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const canSubmit = name.trim() && email.trim() && message.trim() && !sending;
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: { name: '', email: '', message: '' },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!canSubmit) return;
-
-    setSending(true);
+  const onSubmit = async (data: ContactFormData) => {
     setResult(null);
+    const supabase = createSupabaseClient();
+    const { error } = await supabase.functions.invoke('contact-us', { body: data });
 
-    try {
-      const supabase = createSupabaseClient();
-      const { data, error } = await supabase.functions.invoke('contact-us', {
-        body: { name: name.trim(), email: email.trim(), message: message.trim() },
-      });
-
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-
-      setResult({ type: 'success', text: 'Message sent! We\'ll get back to you soon.' });
-      setName('');
-      setEmail('');
-      setMessage('');
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to send message. Please try again.';
-      setResult({ type: 'error', text: msg });
-    } finally {
-      setSending(false);
+    if (error) {
+      logger.error('contact-us failed', { error });
+      setResult({ type: 'error', text: 'Failed to send message. Please try again.' });
+      return;
     }
+    setResult({ type: 'success', text: 'Message sent! We\'ll get back to you soon.' });
+    reset();
   };
 
   return (
@@ -123,29 +117,29 @@ export default function ContactPage() {
             </Alert>
           )}
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
             <TextField
               label="Your name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
+              error={!!errors.name}
+              helperText={errors.name?.message}
+              {...register('name')}
               slotProps={{ htmlInput: { maxLength: 100 } }}
               fullWidth
             />
             <TextField
               label="Your email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              error={!!errors.email}
+              helperText={errors.email?.message}
+              {...register('email')}
               slotProps={{ htmlInput: { maxLength: 254 } }}
               fullWidth
             />
             <TextField
               label="Message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              required
+              error={!!errors.message}
+              helperText={errors.message?.message}
+              {...register('message')}
               multiline
               rows={5}
               slotProps={{ htmlInput: { maxLength: 2000 } }}
@@ -154,13 +148,10 @@ export default function ContactPage() {
             <Box sx={{ textAlign: 'center', pt: 1 }}>
               <Button
                 type="submit"
-                disabled={!canSubmit}
-                sx={{
-                  ...ctaButtonSx as object,
-                  opacity: canSubmit ? 1 : 0.6,
-                }}
+                disabled={isSubmitting}
+                sx={ctaButtonSx}
               >
-                {sending ? 'Sending...' : 'Send Message'}
+                {isSubmitting ? 'Sending...' : 'Send Message'}
               </Button>
             </Box>
           </Box>

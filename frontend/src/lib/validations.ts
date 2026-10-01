@@ -9,6 +9,14 @@ export const loginSchema = z.object({
 
 export type LoginFormData = z.infer<typeof loginSchema>;
 
+// Limits match the contact-us edge function, which re-checks them server-side
+export const contactSchema = loginSchema.extend({
+  name: z.string().trim().min(1, 'Name is required').max(100, 'Name must be under 100 characters'),
+  message: z.string().trim().min(1, 'Message is required').max(2000, 'Message must be under 2000 characters'),
+});
+
+export type ContactFormData = z.infer<typeof contactSchema>;
+
 export const profileSchema = z.object({
   fullName: z
     .string()
