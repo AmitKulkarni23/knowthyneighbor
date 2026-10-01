@@ -37,11 +37,10 @@ export default function ContactPage() {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      setResult({ type: 'success', text: 'Message sent! We\'ll get back to you soon. Redirecting...' });
+      setResult({ type: 'success', text: 'Message sent! We\'ll get back to you soon.' });
       setName('');
       setEmail('');
       setMessage('');
-      setTimeout(() => router.push('/'), 3000);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to send message. Please try again.';
       setResult({ type: 'error', text: msg });
@@ -72,13 +71,13 @@ export default function ContactPage() {
             sx={{
               fontFamily: 'var(--font-condensed), sans-serif',
               fontWeight: 700,
-              fontSize: '0.9rem',
+              fontSize: '1.15rem',
               color: 'var(--paper)',
-              opacity: 0.8,
               cursor: 'pointer',
               textTransform: 'uppercase',
               letterSpacing: '0.04em',
-              '&:hover': { opacity: 1, textDecoration: 'underline' },
+              display: 'inline-block',
+              '&:hover': { textDecoration: 'underline' },
             }}
           >
             &larr; Back to Home
