@@ -83,14 +83,15 @@ export async function sendMessage(
   body: string
 ): Promise<{ message: Message | null; error: string | null }> {
   const supabase = createSupabaseClient();
-  const { data: user } = await supabase.auth.getUser();
-  if (!user.user) return { message: null, error: 'Not authenticated' };
+  // Local JWT check, no Auth round trip per message; RLS still verifies the sender
+  const { data: auth } = await supabase.auth.getClaims();
+  if (!auth) return { message: null, error: 'Not authenticated' };
 
   const { data: message, error } = await supabase
     .from('messages')
     .insert({
       conversation_id: conversationId,
-      sender_profile_id: user.user.id,
+      sender_profile_id: auth.claims.sub,
       body,
     })
     .select()

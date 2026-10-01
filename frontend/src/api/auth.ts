@@ -1,7 +1,6 @@
 import { createSupabaseClient } from '@/config/supabase';
 import { logger } from '@/lib/logger';
 import { toUserMessage } from '@/lib/errors';
-import type { User } from '@supabase/supabase-js';
 
 // `next` (e.g. a partner invite page) is kept in a cookie for /auth/callback, not in
 // emailRedirectTo: Supabase matches redirect URLs exactly, so a query string falls back
@@ -26,11 +25,4 @@ export async function signOut(): Promise<{ error: string | null }> {
   const { error } = await supabase.auth.signOut();
   if (error) logger.error('signOut failed', { message: error.message });
   return { error: toUserMessage(error) };
-}
-
-export async function getCurrentUser(): Promise<{ user: User | null; error: string | null }> {
-  const supabase = createSupabaseClient();
-  const { data, error } = await supabase.auth.getUser();
-  if (error) logger.error('getCurrentUser failed', { status: error.status, code: error.code, message: error.message });
-  return { user: data.user, error: toUserMessage(error) };
 }
