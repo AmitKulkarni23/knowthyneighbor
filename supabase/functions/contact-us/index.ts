@@ -3,7 +3,6 @@ import { createClient } from "npm:@supabase/supabase-js@2.117.1";
 const RESEND_API_URL = "https://api.resend.com/emails";
 const APP_URL = "https://www.nextdoorish.com";
 const FROM_EMAIL = "Nextdoorish <noreply@nextdoorish.com>";
-const CONTACT_EMAIL = Deno.env.get("CONTACT_EMAIL") ?? "potterboy232@gmail.com";
 const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ??
   `${APP_URL},https://nextdoorish.com,http://localhost:3000,http://127.0.0.1:3000`)
   .split(",").map((o) => o.trim()).filter(Boolean);
@@ -48,8 +47,10 @@ async function handle(req: Request): Promise<Response> {
   }
 
   const resendApiKey = Deno.env.get("RESEND_API_KEY");
-  if (!resendApiKey) {
-    console.error("RESEND_API_KEY is not set");
+  // Owner's inbox comes from a secret so it never lives in the public repo
+  const contactEmail = Deno.env.get("CONTACT_EMAIL");
+  if (!resendApiKey || !contactEmail) {
+    console.error("RESEND_API_KEY or CONTACT_EMAIL is not set");
     return new Response(JSON.stringify({ error: "Server misconfigured" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
@@ -116,7 +117,7 @@ async function handle(req: Request): Promise<Response> {
     },
     body: JSON.stringify({
       from: FROM_EMAIL,
-      to: CONTACT_EMAIL,
+      to: contactEmail,
       reply_to: email,
       subject,
       html,
